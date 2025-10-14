@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tối ưu hóa Performance cho Web Application - Nguyễn Minh Nhật</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><a href="home.html"><h2>Nguyễn Minh Nhật</h2></a></div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="home.html" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="cv.html" class="nav-link">CV</a></li>
+                <li class="nav-item"><a href="blog.html" class="nav-link active">Blog</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">Liên hệ</a></li>
+            </ul>
+            <div class="hamburger"><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
+        </div>
+    </nav>
+
+    <section class="blog-detail-section">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="home.html">Home</a>
+                <span class="separator">/</span>
+                <a href="blog.html">Blog</a>
+                <span class="separator">/</span>
+                <span class="current">Web Performance</span>
+            </div>
+
+            <article class="blog-detail">
+                <div class="blog-detail-header">
+                    <div class="blog-meta">
+                        <span class="blog-category">Web Development</span>
+                        <span class="blog-date"><i class="far fa-calendar"></i> 28/11/2024</span>
+                        <span class="blog-read-time"><i class="far fa-clock"></i> 11 phút đọc</span>
+                    </div>
+                    <h1 class="blog-detail-title">Tối ưu hóa Performance cho Web Application</h1>
+                    <p class="blog-detail-excerpt">Kỹ thuật tối ưu tải trang và tương tác: lazy-loading, code-splitting, caching và quan trắc hiệu năng.</p>
+                </div>
+
+                <div class="blog-detail-content">
+                    <h2><i class="fas fa-bolt"></i> Tối ưu tải trang</h2>
+                    <ul>
+                        <li>Giảm kích thước bundle, tree-shaking</li>
+                        <li>Lazy load images/components, prefetch routes</li>
+                        <li>Sử dụng CDN và HTTP/2</li>
+                    </ul>
+
+                    <h2><i class="fas fa-tools"></i> Đo lường và quan trắc</h2>
+                    <ul>
+                        <li>Lighthouse, WebPageTest, Core Web Vitals (LCP, CLS, INP)</li>
+                        <li>Performance API đo thời gian thực trên client</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <h4>Đo LCP đơn giản</h4>
+                        <pre><code>new PerformanceObserver((list) => {
+  for (const entry of list.getEntries()) {
+    console.log('LCP:', entry.startTime);
+  }
+}).observe({ type: 'largest-contentful-paint', buffered: true });
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-database"></i> Chiến lược cache</h2>
+                    <p>HTTP caching, Service Worker cho offline-first, cache busting bằng hashed filenames.</p>
+
+                    <div class="code-block">
+                        <h4>Service Worker cache cơ bản</h4>
+                        <pre><code>const CACHE = 'app-v1';
+self.addEventListener('install', e => {
+  e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/','/styles.css','/script.js'])));
+});
+self.addEventListener('fetch', e => {
+  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
+});
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                    <div class="code-block">
+                        <h4>Đường đi tài nguyên</h4>
+                        <pre><code>[CDN] → [Browser Cache] → [Runtime]
+          ↘ [Network]
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
+                    <ul>
+                        <li><a href="https://web.dev/" target="_blank" rel="noopener">web.dev (Google)</a></li>
+                        <li><a href="https://developer.mozilla.org/docs/Web/Performance" target="_blank" rel="noopener">MDN Performance</a></li>
+                    </ul>
+
+                    <div class="blog-navigation">
+                        <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section"><h3>DevBlog</h3><p>Chia sẻ kiến thức lập trình Java & JavaScript</p></div>
+                <div class="footer-section"><h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section"><h4>Kết nối</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+

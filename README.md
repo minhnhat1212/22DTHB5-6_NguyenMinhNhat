@@ -91,4 +91,4 @@ Blog này được tạo ra để:
 
 ---
 
-© 2024 DevBlog. Tất cả quyền được bảo lưu.
+© 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.

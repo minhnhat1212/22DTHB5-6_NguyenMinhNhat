@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microservices Architecture với Spring Cloud - Nguyễn Minh Nhật</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><a href="home.html"><h2>Nguyễn Minh Nhật</h2></a></div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="home.html" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="cv.html" class="nav-link">CV</a></li>
+                <li class="nav-item"><a href="blog.html" class="nav-link active">Blog</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">Liên hệ</a></li>
+            </ul>
+            <div class="hamburger"><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
+        </div>
+    </nav>
+
+    <section class="blog-detail-section">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="home.html">Home</a>
+                <span class="separator">/</span>
+                <a href="blog.html">Blog</a>
+                <span class="separator">/</span>
+                <span class="current">Microservices với Spring Cloud</span>
+            </div>
+
+            <article class="blog-detail">
+                <div class="blog-detail-header">
+                    <div class="blog-meta">
+                        <span class="blog-category">Java</span>
+                        <span class="blog-date"><i class="far fa-calendar"></i> 03/12/2024</span>
+                        <span class="blog-read-time"><i class="far fa-clock"></i> 12 phút đọc</span>
+                    </div>
+                    <h1 class="blog-detail-title">Microservices Architecture với Spring Cloud</h1>
+                    <p class="blog-detail-excerpt">Giới thiệu service discovery (Eureka), API Gateway (Spring Cloud Gateway), config server và resilience (Resilience4j).</p>
+                </div>
+
+                <div class="blog-detail-content">
+                    <h2><i class="fas fa-network-wired"></i> Các thành phần cốt lõi</h2>
+                    <ul>
+                        <li>Service Registry: Eureka giúp services tự đăng ký và tìm nhau</li>
+                        <li>API Gateway: Điều phối traffic, auth, rate limit</li>
+                        <li>Config Server: Quản lý cấu hình tập trung</li>
+                        <li>Resilience: Circuit breaker, retry, bulkhead</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <h4>application.yml cho Eureka Client</h4>
+                        <pre><code>spring:
+  application:
+    name: order-service
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-project-diagram"></i> Gợi ý kiến trúc</h2>
+                    <p>Tách domain theo bounded context, giao tiếp qua REST/Message broker, quan sát hệ thống với metrics/logs/tracing.</p>
+
+                    <h2><i class="fas fa-tools"></i> Observability & Resilience</h2>
+                    <ul>
+                        <li>Metrics (Micrometer + Prometheus), logs cấu trúc (JSON), tracing (OpenTelemetry)</li>
+                        <li>Resilience4j: circuit breaker, retry, rate limiter</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <h4>Resilience4j annotations</h4>
+                        <pre><code>@Retry(name = "inventory")
+@CircuitBreaker(name = "inventory", fallbackMethod = "fallback")
+public Stock checkStock(String sku) { /* ... */ }
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                    <div class="code-block">
+                        <h4>Kiến trúc microservices (giản lược)</h4>
+                        <pre><code>[Client] → [API Gateway] → [Service A] ↔ [Service B]
+                                   ↘ [Service C]
+[Services] ↔ [Service Registry]   [Config Server]
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
+                    <ul>
+                        <li><a href="https://spring.io/projects/spring-cloud" target="_blank" rel="noopener">Spring Cloud</a></li>
+                        <li><a href="https://resilience4j.readme.io/" target="_blank" rel="noopener">Resilience4j</a></li>
+                    </ul>
+
+                    <div class="blog-navigation">
+                        <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section"><h3>DevBlog</h3><p>Chia sẻ kiến thức lập trình Java & JavaScript</p></div>
+                <div class="footer-section"><h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section"><h4>Kết nối</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+

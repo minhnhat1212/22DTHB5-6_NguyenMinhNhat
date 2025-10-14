@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TypeScript: JavaScript với Type Safety - Nguyễn Minh Nhật</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><a href="home.html"><h2>Nguyễn Minh Nhật</h2></a></div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="home.html" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="cv.html" class="nav-link">CV</a></li>
+                <li class="nav-item"><a href="blog.html" class="nav-link active">Blog</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">Liên hệ</a></li>
+            </ul>
+            <div class="hamburger"><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
+        </div>
+    </nav>
+
+    <section class="blog-detail-section">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="home.html">Home</a>
+                <span class="separator">/</span>
+                <a href="blog.html">Blog</a>
+                <span class="separator">/</span>
+                <span class="current">TypeScript</span>
+            </div>
+
+            <article class="blog-detail">
+                <div class="blog-detail-header">
+                    <div class="blog-meta">
+                        <span class="blog-category">JavaScript</span>
+                        <span class="blog-date"><i class="far fa-calendar"></i> 01/12/2024</span>
+                        <span class="blog-read-time"><i class="far fa-clock"></i> 8 phút đọc</span>
+                    </div>
+                    <h1 class="blog-detail-title">TypeScript: JavaScript với Type Safety</h1>
+                    <p class="blog-detail-excerpt">Lợi ích của types, cách định nghĩa interface/type, generics và thiết lập project cơ bản.</p>
+                </div>
+
+                <div class="blog-detail-content">
+                    <h2><i class="fas fa-check-double"></i> Vì sao cần TypeScript</h2>
+                    <p>Giảm bug runtime, auto-completion tốt hơn, refactor an toàn, tài liệu hóa code qua types.</p>
+
+                    <h2><i class="fas fa-cubes"></i> Các khối xây dựng</h2>
+                    <ul>
+                        <li>Type/Interface cho cấu trúc dữ liệu</li>
+                        <li>Generics cho tính tái sử dụng</li>
+                        <li>Union/Intersection types cho mô tả linh hoạt</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <h4>Interfaces và Generics</h4>
+                        <pre><code>interface ApiResponse<T> {
+  data: T;
+  error?: string;
+}
+
+type User = { id: number; name: string };
+
+function wrap<T>(data: T): ApiResponse<T> {
+  return { data };
+}
+
+const res = wrap<User>({ id: 1, name: 'Alice' });
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-exchange-alt"></i> Narrowing & Guards</h2>
+                    <div class="code-block">
+                        <h4>Type guards</h4>
+                        <pre><code>type Cat = { meow: () => void };
+type Dog = { bark: () => void };
+type Pet = Cat | Dog;
+
+function isCat(p: Pet): p is Cat { return 'meow' in p; }
+
+function speak(p: Pet) {
+  if (isCat(p)) p.meow(); else p.bark();
+}
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                    <div class="code-block">
+                        <h4>Luồng type checking</h4>
+                        <pre><code>[TS source] → [Type Checker] → [JS output]
+Errors (nếu có)   ↑
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
+                    <ul>
+                        <li><a href="https://www.typescriptlang.org/docs/" target="_blank" rel="noopener">TypeScript Docs</a></li>
+                        <li><a href="https://www.typescriptlang.org/tsconfig" target="_blank" rel="noopener">tsconfig reference</a></li>
+                    </ul>
+
+                    <div class="blog-navigation">
+                        <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section"><h3>DevBlog</h3><p>Chia sẻ kiến thức lập trình Java & JavaScript</p></div>
+                <div class="footer-section"><h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section"><h4>Kết nối</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ES6+ Features: Những tính năng hiện đại - Nguyễn Minh Nhật</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="home.html"><h2>Nguyễn Minh Nhật</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="home.html" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="cv.html" class="nav-link">CV</a></li>
+                <li class="nav-item"><a href="blog.html" class="nav-link active">Blog</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">Liên hệ</a></li>
+            </ul>
+            <div class="hamburger"><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
+        </div>
+    </nav>
+
+    <section class="blog-detail-section">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="home.html">Home</a>
+                <span class="separator">/</span>
+                <a href="blog.html">Blog</a>
+                <span class="separator">/</span>
+                <span class="current">ES6+ Features</span>
+            </div>
+
+            <article class="blog-detail">
+                <div class="blog-detail-header">
+                    <div class="blog-meta">
+                        <span class="blog-category">JavaScript</span>
+                        <span class="blog-date"><i class="far fa-calendar"></i> 12/12/2024</span>
+                        <span class="blog-read-time"><i class="far fa-clock"></i> 6 phút đọc</span>
+                    </div>
+                    <h1 class="blog-detail-title">ES6+ Features: Những tính năng JavaScript hiện đại bạn cần biết</h1>
+                    <p class="blog-detail-excerpt">Tổng hợp ngắn gọn nhưng thực dụng các tính năng ES6+: let/const, arrow function, destructuring, spread/rest, modules và async/await.</p>
+                </div>
+
+                <div class="blog-detail-content">
+                    <h2><i class="fas fa-code"></i> Cú pháp hiện đại giúp code gọn hơn</h2>
+                    <ul>
+                        <li><strong>let/const</strong>: tránh hoisting khó hiểu của var, tăng tính an toàn</li>
+                        <li><strong>Arrow functions</strong>: lexical this, code ngắn</li>
+                        <li><strong>Destructuring</strong>: lấy dữ liệu từ object/array nhanh</li>
+                        <li><strong>Spread/Rest</strong>: sao chép/hợp nhất và nhận tham số linh hoạt</li>
+                    </ul>
+
+                    <h2><i class="fas fa-plug"></i> Modules và Async/Await</h2>
+                    <p>Modules (import/export) giúp chia nhỏ code, dễ tái sử dụng. Async/Await làm rõ luồng bất đồng bộ, thay thế callback hell.</p>
+
+                    <div class="code-block">
+                        <h4>Async/Await ví dụ</h4>
+                        <pre><code>// api.js
+export async function fetchUsers() {
+  const res = await fetch('https://jsonplaceholder.typicode.com/users');
+  if (!res.ok) throw new Error('Network error');
+  return res.json();
+}
+
+// main.js
+import { fetchUsers } from './api.js';
+
+(async () => {
+  try {
+    const users = await fetchUsers();
+    console.log(users.map(u => u.name));
+  } catch (e) {
+    console.error(e.message);
+  }
+})();
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-lightbulb"></i> Best practices</h2>
+                    <ul>
+                        <li>Dùng const mặc định, chuyển sang let khi cần reassign</li>
+                        <li>Ưu tiên arrow functions cho callbacks</li>
+                        <li>Tránh lồng await trong vòng lặp, dùng Promise.all khi phù hợp</li>
+                    </ul>
+
+                    <h2><i class="fas fa-bug"></i> Pitfalls thường gặp</h2>
+                    <ul>
+                        <li>this trong arrow function là lexical, không dùng được làm method cần bind</li>
+                        <li>Destructuring với default values có thể che lỗi null/undefined</li>
+                        <li>Top-level await chỉ khả dụng trong ESM, chú ý môi trường build</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <h4>Promise.all tối ưu vòng lặp</h4>
+                        <pre><code>const urls = ['a.json','b.json','c.json'];
+const results = await Promise.all(urls.map(u => fetch(u).then(r => r.json())));
+console.log(results);
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                    <div class="code-block">
+                        <h4>Module dependency (giản lược)</h4>
+                        <pre><code>[main.js] → imports → [api.js]
+[main.js] → imports → [utils.js]
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
+                    <ul>
+                        <li><a href="https://developer.mozilla.org/docs/Web/JavaScript" target="_blank" rel="noopener">MDN JavaScript</a></li>
+                        <li><a href="https://tc39.es/ecma262/" target="_blank" rel="noopener">ECMA-262 Spec</a></li>
+                    </ul>
+
+                    <div class="blog-navigation">
+                        <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>DevBlog</h3>
+                    <p>Chia sẻ kiến thức lập trình Java & JavaScript</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Kết nối</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+

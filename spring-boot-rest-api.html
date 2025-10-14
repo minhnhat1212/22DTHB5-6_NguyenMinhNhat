@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Boot: Xây dựng RESTful API từ cơ bản đến nâng cao - Nguyễn Minh Nhật</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="home.html"><h2>Nguyễn Minh Nhật</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="home.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="cv.html" class="nav-link">CV</a>
+                </li>
+                <li class="nav-item">
+                    <a href="blog.html" class="nav-link active">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-link">Liên hệ</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Blog Detail Section -->
+    <section class="blog-detail-section">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="home.html">Home</a>
+                <span class="separator">/</span>
+                <a href="blog.html">Blog</a>
+                <span class="separator">/</span>
+                <span class="current">Spring Boot RESTful API</span>
+            </div>
+
+            <article class="blog-detail">
+                <div class="blog-detail-header">
+                    <div class="blog-meta">
+                        <span class="blog-category">Java</span>
+                        <span class="blog-date">
+                            <i class="far fa-calendar"></i>
+                            15/12/2024
+                        </span>
+                        <span class="blog-read-time">
+                            <i class="far fa-clock"></i>
+                            8 phút đọc
+                        </span>
+                    </div>
+                    <h1 class="blog-detail-title">Spring Boot: Xây dựng RESTful API từ cơ bản đến nâng cao</h1>
+                    <p class="blog-detail-excerpt">
+                        Lộ trình từng bước xây dựng RESTful API với Spring Boot: khởi tạo dự án, tạo Entity/Repository/Service/Controller, xử lý lỗi, validation và bảo mật cơ bản.
+                    </p>
+                </div>
+
+                <div class="blog-detail-content">
+                    <h2><i class="fas fa-rocket"></i> Khởi tạo và cấu trúc dự án</h2>
+                    <p>
+                        Bắt đầu với Spring Initializr và các dependency tối thiểu: Spring Web, Spring Data JPA, Validation.
+                        Tổ chức mã theo layered architecture để dễ mở rộng và test.
+                    </p>
+
+                    <h3>Các bước chính</h3>
+                    <ol>
+                        <li>Tạo Entity và mapping với JPA</li>
+                        <li>Repository kế thừa JpaRepository</li>
+                        <li>Service chứa business logic</li>
+                        <li>Controller exposed endpoints (GET/POST/PUT/DELETE)</li>
+                    </ol>
+
+                    <h2><i class="fas fa-check-circle"></i> Validation và Error Handling</h2>
+                    <p>
+                        Sử dụng Bean Validation (@NotBlank, @Email, @Size) kết hợp @Valid trong Controller.
+                        Tạo <code>@ControllerAdvice</code> để chuẩn hóa lỗi (status code, message, timestamp).
+                    </p>
+
+                    <div class="code-block">
+                        <h4>Controller mẫu với Validation</h4>
+                        <pre><code>@RestController
+@RequestMapping("/api/v1/users")
+public class UserController {
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @PostMapping
+    public ResponseEntity&lt;UserResponse&gt; create(@Valid @RequestBody CreateUserRequest req) {
+        UserResponse created = userService.createUser(req);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+}
+
+record CreateUserRequest(@NotBlank String username, @Email String email) {}
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-shield-alt"></i> Bảo mật cơ bản</h2>
+                    <p>
+                        Áp dụng Spring Security cho authentication/authorization. Với dự án demo, có thể dùng HTTP Basic hoặc JWT đơn giản.
+                    </p>
+
+                    <div class="code-block">
+                        <h4>Cấu hình Spring Security đơn giản</h4>
+                        <pre><code>@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/v1/public/**").permitAll()
+                .anyRequest().authenticated())
+            .httpBasic();
+        return http.build();
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-tools"></i> Tips triển khai</h2>
+                    <ul>
+                        <li>Đặt prefix cho API: <code>/api/v1</code></li>
+                        <li>Chuẩn hóa response (data, pagination, errors)</li>
+                        <li>Viết Integration Tests cho endpoints quan trọng</li>
+                    </ul>
+
+                    <h2><i class="fas fa-exclamation-triangle"></i> Lỗi thường gặp</h2>
+                    <ul>
+                        <li>N+1 query: dùng fetch join hoặc DTO projection</li>
+                        <li>Validate thiếu: quên @Valid ở method param</li>
+                        <li>Mapping sai status code: 200 thay vì 201/204 cho create/delete</li>
+                    </ul>
+
+                    <h2><i class="fas fa-layer-group"></i> Paging và Sorting</h2>
+                    <div class="code-block">
+                        <h4>Repository với Pageable</h4>
+                        <pre><code>public interface UserRepository extends JpaRepository<User, Long> {
+  Page<User> findByActiveTrue(Pageable pageable);
+}
+
+@GetMapping
+public Page<User> list(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+  return userService.listActive(pageable);
+}
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                    <div class="code-block">
+                        <h4>Luồng REST API</h4>
+                        <pre><code>[Client] → [Controller] → [Service] → [Repository] → [DB]
+                 ←            ←            ←             ←</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
+                    <ul>
+                        <li><a href="https://spring.io/projects/spring-boot" target="_blank" rel="noopener">Spring Boot (official)</a></li>
+                        <li><a href="https://docs.spring.io/spring-data/jpa/reference/" target="_blank" rel="noopener">Spring Data JPA Docs</a></li>
+                        <li><a href="https://docs.spring.io/spring-framework/reference/web/webmvc.html" target="_blank" rel="noopener">Spring MVC</a></li>
+                    </ul>
+
+                    <div class="blog-navigation">
+                        <a href="blog.html" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i>
+                            Quay lại Blog
+                        </a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>DevBlog</h3>
+                    <p>Chia sẻ kiến thức lập trình Java & JavaScript</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Kết nối</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+

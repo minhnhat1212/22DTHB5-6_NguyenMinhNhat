@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Node.js: Xây dựng Server-side với Express & MongoDB - Nguyễn Minh Nhật</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><a href="home.html"><h2>Nguyễn Minh Nhật</h2></a></div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="home.html" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="cv.html" class="nav-link">CV</a></li>
+                <li class="nav-item"><a href="blog.html" class="nav-link active">Blog</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">Liên hệ</a></li>
+            </ul>
+            <div class="hamburger"><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
+        </div>
+    </nav>
+
+    <section class="blog-detail-section">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="home.html">Home</a>
+                <span class="separator">/</span>
+                <a href="blog.html">Blog</a>
+                <span class="separator">/</span>
+                <span class="current">Node.js Server-side</span>
+            </div>
+
+            <article class="blog-detail">
+                <div class="blog-detail-header">
+                    <div class="blog-meta">
+                        <span class="blog-category">JavaScript</span>
+                        <span class="blog-date"><i class="far fa-calendar"></i> 08/12/2024</span>
+                        <span class="blog-read-time"><i class="far fa-clock"></i> 7 phút đọc</span>
+                    </div>
+                    <h1 class="blog-detail-title">Node.js: Xây dựng Server-side với JavaScript</h1>
+                    <p class="blog-detail-excerpt">Thiết lập web server với Express, routing cơ bản, kết nối MongoDB và cấu trúc project gọn gàng.</p>
+                </div>
+
+                <div class="blog-detail-content">
+                    <h2><i class="fas fa-server"></i> Express cơ bản</h2>
+                    <p>Tạo server, định nghĩa routes, middleware cho logging, JSON parsing và xử lý lỗi.</p>
+
+                    <div class="code-block">
+                        <h4>Express app tối giản</h4>
+                        <pre><code>const express = require('express');
+const app = express();
+app.use(express.json());
+
+app.get('/health', (req, res) => res.json({ status: 'ok' }));
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  res.status(500).json({ message: 'Internal error' });
+});
+
+app.listen(3000, () => console.log('Server running on 3000'));
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-database"></i> Kết nối MongoDB</h2>
+                    <p>Dùng Mongoose để định nghĩa Schema/Model, CRUD đơn giản và validate dữ liệu.</p>
+
+                    <div class="code-block">
+                        <h4>Mongoose model và route CRUD</h4>
+                        <pre><code>const mongoose = require('mongoose');
+mongoose.connect(process.env.MONGO_URL);
+
+const User = mongoose.model('User', new mongoose.Schema({
+  name: { type: String, required: true }
+}));
+
+app.post('/users', async (req, res) => {
+  const user = await User.create({ name: req.body.name });
+  res.status(201).json(user);
+});
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-folder-tree"></i> Cấu trúc dự án</h2>
+                    <ul>
+                        <li>src/app.js: khởi tạo app và middleware</li>
+                        <li>src/routes/*.js: định nghĩa endpoints</li>
+                        <li>src/models/*.js: schema & model</li>
+                        <li>src/controllers/*.js: tách controller logic</li>
+                    </ul>
+
+                    <h2><i class="fas fa-lock"></i> Bảo mật & vận hành</h2>
+                    <ul>
+                        <li>Ẩn credentials bằng biến môi trường, không commit .env</li>
+                        <li>Dùng helmet, rate limiting, cors phù hợp origin</li>
+                        <li>Log theo cấu trúc (pino/winston), healthcheck và readiness</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <h4>Rate limit và Helmet</h4>
+                        <pre><code>const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+app.use(helmet());
+app.use(rateLimit({ windowMs: 60_000, max: 100 }));
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                    <div class="code-block">
+                        <h4>Kiến trúc Express + MongoDB</h4>
+                        <pre><code>[Client] → [Express Routes] → [Controllers] → [Models] → [MongoDB]
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
+                    <ul>
+                        <li><a href="https://expressjs.com/" target="_blank" rel="noopener">Express.js</a></li>
+                        <li><a href="https://mongoosejs.com/" target="_blank" rel="noopener">Mongoose</a></li>
+                    </ul>
+
+                    <div class="blog-navigation">
+                        <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section"><h3>DevBlog</h3><p>Chia sẻ kiến thức lập trình Java & JavaScript</p></div>
+                <div class="footer-section"><h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section"><h4>Kết nối</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    </body>
+    </html>
+
+

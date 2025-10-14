@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React: Component Lifecycle và State Management - Nguyễn Minh Nhật</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><a href="home.html"><h2>Nguyễn Minh Nhật</h2></a></div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="home.html" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="cv.html" class="nav-link">CV</a></li>
+                <li class="nav-item"><a href="blog.html" class="nav-link active">Blog</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">Liên hệ</a></li>
+            </ul>
+            <div class="hamburger"><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
+        </div>
+    </nav>
+
+    <section class="blog-detail-section">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="home.html">Home</a>
+                <span class="separator">/</span>
+                <a href="blog.html">Blog</a>
+                <span class="separator">/</span>
+                <span class="current">React Lifecycle</span>
+            </div>
+
+            <article class="blog-detail">
+                <div class="blog-detail-header">
+                    <div class="blog-meta">
+                        <span class="blog-category">Web Development</span>
+                        <span class="blog-date"><i class="far fa-calendar"></i> 05/12/2024</span>
+                        <span class="blog-read-time"><i class="far fa-clock"></i> 9 phút đọc</span>
+                    </div>
+                    <h1 class="blog-detail-title">React.js: Component Lifecycle và State Management</h1>
+                    <p class="blog-detail-excerpt">Hiểu vòng đời component, quản lý state với useState/useEffect và tối ưu hiệu năng.</p>
+                </div>
+
+                <div class="blog-detail-content">
+                    <h2><i class="fas fa-recycle"></i> Lifecycle hiện đại</h2>
+                    <p>Với function components, lifecycle thể hiện qua useEffect (mount/update/unmount). Tránh lạm dụng nhiều effects nhỏ gây re-render.</p>
+
+                    <h2><i class="fas fa-stream"></i> Quản lý state</h2>
+                    <ul>
+                        <li>State local: useState, useReducer</li>
+                        <li>State chia sẻ: Context API hoặc libraries (Zustand, Redux)</li>
+                        <li>Server state: React Query giúp caching, syncing</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <h4>useState và useEffect ví dụ</h4>
+                        <pre><code>import { useEffect, useState } from 'react';
+
+export default function Counter() {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    document.title = `Count: ${count}`;
+  }, [count]);
+  return (
+    <button onClick={() => setCount(c => c + 1)}>Clicked {count} times</button>
+  );
+}
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-tachometer-alt"></i> Tối ưu</h2>
+                    <ul>
+                        <li>memo/useMemo/useCallback để giảm render không cần thiết</li>
+                        <li>Code splitting và lazy loading cho routes/components nặng</li>
+                    </ul>
+
+                    <h2><i class="fas fa-project-diagram"></i> Mẫu kiến trúc state</h2>
+                    <ul>
+                        <li>Smart/Dumb components: container xử lý logic, presentational hiển thị</li>
+                        <li>Query state (server) tách khỏi UI state (client)</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <h4>Context nhẹ cho theme</h4>
+                        <pre><code>const ThemeContext = createContext('light');
+function App() {
+  const [theme, setTheme] = useState('light');
+  return (
+    <ThemeContext.Provider value={{ theme, setTheme }}>
+      <Page />
+    </ThemeContext.Provider>
+  );
+}
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                    <div class="code-block">
+                        <h4>Dòng dữ liệu React</h4>
+                        <pre><code>[Props] → [Component] → [UI]
+[Events] ← [User] ← [UI]
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
+                    <ul>
+                        <li><a href="https://react.dev/" target="_blank" rel="noopener">React (official)</a></li>
+                        <li><a href="https://redux.js.org/" target="_blank" rel="noopener">Redux</a></li>
+                    </ul>
+
+                    <div class="blog-navigation">
+                        <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section"><h3>DevBlog</h3><p>Chia sẻ kiến thức lập trình Java & JavaScript</p></div>
+                <div class="footer-section"><h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section"><h4>Kết nối</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+

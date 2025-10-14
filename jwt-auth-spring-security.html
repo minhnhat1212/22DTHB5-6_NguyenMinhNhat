@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWT Authentication với Spring Security - Nguyễn Minh Nhật</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo"><a href="home.html"><h2>Nguyễn Minh Nhật</h2></a></div>
+            <ul class="nav-menu">
+                <li class="nav-item"><a href="home.html" class="nav-link">Home</a></li>
+                <li class="nav-item"><a href="cv.html" class="nav-link">CV</a></li>
+                <li class="nav-item"><a href="blog.html" class="nav-link active">Blog</a></li>
+                <li class="nav-item"><a href="contact.html" class="nav-link">Liên hệ</a></li>
+            </ul>
+            <div class="hamburger"><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
+        </div>
+    </nav>
+
+    <section class="blog-detail-section">
+        <div class="container">
+            <div class="breadcrumb">
+                <a href="home.html">Home</a>
+                <span class="separator">/</span>
+                <a href="blog.html">Blog</a>
+                <span class="separator">/</span>
+                <span class="current">JWT Authentication</span>
+            </div>
+
+            <article class="blog-detail">
+                <div class="blog-detail-header">
+                    <div class="blog-meta">
+                        <span class="blog-category">Java</span>
+                        <span class="blog-date"><i class="far fa-calendar"></i> 10/12/2024</span>
+                        <span class="blog-read-time"><i class="far fa-clock"></i> 10 phút đọc</span>
+                    </div>
+                    <h1 class="blog-detail-title">Bảo mật ứng dụng Java: JWT Authentication và Authorization</h1>
+                    <p class="blog-detail-excerpt">Giải thích JWT, cách tạo/verify token, cấu hình Spring Security filter chain và phân quyền theo vai trò.</p>
+                </div>
+
+                <div class="blog-detail-content">
+                    <h2><i class="fas fa-id-badge"></i> JWT là gì?</h2>
+                    <p>JWT (JSON Web Token) là chuỗi mã hóa gồm header, payload và signature. Dùng để xác thực stateless giữa client và server.</p>
+
+                    <h2><i class="fas fa-link"></i> Flow xác thực</h2>
+                    <ol>
+                        <li>Đăng nhập nhận access token</li>
+                        <li>Client gửi token trong Authorization header</li>
+                        <li>Filter verify token, set Authentication vào SecurityContext</li>
+                    </ol>
+
+                    <div class="code-block">
+                        <h4>Bộ lọc xác thực JWT (ví dụ rút gọn)</h4>
+                        <pre><code>public class JwtAuthFilter extends OncePerRequestFilter {
+  @Override
+  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
+      throws ServletException, IOException {
+    String header = request.getHeader("Authorization");
+    if (header != null && header.startsWith("Bearer ")) {
+      String token = header.substring(7);
+      // verify token -> set Authentication
+      UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("user", null, List.of());
+      SecurityContextHolder.getContext().setAuthentication(auth);
+    }
+    chain.doFilter(request, response);
+  }
+}
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-user-shield"></i> Phân quyền</h2>
+                    <p>Dùng roles/authorities, cấu hình antMatchers/http.authorizeHttpRequests cho endpoints tương ứng.</p>
+
+                    <h2><i class="fas fa-key"></i> Refresh Token và TTL</h2>
+                    <ul>
+                        <li>Dùng access token ngắn hạn, refresh token dài hạn lưu an toàn (HTTP-only cookie)</li>
+                        <li>Rotate refresh token và revoke khi nghi ngờ bị lộ</li>
+                    </ul>
+
+                    <div class="code-block">
+                        <h4>Tạo JWT (ý tưởng)</h4>
+                        <pre><code>String token = Jwts.builder()
+  .setSubject(username)
+  .setIssuedAt(new Date())
+  .setExpiration(Date.from(Instant.now().plusSeconds(900)))
+  .signWith(SignatureAlgorithm.HS256, secret)
+  .compact();
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                    <div class="code-block">
+                        <h4>Auth Flow</h4>
+                        <pre><code>[Client] --login--> [Auth API] --JWT--> [Client]
+[Client] --Bearer--> [Protected API] --validate--> [OK]
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
+                    <ul>
+                        <li><a href="https://spring.io/projects/spring-security" target="_blank" rel="noopener">Spring Security</a></li>
+                        <li><a href="https://jwt.io/" target="_blank" rel="noopener">JWT.io</a></li>
+                    </ul>
+
+                    <div class="blog-navigation">
+                        <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section"><h3>DevBlog</h3><p>Chia sẻ kiến thức lập trình Java & JavaScript</p></div>
+                <div class="footer-section"><h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section"><h4>Kết nối</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom"><p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
+
