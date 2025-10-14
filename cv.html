@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CV - DevBlog Lập Trình Mạng</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="home.html"><h2>DevBlog</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="home.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="cv.html" class="nav-link active">CV</a>
+                </li>
+                <li class="nav-item">
+                    <a href="blog.html" class="nav-link">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-link">Liên hệ</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- CV Section -->
+    <section id="cv" class="cv-section">
+        <div class="container">
+            <div class="section-header">
+                <h2>Curriculum Vitae</h2>
+                <p>Hồ sơ cá nhân và kinh nghiệm làm việc</p>
+            </div>
+            
+            <div class="cv-container">
+                <div class="cv-sidebar">
+                    <div class="cv-profile">
+                        <div class="cv-avatar">
+                            <img src="images/123.jpg" alt="Profile" loading="lazy">
+                        </div>
+                        <h3>Nguyễn Minh Nhật</h3>
+                        <p class="cv-title">Sinh viên năm 4 - HUTECH</p>
+                        <div class="cv-contact">
+                            <div class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>minhnhat12122004@gmail.com</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>TP.HCM, Việt Nam</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fab fa-github"></i>
+                                <span>github.com/minhnhat1212</span>
+                            </div>
+                        </div>
+                        
+                        <!-- QR Code for Credly Certificates -->
+                        <div class="qr-section">
+                            <h4>Chứng chỉ Credly</h4>
+                            <div class="qr-code">
+                                <div id="qrcode"></div>
+                            </div>
+                            <p class="qr-text">Quét để xem chứng chỉ</p>
+                        </div>
+                    </div>
+                    
+                    <div class="cv-skills">
+                        <h4>Kỹ năng chính</h4>
+                        <div class="skill-category">
+                            <h5>Backend</h5>
+                            <div class="skill-item">
+                                <span>Java & Spring Boot</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="95%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <span>Node.js</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="85%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-category">
+                            <h5>Frontend</h5>
+                            <div class="skill-item">
+                                <span>JavaScript & React</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="90%"></div>
+                                </div>
+                            </div>
+                            <div class="skill-item">
+                                <span>TypeScript</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="85%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="skill-category">
+                            <h5>Database</h5>
+                            <div class="skill-item">
+                                <span>MySQL & MongoDB</span>
+                                <div class="skill-bar">
+                                    <div class="skill-progress" data-width="85%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="cv-main">
+                    <div class="cv-section-item">
+                        <h4><i class="fas fa-user"></i> Giới thiệu</h4>
+                        <p>
+                            Sinh viên năm 4 ngành Công nghệ Thông tin tại HUTECH. Đang học tập và phát triển kỹ năng lập trình với các công nghệ web hiện đại.
+                        </p>
+                    </div>
+                    
+                    <div class="cv-section-item">
+                        <h4><i class="fas fa-briefcase"></i> Kinh nghiệm học tập</h4>
+                        <div class="timeline">
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <h5>Dự án đồ án tốt nghiệp</h5>
+                                    <p class="company">HUTECH</p>
+                                    <p class="duration">2024 - Hiện tại</p>
+                                    <ul>
+                                        <li>Phát triển ứng dụng web với các công nghệ hiện đại</li>
+                                        <li>Áp dụng kiến thức đã học vào thực tế</li>
+                                        <li>Làm việc nhóm và quản lý dự án</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="timeline-item">
+                                <div class="timeline-marker"></div>
+                                <div class="timeline-content">
+                                    <h5>Thực hành lập trình</h5>
+                                    <p class="company">Tự học và thực hành</p>
+                                    <p class="duration">2021 - Hiện tại</p>
+                                    <ul>
+                                        <li>Học và thực hành các ngôn ngữ lập trình</li>
+                                        <li>Xây dựng các dự án nhỏ để rèn luyện kỹ năng</li>
+                                        <li>Tham gia các khóa học online</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="cv-section-item">
+                        <h4><i class="fas fa-graduation-cap"></i> Học vấn</h4>
+                        <div class="education-item">
+                            <h5>Cử nhân Công nghệ Thông tin</h5>
+                            <p class="school">Đại học Công nghệ TP.HCM - HUTECH (2021-2025)</p>
+                            <p class="gpa">GPA hiện tại: 2.8/4.0</p>
+                        </div>
+                    </div>
+                    
+                    <div class="cv-section-item">
+                        <h4><i class="fas fa-trophy"></i> Dự án học tập</h4>
+                        <div class="project-item">
+                            <h5>WebQL Project</h5>
+                            <p class="project-tech">TypeScript, Web Development</p>
+                            <p>Dự án phát triển web sử dụng TypeScript</p>
+                        </div>
+                        
+                        <div class="project-item">
+                            <h5>Python Lab</h5>
+                            <p class="project-tech">Python, Data Science</p>
+                            <p>Các bài tập và dự án Python trong quá trình học</p>
+                        </div>
+                        
+                        <div class="project-item">
+                            <h5>SQL Projects</h5>
+                            <p class="project-tech">TSQL, Database Management</p>
+                            <p>Dự án quản lý cơ sở dữ liệu với T-SQL</p>
+                        </div>
+                    </div>
+                    
+                    <div class="cv-section-item">
+                        <h4><i class="fas fa-language"></i> Ngôn ngữ</h4>
+                        <div class="language-item">
+                            <span>Tiếng Việt</span>
+                            <div class="language-level">Bản ngữ</div>
+                        </div>
+                        <div class="language-item">
+                            <span>Tiếng Anh</span>
+                            <div class="language-level">Thành thạo</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>DevBlog</h3>
+                    <p>Chia sẻ kiến thức lập trình Java & JavaScript</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Kết nối</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 DevBlog. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

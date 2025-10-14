@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - DevBlog Lập Trình Mạng</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="home.html"><h2>DevBlog</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="home.html" class="nav-link active">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="cv.html" class="nav-link">CV</a>
+                </li>
+                <li class="nav-item">
+                    <a href="blog.html" class="nav-link">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-link">Liên hệ</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Home Section -->
+    <section id="home" class="home-section">
+        <div class="container">
+            <div class="hero-content">
+                <h1 class="hero-title">Xin chào, tôi là <span class="highlight">Nguyễn Minh Nhật</span></h1>
+                <p class="hero-subtitle">Sinh viên CNTT · Backend Java · Frontend JavaScript</p>
+                <p class="hero-description">
+                    Mình tập trung vào phát triển backend với Spring Boot và xây dựng giao diện hiện đại bằng JavaScript.
+                    Tại đây mình ghi chép quá trình học, các dự án cá nhân và những kinh nghiệm thực tế khi làm web.
+                </p>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <h3>10+</h3>
+                        <p>Project học tập</p>
+                    </div>
+                    <div class="stat">
+                        <h3>3</h3>
+                        <p>Lĩnh vực: Java, JS, SQL</p>
+                    </div>
+                    <div class="stat">
+                        <h3>20+</h3>
+                        <p>Bài viết ghi chép</p>
+                    </div>
+                </div>
+                <div class="hero-buttons">
+                    <a href="cv.html" class="btn btn-primary">Xem CV</a>
+                    <a href="blog.html" class="btn btn-secondary">Đọc Blog</a>
+                    <a href="contact.html" class="btn btn-secondary">Liên hệ</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Preview Section -->
+    <section class="skills-preview">
+        <div class="container">
+            <div class="section-header">
+                <h2>Kỹ năng chuyên môn</h2>
+                <p>Những công nghệ tôi sử dụng hàng ngày</p>
+            </div>
+            <div class="skills-grid">
+                <div class="skill-card">
+                    <div class="skill-icon">
+                        <i class="fab fa-java"></i>
+                    </div>
+                    <h3>Java Development</h3>
+                    <p>Spring Boot, Spring Security, Microservices</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon">
+                        <i class="fab fa-js-square"></i>
+                    </div>
+                    <h3>JavaScript</h3>
+                    <p>React.js, Node.js, TypeScript, ES6+</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon">
+                        <i class="fas fa-database"></i>
+                    </div>
+                    <h3>Database</h3>
+                    <p>MySQL, MongoDB, Redis, PostgreSQL</p>
+                </div>
+                <div class="skill-card">
+                    <div class="skill-icon">
+                        <i class="fas fa-cloud"></i>
+                    </div>
+                    <h3>Cloud & DevOps</h3>
+                    <p>AWS, Docker, Kubernetes, CI/CD</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Posts Preview -->
+    <section class="recent-posts">
+        <div class="container">
+            <div class="section-header">
+                <h2>Bài viết mới nhất</h2>
+                <p>Chia sẻ kiến thức về Java & JavaScript</p>
+            </div>
+            <div class="posts-preview">
+                <article class="post-preview no-image">
+                    <div class="post-content">
+                        <div class="post-icon"><i class="fas fa-leaf"></i></div>
+                        <span class="post-category">Java</span>
+                        <h3>Spring Boot: Xây dựng RESTful API từ cơ bản đến nâng cao</h3>
+                        <p>Hướng dẫn chi tiết cách xây dựng RESTful API với Spring Boot, từ cấu hình cơ bản đến các tính năng nâng cao...</p>
+                        <a href="blog.html" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+                <article class="post-preview no-image">
+                    <div class="post-content">
+                        <div class="post-icon"><i class="fas fa-bolt"></i></div>
+                        <span class="post-category">JavaScript</span>
+                        <h3>ES6+ Features: Những tính năng JavaScript hiện đại</h3>
+                        <p>Khám phá các tính năng mới của JavaScript ES6+ như arrow functions, destructuring, async/await...</p>
+                        <a href="blog.html" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+                <article class="post-preview no-image">
+                    <div class="post-content">
+                        <div class="post-icon"><i class="fas fa-shield-alt"></i></div>
+                        <span class="post-category">Java</span>
+                        <h3>Bảo mật ứng dụng Java: JWT Authentication</h3>
+                        <p>Tìm hiểu cách implement JWT authentication trong Java Spring Security, quản lý user roles...</p>
+                        <a href="blog.html" class="read-more">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+            </div>
+            <div class="view-all-posts">
+                <a href="blog.html" class="btn btn-primary">Xem tất cả bài viết</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>DevBlog</h3>
+                    <p>Chia sẻ kiến thức lập trình Java & JavaScript</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Kết nối</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 DevBlog. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

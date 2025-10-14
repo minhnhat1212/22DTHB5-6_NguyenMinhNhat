@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chi tiết Blog - DevBlog Lập Trình Mạng</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="home.html"><h2>DevBlog</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="home.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="cv.html" class="nav-link">CV</a>
+                </li>
+                <li class="nav-item">
+                    <a href="blog.html" class="nav-link active">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-link">Liên hệ</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Blog Detail Section -->
+    <section class="blog-detail-section">
+        <div class="container">
+            <!-- Breadcrumb -->
+            <div class="breadcrumb">
+                <a href="home.html">Home</a>
+                <span class="separator">/</span>
+                <a href="blog.html">Blog</a>
+                <span class="separator">/</span>
+                <span class="current">Chi tiết bài viết</span>
+            </div>
+
+            <!-- Blog Detail Content -->
+            <article class="blog-detail">
+                <div class="blog-detail-header">
+                    <div class="blog-meta">
+                        <span class="blog-category">Java</span>
+                        <span class="blog-date">
+                            <i class="far fa-calendar"></i>
+                            15/12/2024
+                        </span>
+                        <span class="blog-read-time">
+                            <i class="far fa-clock"></i>
+                            8 phút đọc
+                        </span>
+                    </div>
+                    <h1 class="blog-detail-title">Spring Boot: Xây dựng RESTful API từ cơ bản đến nâng cao</h1>
+                    <p class="blog-detail-excerpt">
+                        Hướng dẫn chi tiết cách xây dựng RESTful API với Spring Boot, từ cấu hình cơ bản 
+                        đến các tính năng nâng cao như security, validation và testing.
+                    </p>
+                </div>
+
+                <div class="blog-detail-content">
+                    <!-- Lý thuyết cơ bản -->
+                    <div class="theory-section">
+                        <h2><i class="fas fa-book"></i> Lý thuyết cơ bản</h2>
+                        <div class="theory-content">
+                            <h3>1. Spring Boot là gì?</h3>
+                            <p>
+                                Spring Boot là một framework Java được xây dựng trên nền tảng Spring Framework, 
+                                giúp tạo ra các ứng dụng Spring một cách nhanh chóng và dễ dàng. Nó cung cấp 
+                                auto-configuration, embedded servers và production-ready features.
+                            </p>
+                            
+                            <h3>2. RESTful API</h3>
+                            <p>
+                                REST (Representational State Transfer) là một kiến trúc phần mềm để thiết kế 
+                                web services. RESTful API tuân theo các nguyên tắc:
+                            </p>
+                            <ul>
+                                <li><strong>Stateless:</strong> Mỗi request phải chứa đầy đủ thông tin cần thiết</li>
+                                <li><strong>Client-Server:</strong> Tách biệt giao diện người dùng và lưu trữ dữ liệu</li>
+                                <li><strong>Cacheable:</strong> Responses có thể được cache</li>
+                                <li><strong>Uniform Interface:</strong> Sử dụng HTTP methods chuẩn (GET, POST, PUT, DELETE)</li>
+                            </ul>
+
+                            <h3>3. Các Annotation quan trọng</h3>
+                            <div class="code-example">
+                                <h4>@RestController</h4>
+                                <p>Kết hợp @Controller và @ResponseBody, tự động convert return value thành JSON/XML</p>
+                                
+                                <h4>@RequestMapping</h4>
+                                <p>Định nghĩa URL mapping cho controller methods</p>
+                                
+                                <h4>@Autowired</h4>
+                                <p>Dependency Injection - Spring tự động inject dependencies</p>
+                                
+                                <h4>@Service, @Repository, @Component</h4>
+                                <p>Các annotation để đánh dấu các class thuộc các layer khác nhau</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nội dung chính -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-code"></i> Thực hành xây dựng API</h2>
+                        
+                        <h3>Bước 1: Tạo Project Spring Boot</h3>
+                        <p>
+                            Sử dụng Spring Initializr hoặc IDE để tạo project với các dependencies:
+                        </p>
+                        <ul>
+                            <li>Spring Web</li>
+                            <li>Spring Data JPA</li>
+                            <li>Spring Security</li>
+                            <li>H2 Database (cho development)</li>
+                            <li>Validation</li>
+                        </ul>
+
+                        <h3>Bước 2: Cấu trúc Project</h3>
+                        <div class="project-structure">
+                            <pre>
+src/
+├── main/
+│   ├── java/
+│   │   └── com/example/demo/
+│   │       ├── DemoApplication.java
+│   │       ├── controller/
+│   │       │   └── UserController.java
+│   │       ├── service/
+│   │       │   └── UserService.java
+│   │       ├── repository/
+│   │       │   └── UserRepository.java
+│   │       └── entity/
+│   │           └── User.java
+│   └── resources/
+│       ├── application.properties
+│       └── static/
+└── test/
+</pre>
+                        </div>
+
+                        <h3>Bước 3: Tạo Entity</h3>
+                        <div class="code-block">
+                            <h4>User.java</h4>
+                            <pre><code>@Entity
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @NotBlank
+    @Column(unique = true)
+    private String username;
+    
+    @Email
+    private String email;
+    
+    // Constructors, getters, setters
+}</code></pre>
+                        </div>
+
+                        <h3>Bước 4: Tạo Repository</h3>
+                        <div class="code-block">
+                            <h4>UserRepository.java</h4>
+                            <pre><code>@Repository
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+    Optional&lt;User&gt; findByUsername(String username);
+    Optional&lt;User&gt; findByEmail(String email);
+    List&lt;User&gt; findByActiveTrue();
+}</code></pre>
+                        </div>
+
+                        <h3>Bước 5: Tạo Service Layer</h3>
+                        <div class="code-block">
+                            <h4>UserService.java</h4>
+                            <pre><code>@Service
+@Transactional
+public class UserService {
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    public List&lt;User&gt; getAllUsers() {
+        return userRepository.findAll();
+    }
+    
+    public User getUserById(Long id) {
+        return userRepository.findById(id)
+            .orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+    
+    public User createUser(User user) {
+        // Validation logic
+        return userRepository.save(user);
+    }
+}</code></pre>
+                        </div>
+
+                        <h3>Bước 6: Tạo REST Controller</h3>
+                        <div class="code-block">
+                            <h4>UserController.java</h4>
+                            <pre><code>@RestController
+@RequestMapping("/api/users")
+@CrossOrigin(origins = "*")
+public class UserController {
+    
+    @Autowired
+    private UserService userService;
+    
+    @GetMapping
+    public ResponseEntity&lt;List&lt;User&gt;&gt; getAllUsers() {
+        List&lt;User&gt; users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
+    }
+    
+    @GetMapping("/{id}")
+    public ResponseEntity&lt;User&gt; getUserById(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
+    }
+    
+    @PostMapping
+    public ResponseEntity&lt;User&gt; createUser(@Valid @RequestBody User user) {
+        User createdUser = userService.createUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Lý thuyết nâng cao -->
+                    <div class="theory-section advanced">
+                        <h2><i class="fas fa-graduation-cap"></i> Lý thuyết nâng cao</h2>
+                        <div class="theory-content">
+                            <h3>1. Exception Handling</h3>
+                            <p>
+                                Sử dụng @ControllerAdvice và @ExceptionHandler để xử lý exceptions một cách tập trung:
+                            </p>
+                            <div class="code-block">
+                                <pre><code>@ControllerAdvice
+public class GlobalExceptionHandler {
+    
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleUserNotFound(UserNotFoundException ex) {
+        ErrorResponse error = new ErrorResponse("USER_NOT_FOUND", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+}</code></pre>
+                            </div>
+
+                            <h3>2. Validation</h3>
+                            <p>
+                                Sử dụng Bean Validation để validate input data:
+                            </p>
+                            <ul>
+                                <li>@NotNull, @NotBlank, @NotEmpty</li>
+                                <li>@Email, @Pattern, @Size</li>
+                                <li>@Min, @Max, @Range</li>
+                                <li>Custom validators</li>
+                            </ul>
+
+                            <h3>3. Security</h3>
+                            <p>
+                                Spring Security cung cấp authentication và authorization:
+                            </p>
+                            <ul>
+                                <li>JWT Authentication</li>
+                                <li>Role-based Access Control</li>
+                                <li>CORS Configuration</li>
+                                <li>Password Encoding</li>
+                            </ul>
+
+                            <h3>4. Testing</h3>
+                            <p>
+                                Viết tests cho API endpoints:
+                            </p>
+                            <ul>
+                                <li>Unit Tests với @MockBean</li>
+                                <li>Integration Tests với @SpringBootTest</li>
+                                <li>TestContainers cho database testing</li>
+                                <li>MockMvc cho controller testing</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Kết luận -->
+                    <div class="conclusion-section">
+                        <h2><i class="fas fa-lightbulb"></i> Kết luận</h2>
+                        <p>
+                            Spring Boot giúp việc xây dựng RESTful API trở nên đơn giản và hiệu quả. 
+                            Với auto-configuration và convention over configuration, bạn có thể tập trung 
+                            vào business logic thay vì cấu hình phức tạp.
+                        </p>
+                        <div class="key-points">
+                            <h3>Những điểm quan trọng cần nhớ:</h3>
+                            <ul>
+                                <li>Luôn sử dụng layered architecture (Controller → Service → Repository)</li>
+                                <li>Implement proper error handling và validation</li>
+                                <li>Viết tests đầy đủ cho tất cả endpoints</li>
+                                <li>Follow REST conventions và HTTP status codes</li>
+                                <li>Document API với Swagger/OpenAPI</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation -->
+                <div class="blog-navigation">
+                    <a href="blog.html" class="btn btn-secondary">
+                        <i class="fas fa-arrow-left"></i>
+                        Quay lại Blog
+                    </a>
+                    <div class="social-share">
+                        <span>Chia sẻ:</span>
+                        <a href="#" class="social-btn"><i class="fab fa-facebook"></i></a>
+                        <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-btn"><i class="fab fa-linkedin"></i></a>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>DevBlog</h3>
+                    <p>Chia sẻ kiến thức lập trình Java & JavaScript</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Kết nối</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 DevBlog. Tất cả quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
