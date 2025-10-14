@@ -64,7 +64,7 @@ export default function Counter() {
     document.title = `Count: ${count}`;
   }, [count]);
   return (
-    <button onClick={() => setCount(c => c + 1)}>Clicked {count} times</button>
+    &lt;button onClick={() => setCount(c => c + 1)}&gt;Clicked {count} times&lt;/button&gt;
   );
 }
 </code></pre>
@@ -88,9 +88,9 @@ export default function Counter() {
 function App() {
   const [theme, setTheme] = useState('light');
   return (
-    <ThemeContext.Provider value={{ theme, setTheme }}>
-      <Page />
-    </ThemeContext.Provider>
+    &lt;ThemeContext.Provider value={{ theme, setTheme }}&gt;
+      &lt;Page /&gt;
+    &lt;/ThemeContext.Provider&gt;
   );
 }
 </code></pre>
