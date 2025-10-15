@@ -246,6 +246,30 @@ blogCards.forEach(card => {
 });
 
 // Removed typing effect for better performance - static text is faster
+// Navigate to detail page when clicking anywhere on a blog card
+blogCards.forEach(card => {
+    const link = card.querySelector('.blog-link');
+    if (!link) return;
+
+    // Visual cue for interactivity
+    card.style.cursor = 'pointer';
+
+    // Click handler
+    card.addEventListener('click', (e) => {
+        // If the click originated from an interactive element with its own href, let it proceed
+        const target = e.target;
+        if (target.closest && target.closest('a')) return;
+        window.location.href = link.getAttribute('href');
+    });
+
+    // Keyboard accessibility: allow Enter to activate
+    card.setAttribute('tabindex', '0');
+    card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.keyCode === 13) {
+            window.location.href = link.getAttribute('href');
+        }
+    });
+});
 
 // Optimized search functionality with debouncing (only on blog page)
 function createSearchBox() {
