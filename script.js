@@ -73,25 +73,39 @@ navLinks.forEach(link => {
     });
 });
 
+// Unified Blog Filter/Search state
+let currentFilter = 'all';
+let currentSearchTerm = '';
+
+function applyFilters() {
+    if (!blogCards || blogCards.length === 0) return;
+    const normalizedSearch = currentSearchTerm.trim().toLowerCase();
+
+    blogCards.forEach(card => {
+        const category = card.getAttribute('data-category');
+        const title = card.querySelector('.blog-title')?.textContent.toLowerCase() || '';
+        const excerpt = card.querySelector('.blog-excerpt')?.textContent.toLowerCase() || '';
+
+        const matchesCategory = currentFilter === 'all' || category === currentFilter;
+        const matchesSearch = normalizedSearch === '' || title.includes(normalizedSearch) || excerpt.includes(normalizedSearch);
+
+        if (matchesCategory && matchesSearch) {
+            card.classList.remove('hidden');
+            card.style.animation = 'fadeIn 0.3s ease-in';
+        } else {
+            card.classList.add('hidden');
+        }
+    });
+}
+
 // Blog Filter Functionality (only on blog page)
 if (filterBtns.length > 0) {
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             filterBtns.forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
-            
-            const filter = btn.getAttribute('data-filter');
-            
-            blogCards.forEach(card => {
-                const category = card.getAttribute('data-category');
-                
-                if (filter === 'all' || category === filter) {
-                    card.classList.remove('hidden');
-                    card.style.animation = 'fadeIn 0.3s ease-in';
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
+            currentFilter = btn.getAttribute('data-filter') || 'all';
+            applyFilters();
         });
     });
 }
@@ -303,25 +317,19 @@ function createSearchBox() {
     
     const searchInput = document.getElementById('searchInput');
     
-    // Debounced search function
+    // Debounced search function (works with filter)
     const debouncedSearch = debounce((searchTerm) => {
-        blogCards.forEach(card => {
-            const title = card.querySelector('.blog-title').textContent.toLowerCase();
-            const excerpt = card.querySelector('.blog-excerpt').textContent.toLowerCase();
-            
-            if (title.includes(searchTerm) || excerpt.includes(searchTerm)) {
-                card.classList.remove('hidden');
-                card.style.animation = 'fadeIn 0.3s ease-in';
-            } else {
-                card.classList.add('hidden');
-            }
-        });
+        currentSearchTerm = searchTerm;
+        applyFilters();
     }, 300);
     
     searchInput.addEventListener('input', (e) => {
         const searchTerm = e.target.value.toLowerCase();
         debouncedSearch(searchTerm);
     });
+
+    // Ensure initial state applied
+    applyFilters();
 }
 
 // Initialize search box
