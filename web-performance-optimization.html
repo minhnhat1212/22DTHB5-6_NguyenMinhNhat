@@ -44,58 +44,688 @@
                 </div>
 
                 <div class="blog-detail-content">
-                    <h2><i class="fas fa-bolt"></i> Tối ưu tải trang</h2>
-                    <ul>
-                        <li>Giảm kích thước bundle, tree-shaking</li>
-                        <li>Lazy load images/components, prefetch routes</li>
-                        <li>Sử dụng CDN và HTTP/2</li>
-                    </ul>
+                    <!-- Giới thiệu -->
+                    <div class="intro-section">
+                        <p class="lead">Tối ưu hóa performance là một trong những yếu tố quan trọng nhất quyết định trải nghiệm người dùng và thứ hạng SEO của website. Trong bài viết này, chúng ta sẽ khám phá các kỹ thuật và công cụ hiện đại để tối ưu hóa hiệu suất web application.</p>
+                    </div>
 
-                    <h2><i class="fas fa-tools"></i> Đo lường và quan trắc</h2>
-                    <ul>
-                        <li>Lighthouse, WebPageTest, Core Web Vitals (LCP, CLS, INP)</li>
-                        <li>Performance API đo thời gian thực trên client</li>
+                    <!-- Mục lục -->
+                    <div class="table-of-contents">
+                        <h3><i class="fas fa-list"></i> Mục lục</h3>
+                        <ul>
+                            <li><a href="#core-web-vitals">Core Web Vitals</a></li>
+                            <li><a href="#bundle-optimization">Tối ưu hóa Bundle</a></li>
+                            <li><a href="#image-optimization">Tối ưu hóa hình ảnh</a></li>
+                            <li><a href="#caching-strategies">Chiến lược Caching</a></li>
+                            <li><a href="#lazy-loading">Lazy Loading</a></li>
+                            <li><a href="#code-splitting">Code Splitting</a></li>
+                            <li><a href="#monitoring">Giám sát Performance</a></li>
+                            <li><a href="#tools">Công cụ và Best Practices</a></li>
                     </ul>
+                    </div>
+
+                    <!-- Core Web Vitals -->
+                    <section id="core-web-vitals">
+                        <h2><i class="fas fa-chart-line"></i> Core Web Vitals</h2>
+                        <p>Core Web Vitals là các chỉ số quan trọng nhất để đánh giá trải nghiệm người dùng trên web, được Google sử dụng để xếp hạng website.</p>
+                        
+                        <div class="metrics-grid">
+                            <div class="metric-card">
+                                <h4><i class="fas fa-clock"></i> LCP (Largest Contentful Paint)</h4>
+                                <p>Đo thời gian tải nội dung chính của trang. Mục tiêu: &lt; 2.5s</p>
+                                <div class="metric-example">
+                                    <strong>Ví dụ:</strong> Thời gian hiển thị hero image hoặc tiêu đề chính
+                                </div>
+                            </div>
+                            
+                            <div class="metric-card">
+                                <h4><i class="fas fa-mobile-alt"></i> FID (First Input Delay)</h4>
+                                <p>Đo thời gian phản hồi khi người dùng tương tác lần đầu. Mục tiêu: &lt; 100ms</p>
+                                <div class="metric-example">
+                                    <strong>Ví dụ:</strong> Thời gian từ khi click button đến khi có phản hồi
+                                </div>
+                            </div>
+                            
+                            <div class="metric-card">
+                                <h4><i class="fas fa-ruler"></i> CLS (Cumulative Layout Shift)</h4>
+                                <p>Đo độ ổn định layout của trang. Mục tiêu: &lt; 0.1</p>
+                                <div class="metric-example">
+                                    <strong>Ví dụ:</strong> Tránh layout shift khi load hình ảnh hoặc font
+                                </div>
+                            </div>
+                        </div>
 
                     <div class="code-block">
-                        <h4>Đo LCP đơn giản</h4>
-                        <pre><code>new PerformanceObserver((list) => {
+                            <h4>Đo Core Web Vitals với Performance Observer</h4>
+                            <pre><code>// Đo LCP
+new PerformanceObserver((list) => {
   for (const entry of list.getEntries()) {
     console.log('LCP:', entry.startTime);
+    // Gửi dữ liệu đến analytics
+    gtag('event', 'web_vitals', {
+      name: 'LCP',
+      value: Math.round(entry.startTime)
+    });
   }
 }).observe({ type: 'largest-contentful-paint', buffered: true });
-</code></pre>
-                    </div>
 
-                    <h2><i class="fas fa-database"></i> Chiến lược cache</h2>
-                    <p>HTTP caching, Service Worker cho offline-first, cache busting bằng hashed filenames.</p>
+// Đo CLS
+let clsValue = 0;
+new PerformanceObserver((list) => {
+  for (const entry of list.getEntries()) {
+    if (!entry.hadRecentInput) {
+      clsValue += entry.value;
+    }
+  }
+  console.log('CLS:', clsValue);
+}).observe({ type: 'layout-shift', buffered: true });</code></pre>
+                        </div>
+                    </section>
 
-                    <div class="code-block">
-                        <h4>Service Worker cache cơ bản</h4>
-                        <pre><code>const CACHE = 'app-v1';
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll(['/','/styles.css','/script.js'])));
+                    <!-- Bundle Optimization -->
+                    <section id="bundle-optimization">
+                        <h2><i class="fas fa-cube"></i> Tối ưu hóa Bundle</h2>
+                        <p>Bundle size là yếu tố quan trọng ảnh hưởng trực tiếp đến thời gian tải trang. Dưới đây là các kỹ thuật tối ưu hóa bundle hiệu quả:</p>
+
+                        <h3>1. Tree Shaking</h3>
+                        <p>Loại bỏ code không sử dụng khỏi bundle cuối cùng:</p>
+                        <div class="code-block">
+                            <h4>Webpack Tree Shaking</h4>
+                            <pre><code>// webpack.config.js
+module.exports = {
+  mode: 'production',
+  optimization: {
+    usedExports: true,
+    sideEffects: false
+  }
+};
+
+// Import chỉ những gì cần thiết
+import { debounce } from 'lodash-es'; // ✅ Tốt
+import _ from 'lodash'; // ❌ Import toàn bộ thư viện</code></pre>
+                        </div>
+
+                        <h3>2. Code Splitting</h3>
+                        <p>Chia nhỏ bundle thành các chunk nhỏ hơn để tải theo nhu cầu:</p>
+                        <div class="code-block">
+                            <h4>React Lazy Loading</h4>
+                            <pre><code>import React, { Suspense, lazy } from 'react';
+
+// Lazy load component
+const Dashboard = lazy(() => import('./Dashboard'));
+const Profile = lazy(() => import('./Profile'));
+
+function App() {
+  return (
+    &lt;Suspense fallback={&lt;div&gt;Loading...&lt;/div&gt;}&gt;
+      &lt;Routes&gt;
+        &lt;Route path="/dashboard" element={&lt;Dashboard /&gt;} /&gt;
+        &lt;Route path="/profile" element={&lt;Profile /&gt;} /&gt;
+      &lt;/Routes&gt;
+    &lt;/Suspense&gt;
+  );
+}</code></pre>
+                        </div>
+
+                        <h3>3. Bundle Analysis</h3>
+                        <div class="code-block">
+                            <h4>Phân tích bundle size</h4>
+                            <pre><code># Cài đặt webpack-bundle-analyzer
+npm install --save-dev webpack-bundle-analyzer
+
+# Thêm vào webpack config
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+
+module.exports = {
+  plugins: [
+    new BundleAnalyzerPlugin({
+      analyzerMode: 'static',
+      openAnalyzer: false
+    })
+  ]
+};</code></pre>
+                        </div>
+                    </section>
+
+                    <!-- Image Optimization -->
+                    <section id="image-optimization">
+                        <h2><i class="fas fa-image"></i> Tối ưu hóa hình ảnh</h2>
+                        <p>Hình ảnh thường chiếm 60-80% dung lượng trang web. Tối ưu hóa hình ảnh là bước quan trọng để cải thiện performance.</p>
+
+                        <h3>1. Lazy Loading Images</h3>
+                        <div class="code-block">
+                            <h4>Native Lazy Loading</h4>
+                            <pre><code>&lt;!-- HTML5 lazy loading --&gt;
+&lt;img src="image.jpg" loading="lazy" alt="Description"&gt;
+
+&lt;!-- Intersection Observer cho browser cũ --&gt;
+&lt;script&gt;
+const images = document.querySelectorAll('img[data-src]');
+const imageObserver = new IntersectionObserver((entries, observer) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const img = entry.target;
+      img.src = img.dataset.src;
+      img.classList.remove('lazy');
+      imageObserver.unobserve(img);
+    }
+  });
 });
-self.addEventListener('fetch', e => {
-  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
-});
-</code></pre>
+
+images.forEach(img => imageObserver.observe(img));
+&lt;/script&gt;</code></pre>
+                        </div>
+
+                        <h3>2. Responsive Images</h3>
+                        <div class="code-block">
+                            <h4>Picture element với WebP</h4>
+                            <pre><code>&lt;picture&gt;
+  &lt;source srcset="image.webp" type="image/webp"&gt;
+  &lt;source srcset="image-800w.jpg" media="(max-width: 800px)"&gt;
+  &lt;source srcset="image-1200w.jpg" media="(max-width: 1200px)"&gt;
+  &lt;img src="image.jpg" alt="Description" loading="lazy"&gt;
+&lt;/picture&gt;</code></pre>
                     </div>
 
-                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                        <h3>3. Image Compression</h3>
+                        <div class="code-block">
+                            <h4>Sharp.js cho server-side optimization</h4>
+                            <pre><code>const sharp = require('sharp');
+
+// Resize và compress
+await sharp('input.jpg')
+  .resize(800, 600)
+  .jpeg({ quality: 80, progressive: true })
+  .webp({ quality: 80 })
+  .toFile('output.webp');
+
+// Generate multiple sizes
+const sizes = [400, 800, 1200];
+for (const size of sizes) {
+  await sharp('input.jpg')
+    .resize(size)
+    .jpeg({ quality: 80 })
+    .toFile(`output-${size}w.jpg`);
+}</code></pre>
+                        </div>
+                    </section>
+
+                    <!-- Caching Strategies -->
+                    <section id="caching-strategies">
+                        <h2><i class="fas fa-database"></i> Chiến lược Caching</h2>
+                        <p>Caching là kỹ thuật quan trọng để giảm thời gian tải và tiết kiệm băng thông.</p>
+
+                        <h3>1. HTTP Caching</h3>
+                        <div class="code-block">
+                            <h4>Cache Headers</h4>
+                            <pre><code>// Express.js cache headers
+app.use(express.static('public', {
+  maxAge: '1y', // Cache 1 năm cho static assets
+  etag: true,
+  lastModified: true
+}));
+
+// Cache API responses
+app.get('/api/data', (req, res) => {
+  res.set({
+    'Cache-Control': 'public, max-age=3600', // 1 giờ
+    'ETag': generateETag(data)
+  });
+  res.json(data);
+});</code></pre>
+                        </div>
+
+                        <h3>2. Service Worker Caching</h3>
                     <div class="code-block">
-                        <h4>Đường đi tài nguyên</h4>
-                        <pre><code>[CDN] → [Browser Cache] → [Runtime]
-          ↘ [Network]
-</code></pre>
+                            <h4>Advanced Service Worker</h4>
+                            <pre><code>const CACHE_NAME = 'app-v1';
+const STATIC_CACHE = 'static-v1';
+const DYNAMIC_CACHE = 'dynamic-v1';
+
+// Install event
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(STATIC_CACHE).then(cache => {
+      return cache.addAll([
+        '/',
+        '/styles.css',
+        '/script.js',
+        '/manifest.json'
+      ]);
+    })
+  );
+});
+
+// Fetch event với cache strategies
+self.addEventListener('fetch', event => {
+  const { request } = event;
+  
+  // Cache First cho static assets
+  if (request.destination === 'image') {
+    event.respondWith(cacheFirst(request, STATIC_CACHE));
+  }
+  // Network First cho API calls
+  else if (request.url.includes('/api/')) {
+    event.respondWith(networkFirst(request, DYNAMIC_CACHE));
+  }
+  // Stale While Revalidate cho HTML
+  else {
+    event.respondWith(staleWhileRevalidate(request, STATIC_CACHE));
+  }
+});
+
+async function cacheFirst(request, cacheName) {
+  const cached = await caches.match(request);
+  return cached || fetch(request);
+}</code></pre>
+                        </div>
+
+                        <h3>3. CDN và Edge Caching</h3>
+                        <div class="code-block">
+                            <h4>Cloudflare Workers</h4>
+                            <pre><code>addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request));
+});
+
+async function handleRequest(request) {
+  const url = new URL(request.url);
+  
+  // Cache static assets at edge
+  if (url.pathname.match(/\.(css|js|png|jpg|jpeg|gif|svg)$/)) {
+    return caches.default.match(request).then(response => {
+      if (response) {
+        return response;
+      }
+      return fetch(request).then(fetchResponse => {
+        return caches.default.put(request, fetchResponse.clone()).then(() => {
+          return fetchResponse;
+        });
+      });
+    });
+  }
+  
+  return fetch(request);
+}</code></pre>
+                        </div>
+                    </section>
+
+                    <!-- Lazy Loading -->
+                    <section id="lazy-loading">
+                        <h2><i class="fas fa-eye-slash"></i> Lazy Loading</h2>
+                        <p>Lazy loading giúp tải nội dung chỉ khi cần thiết, cải thiện đáng kể thời gian tải trang ban đầu.</p>
+
+                        <h3>1. Component Lazy Loading</h3>
+                        <div class="code-block">
+                            <h4>React Lazy với Error Boundary</h4>
+                            <pre><code>import React, { Suspense, lazy } from 'react';
+
+const LazyComponent = lazy(() => import('./HeavyComponent'));
+
+function App() {
+  return (
+    &lt;ErrorBoundary fallback={&lt;ErrorFallback /&gt;}&gt;
+      &lt;Suspense fallback={&lt;LoadingSpinner /&gt;}&gt;
+        &lt;LazyComponent /&gt;
+      &lt;/Suspense&gt;
+    &lt;/ErrorBoundary&gt;
+  );
+}
+
+// Error Boundary Component
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return this.props.fallback;
+    }
+    return this.props.children;
+  }
+}</code></pre>
+                        </div>
+
+                        <h3>2. Route-based Code Splitting</h3>
+                        <div class="code-block">
+                            <h4>React Router với Lazy Loading</h4>
+                            <pre><code>import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Suspense, lazy } from 'react';
+
+// Lazy load routes
+const Home = lazy(() => import('./pages/Home'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+
+function App() {
+  return (
+    &lt;BrowserRouter&gt;
+      &lt;Suspense fallback={&lt;div&gt;Loading page...&lt;/div&gt;}&gt;
+        &lt;Routes&gt;
+          &lt;Route path="/" element={&lt;Home /&gt;} /&gt;
+          &lt;Route path="/about" element={&lt;About /&gt;} /&gt;
+          &lt;Route path="/contact" element={&lt;Contact /&gt;} /&gt;
+        &lt;/Routes&gt;
+      &lt;/Suspense&gt;
+    &lt;/BrowserRouter&gt;
+  );
+}</code></pre>
+                        </div>
+                    </section>
+
+                    <!-- Code Splitting -->
+                    <section id="code-splitting">
+                        <h2><i class="fas fa-code-branch"></i> Code Splitting</h2>
+                        <p>Chia nhỏ code thành các chunk nhỏ hơn để tải theo nhu cầu và tối ưu hóa bundle size.</p>
+
+                        <h3>1. Dynamic Imports</h3>
+                        <div class="code-block">
+                            <h4>Webpack Dynamic Imports</h4>
+                            <pre><code>// Dynamic import với webpack magic comments
+const loadModule = async () => {
+  const module = await import(
+    /* webpackChunkName: "heavy-module" */
+    /* webpackPrefetch: true */
+    './HeavyModule'
+  );
+  return module.default;
+};
+
+// Conditional loading
+if (user.isPremium) {
+  const premiumFeatures = await import('./PremiumFeatures');
+  premiumFeatures.init();
+}</code></pre>
+                        </div>
+
+                        <h3>2. Vendor Splitting</h3>
+                        <div class="code-block">
+                            <h4>Webpack SplitChunks</h4>
+                            <pre><code>// webpack.config.js
+module.exports = {
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+      cacheGroups: {
+        vendor: {
+          test: /[\\/]node_modules[\\/]/,
+          name: 'vendors',
+          chunks: 'all',
+        },
+        common: {
+          name: 'common',
+          minChunks: 2,
+          chunks: 'all',
+          enforce: true
+        }
+      }
+    }
+  }
+};</code></pre>
+                        </div>
+                    </section>
+
+                    <!-- Monitoring -->
+                    <section id="monitoring">
+                        <h2><i class="fas fa-chart-bar"></i> Giám sát Performance</h2>
+                        <p>Giám sát liên tục performance giúp phát hiện và khắc phục các vấn đề kịp thời.</p>
+
+                        <h3>1. Real User Monitoring (RUM)</h3>
+                        <div class="code-block">
+                            <h4>Custom Performance Monitoring</h4>
+                            <pre><code>class PerformanceMonitor {
+  constructor() {
+    this.metrics = {};
+    this.init();
+  }
+
+  init() {
+    // Đo Core Web Vitals
+    this.measureLCP();
+    this.measureFID();
+    this.measureCLS();
+    
+    // Đo custom metrics
+    this.measurePageLoad();
+    this.measureAPIResponse();
+  }
+
+  measureLCP() {
+    new PerformanceObserver((list) => {
+      const entries = list.getEntries();
+      const lastEntry = entries[entries.length - 1];
+      this.metrics.lcp = lastEntry.startTime;
+      this.sendMetrics();
+    }).observe({ type: 'largest-contentful-paint', buffered: true });
+  }
+
+  measureAPIResponse() {
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      const start = performance.now();
+      const response = await originalFetch(...args);
+      const duration = performance.now() - start;
+      
+      this.metrics.apiResponse = duration;
+      return response;
+    };
+  }
+
+  sendMetrics() {
+    // Gửi metrics đến analytics service
+    fetch('/api/metrics', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(this.metrics)
+    });
+  }
+}
+
+new PerformanceMonitor();</code></pre>
                     </div>
 
+                        <h3>2. Performance Budget</h3>
+                    <div class="code-block">
+                            <h4>Webpack Performance Budget</h4>
+                            <pre><code>// webpack.config.js
+module.exports = {
+  performance: {
+    maxAssetSize: 250000, // 250KB
+    maxEntrypointSize: 250000, // 250KB
+    hints: 'warning',
+    assetFilter: function(assetFilename) {
+      return assetFilename.endsWith('.js');
+    }
+  }
+};
+
+// Lighthouse CI
+// .lighthouserc.js
+module.exports = {
+  ci: {
+    collect: {
+      url: ['http://localhost:3000'],
+      numberOfRuns: 3
+    },
+    assert: {
+      assertions: {
+        'categories:performance': ['error', {minScore: 0.9}],
+        'categories:accessibility': ['error', {minScore: 0.9}],
+        'categories:best-practices': ['error', {minScore: 0.9}],
+        'categories:seo': ['error', {minScore: 0.9}]
+      }
+    }
+  }
+};</code></pre>
+                        </div>
+                    </section>
+
+                    <!-- Tools and Best Practices -->
+                    <section id="tools">
+                        <h2><i class="fas fa-tools"></i> Công cụ và Best Practices</h2>
+                        
+                        <h3>1. Development Tools</h3>
+                        <div class="tools-grid">
+                            <div class="tool-card">
+                                <h4><i class="fab fa-chrome"></i> Chrome DevTools</h4>
+                                <ul>
+                                    <li>Performance tab để phân tích runtime</li>
+                                    <li>Network tab để kiểm tra tải tài nguyên</li>
+                                    <li>Lighthouse để audit toàn diện</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="tool-card">
+                                <h4><i class="fas fa-search"></i> WebPageTest</h4>
+                                <ul>
+                                    <li>Kiểm tra performance từ nhiều vị trí</li>
+                                    <li>Video recording của quá trình tải</li>
+                                    <li>Waterfall chart chi tiết</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="tool-card">
+                                <h4><i class="fas fa-chart-line"></i> GTmetrix</h4>
+                                <ul>
+                                    <li>Phân tích PageSpeed và YSlow</li>
+                                    <li>Đề xuất tối ưu hóa cụ thể</li>
+                                    <li>Monitoring liên tục</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h3>2. Performance Best Practices</h3>
+                        <div class="best-practices">
+                            <div class="practice-item">
+                                <h4><i class="fas fa-check-circle"></i> Critical Rendering Path</h4>
+                                <ul>
+                                    <li>Tối ưu hóa CSS delivery (inline critical CSS)</li>
+                                    <li>Defer non-critical JavaScript</li>
+                                    <li>Sử dụng preload cho tài nguyên quan trọng</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="practice-item">
+                                <h4><i class="fas fa-check-circle"></i> Resource Optimization</h4>
+                                <ul>
+                                    <li>Minify CSS, JS, HTML</li>
+                                    <li>Enable Gzip/Brotli compression</li>
+                                    <li>Sử dụng HTTP/2 và HTTP/3</li>
+                                </ul>
+                            </div>
+                            
+                            <div class="practice-item">
+                                <h4><i class="fas fa-check-circle"></i> User Experience</h4>
+                                <ul>
+                                    <li>Implement skeleton screens</li>
+                                    <li>Sử dụng progressive loading</li>
+                                    <li>Optimize for mobile-first</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <h3>3. Performance Checklist</h3>
+                        <div class="checklist">
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check1" checked>
+                                <label for="check1">Core Web Vitals trong mục tiêu</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check2" checked>
+                                <label for="check2">Bundle size &lt; 250KB</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check3" checked>
+                                <label for="check3">Images được tối ưu hóa (WebP, lazy loading)</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check4" checked>
+                                <label for="check4">Caching strategy được implement</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check5" checked>
+                                <label for="check5">Code splitting và lazy loading</label>
+                            </div>
+                            <div class="checklist-item">
+                                <input type="checkbox" id="check6" checked>
+                                <label for="check6">Performance monitoring setup</label>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Kết luận -->
+                    <div class="conclusion">
+                        <h2><i class="fas fa-lightbulb"></i> Kết luận</h2>
+                        <p>Tối ưu hóa performance là một quá trình liên tục, không phải một lần. Việc áp dụng các kỹ thuật trên sẽ giúp website của bạn nhanh hơn, thân thiện với người dùng hơn và có thứ hạng SEO tốt hơn.</p>
+                        
+                        <div class="key-takeaways">
+                            <h3>Điểm quan trọng cần nhớ:</h3>
+                            <ul>
+                                <li>Luôn đo lường trước khi tối ưu hóa</li>
+                                <li>Ưu tiên Core Web Vitals</li>
+                                <li>Implement caching strategy phù hợp</li>
+                                <li>Giám sát performance liên tục</li>
+                                <li>Test trên thiết bị thực tế</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Tài liệu tham khảo -->
+                    <section class="references">
                     <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
-                    <ul>
-                        <li><a href="https://web.dev/" target="_blank" rel="noopener">web.dev (Google)</a></li>
+                        <div class="reference-links">
+                            <div class="reference-category">
+                                <h4>Google Resources</h4>
+                                <ul>
+                                    <li><a href="https://web.dev/" target="_blank" rel="noopener">web.dev - Google's Web Fundamentals</a></li>
+                                    <li><a href="https://developers.google.com/speed/pagespeed/insights/" target="_blank" rel="noopener">PageSpeed Insights</a></li>
+                                    <li><a href="https://developers.google.com/web/tools/lighthouse" target="_blank" rel="noopener">Lighthouse</a></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="reference-category">
+                                <h4>Mozilla Resources</h4>
+                                <ul>
                         <li><a href="https://developer.mozilla.org/docs/Web/Performance" target="_blank" rel="noopener">MDN Performance</a></li>
+                                    <li><a href="https://developer.mozilla.org/docs/Web/API/Performance" target="_blank" rel="noopener">Performance API</a></li>
+                                </ul>
+                            </div>
+                            
+                            <div class="reference-category">
+                                <h4>Tools & Testing</h4>
+                                <ul>
+                                    <li><a href="https://www.webpagetest.org/" target="_blank" rel="noopener">WebPageTest</a></li>
+                                    <li><a href="https://gtmetrix.com/" target="_blank" rel="noopener">GTmetrix</a></li>
+                                    <li><a href="https://bundlephobia.com/" target="_blank" rel="noopener">Bundle Phobia</a></li>
                     </ul>
+                            </div>
+                        </div>
+                    </section>
 
+                    <!-- Blog Post Navigation -->
+                    <div class="blog-post-navigation">
+                        <a href="unit-integration-testing-java.html" class="nav-post prev">
+                            <i class="fas fa-arrow-left nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài trước</h4>
+                                <h3>Unit & Integration Testing với Java</h3>
+                            </div>
+                        </a>
+                        
+                        <a href="spring-boot-rest-api.html" class="nav-post next">
+                            <i class="fas fa-arrow-right nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài tiếp theo</h4>
+                                <h3>Spring Boot: Xây dựng RESTful API</h3>
+                            </div>
+                        </a>
+                    </div>
+                    
                     <div class="blog-navigation">
                         <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
                     </div>
@@ -124,7 +754,7 @@ self.addEventListener('fetch', e => {
                     </div>
                 </div>
             </div>
-            <div class="footer-bottom"><p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
+            <div class="footer-bottom"><p>&copy; 2025 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
         </div>
     </footer>
 

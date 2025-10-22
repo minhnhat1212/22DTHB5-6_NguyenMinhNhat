@@ -44,72 +44,689 @@
                 </div>
 
                 <div class="blog-detail-content">
-                    <h2><i class="fas fa-recycle"></i> Lifecycle hiện đại</h2>
-                    <p>Với function components, lifecycle thể hiện qua useEffect (mount/update/unmount). Tránh lạm dụng nhiều effects nhỏ gây re-render.</p>
+                    <div class="intro-section">
+                        <p class="lead">React.js đã thay đổi cách chúng ta xây dựng giao diện người dùng với component-based architecture. Hiểu rõ về lifecycle và state management là chìa khóa để xây dựng ứng dụng React hiệu quả và dễ bảo trì.</p>
+                    </div>
 
-                    <h2><i class="fas fa-stream"></i> Quản lý state</h2>
-                    <ul>
-                        <li>State local: useState, useReducer</li>
-                        <li>State chia sẻ: Context API hoặc libraries (Zustand, Redux)</li>
-                        <li>Server state: React Query giúp caching, syncing</li>
-                    </ul>
+                    <h2><i class="fas fa-recycle"></i> Component Lifecycle trong React hiện đại</h2>
+                    <p>Với sự ra đời của Hooks, React đã chuyển từ class components sang function components. Lifecycle giờ đây được quản lý thông qua các hooks như <code>useEffect</code>.</p>
+                    
+                    <h3>Lifecycle Phases</h3>
+                    <div class="lifecycle-diagram">
+                        <div class="lifecycle-phase">
+                            <h4><i class="fas fa-play"></i> Mounting</h4>
+                            <p>Component được tạo và render lần đầu</p>
+                            <ul>
+                                <li><code>useEffect(() => {}, [])</code> - componentDidMount</li>
+                                <li>Khởi tạo state với useState</li>
+                                <li>Setup event listeners</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="lifecycle-phase">
+                            <h4><i class="fas fa-sync"></i> Updating</h4>
+                            <p>Component re-render khi state hoặc props thay đổi</p>
+                            <ul>
+                                <li><code>useEffect(() => {}, [dependency])</code> - componentDidUpdate</li>
+                                <li>State updates trigger re-render</li>
+                                <li>Props changes from parent</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="lifecycle-phase">
+                            <h4><i class="fas fa-stop"></i> Unmounting</h4>
+                            <p>Component bị xóa khỏi DOM</p>
+                            <ul>
+                                <li><code>useEffect(() => { return () => {} }, [])</code> - componentWillUnmount</li>
+                                <li>Cleanup event listeners</li>
+                                <li>Cancel API requests</li>
+                            </ul>
+                        </div>
+                    </div>
 
                     <div class="code-block">
-                        <h4>useState và useEffect ví dụ</h4>
-                        <pre><code>import { useEffect, useState } from 'react';
+                        <h4>Ví dụ Lifecycle hoàn chỉnh</h4>
+                        <pre><code>import { useState, useEffect } from 'react';
 
-export default function Counter() {
-  const [count, setCount] = useState(0);
+function UserProfile({ userId }) {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  
+  // Mounting: Fetch user data
   useEffect(() => {
-    document.title = `Count: ${count}`;
-  }, [count]);
+    const fetchUser = async () => {
+      try {
+        const response = await fetch(`/api/users/${userId}`);
+        const userData = await response.json();
+        setUser(userData);
+      } catch (error) {
+        console.error('Error fetching user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUser();
+  }, [userId]); // Dependency array
+  
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      console.log('UserProfile component unmounting');
+      // Cleanup logic here
+    };
+  }, []);
+  
+  if (loading) return &lt;div&gt;Loading...&lt;/div&gt;;
+  if (!user) return &lt;div&gt;User not found&lt;/div&gt;;
+  
   return (
-    &lt;button onClick={() => setCount(c => c + 1)}&gt;Clicked {count} times&lt;/button&gt;
+    &lt;div&gt;
+      &lt;h2&gt;{user.name}&lt;/h2&gt;
+      &lt;p&gt;{user.email}&lt;/p&gt;
+    &lt;/div&gt;
   );
 }
 </code></pre>
                     </div>
 
-                    <h2><i class="fas fa-tachometer-alt"></i> Tối ưu</h2>
-                    <ul>
-                        <li>memo/useMemo/useCallback để giảm render không cần thiết</li>
-                        <li>Code splitting và lazy loading cho routes/components nặng</li>
-                    </ul>
+                    <h2><i class="fas fa-stream"></i> State Management Strategies</h2>
+                    <p>Quản lý state là một trong những thách thức lớn nhất trong React. Dưới đây là các chiến lược từ đơn giản đến phức tạp:</p>
 
-                    <h2><i class="fas fa-project-diagram"></i> Mẫu kiến trúc state</h2>
-                    <ul>
-                        <li>Smart/Dumb components: container xử lý logic, presentational hiển thị</li>
-                        <li>Query state (server) tách khỏi UI state (client)</li>
-                    </ul>
+                    <h3>1. Local State (useState, useReducer)</h3>
+                    <div class="code-block">
+                        <h4>useState cho state đơn giản</h4>
+                        <pre><code>function Counter() {
+  const [count, setCount] = useState(0);
+  const [step, setStep] = useState(1);
+  
+  const increment = () => setCount(prev => prev + step);
+  const decrement = () => setCount(prev => prev - step);
+  
+  return (
+    &lt;div&gt;
+      &lt;button onClick={decrement}&gt;-{step}&lt;/button&gt;
+      &lt;span&gt;{count}&lt;/span&gt;
+      &lt;button onClick={increment}&gt;+{step}&lt;/button&gt;
+      &lt;input 
+        type="number" 
+        value={step} 
+        onChange={(e) => setStep(Number(e.target.value))} 
+      /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+                    </div>
 
                     <div class="code-block">
-                        <h4>Context nhẹ cho theme</h4>
-                        <pre><code>const ThemeContext = createContext('light');
-function App() {
-  const [theme, setTheme] = useState('light');
+                        <h4>useReducer cho state phức tạp</h4>
+                        <pre><code>const initialState = {
+  count: 0,
+  step: 1,
+  history: []
+};
+
+function counterReducer(state, action) {
+  switch (action.type) {
+    case 'INCREMENT':
+      return {
+        ...state,
+        count: state.count + state.step,
+        history: [...state.history, state.count]
+      };
+    case 'DECREMENT':
+      return {
+        ...state,
+        count: state.count - state.step,
+        history: [...state.history, state.count]
+      };
+    case 'SET_STEP':
+      return { ...state, step: action.payload };
+    case 'RESET':
+      return initialState;
+    default:
+      return state;
+  }
+}
+
+function AdvancedCounter() {
+  const [state, dispatch] = useReducer(counterReducer, initialState);
+  
   return (
-    &lt;ThemeContext.Provider value={{ theme, setTheme }}&gt;
-      &lt;Page /&gt;
+    &lt;div&gt;
+      &lt;button onClick={() => dispatch({ type: 'DECREMENT' })}&gt;
+        -{state.step}
+      &lt;/button&gt;
+      &lt;span&gt;{state.count}&lt;/span&gt;
+      &lt;button onClick={() => dispatch({ type: 'INCREMENT' })}&gt;
+        +{state.step}
+      &lt;/button&gt;
+      &lt;input 
+        type="number" 
+        value={state.step} 
+        onChange={(e) => dispatch({ 
+          type: 'SET_STEP', 
+          payload: Number(e.target.value) 
+        })} 
+      /&gt;
+      &lt;button onClick={() => dispatch({ type: 'RESET' })}&gt;Reset&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+                    </div>
+
+                    <h3>2. Shared State (Context API)</h3>
+                    <div class="code-block">
+                        <h4>Theme Context Implementation</h4>
+                        <pre><code>import { createContext, useContext, useState } from 'react';
+
+const ThemeContext = createContext();
+
+export function ThemeProvider({ children }) {
+  const [theme, setTheme] = useState('light');
+  const [primaryColor, setPrimaryColor] = useState('#007bff');
+  
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'light' ? 'dark' : 'light');
+  };
+  
+  const value = {
+    theme,
+    primaryColor,
+    setPrimaryColor,
+    toggleTheme
+  };
+  
+  return (
+    &lt;ThemeContext.Provider value={value}&gt;
+      {children}
     &lt;/ThemeContext.Provider&gt;
   );
 }
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) {
+    throw new Error('useTheme must be used within ThemeProvider');
+  }
+  return context;
+}
+
+// Usage in component
+function Header() {
+  const { theme, toggleTheme, primaryColor } = useTheme();
+  
+  return (
+    &lt;header style={{ 
+      backgroundColor: theme === 'dark' ? '#333' : '#fff',
+      color: theme === 'dark' ? '#fff' : '#333'
+    }}&gt;
+      &lt;h1&gt;My App&lt;/h1&gt;
+      &lt;button onClick={toggleTheme}&gt;
+        Switch to {theme === 'light' ? 'dark' : 'light'} mode
+      &lt;/button&gt;
+    &lt;/header&gt;
+  );
+}
 </code></pre>
                     </div>
 
-                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                    <h3>3. Server State Management</h3>
+                    <p>React Query (TanStack Query) là giải pháp tốt nhất cho server state:</p>
                     <div class="code-block">
-                        <h4>Dòng dữ liệu React</h4>
-                        <pre><code>[Props] → [Component] → [UI]
-[Events] ← [User] ← [UI]
+                        <h4>React Query Implementation</h4>
+                        <pre><code>import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+
+function UserList() {
+  const queryClient = useQueryClient();
+  
+  // Fetch users
+  const { data: users, isLoading, error } = useQuery({
+    queryKey: ['users'],
+    queryFn: async () => {
+      const response = await fetch('/api/users');
+      return response.json();
+    },
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
+  });
+  
+  // Create user mutation
+  const createUserMutation = useMutation({
+    mutationFn: async (newUser) => {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newUser),
+      });
+      return response.json();
+    },
+    onSuccess: () => {
+      // Invalidate and refetch users
+      queryClient.invalidateQueries(['users']);
+    },
+  });
+  
+  if (isLoading) return &lt;div&gt;Loading users...&lt;/div&gt;;
+  if (error) return &lt;div&gt;Error: {error.message}&lt;/div&gt;;
+  
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;Users ({users.length})&lt;/h2&gt;
+      {users.map(user => (
+        &lt;div key={user.id}&gt;{user.name} - {user.email}&lt;/div&gt;
+      ))}
+      &lt;button 
+        onClick={() => createUserMutation.mutate({ 
+          name: 'New User', 
+          email: 'new@example.com' 
+        })}
+        disabled={createUserMutation.isPending}
+      &gt;
+        {createUserMutation.isPending ? 'Creating...' : 'Add User'}
+      &lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
 </code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-tachometer-alt"></i> Performance Optimization</h2>
+                    <p>Tối ưu hiệu năng là yếu tố quan trọng trong React. Dưới đây là các kỹ thuật chính:</p>
+
+                    <h3>1. Memoization</h3>
+                    <div class="code-block">
+                        <h4>React.memo cho Component</h4>
+                        <pre><code>import { memo } from 'react';
+
+const ExpensiveComponent = memo(function ExpensiveComponent({ data, onUpdate }) {
+  console.log('ExpensiveComponent rendered');
+  
+  return (
+    &lt;div&gt;
+      {data.map(item => (
+        &lt;div key={item.id}&gt;{item.name}&lt;/div&gt;
+      ))}
+      &lt;button onClick={onUpdate}&gt;Update&lt;/button&gt;
+    &lt;/div&gt;
+  );
+});
+
+// Parent component
+function Parent() {
+  const [data, setData] = useState([]);
+  const [count, setCount] = useState(0);
+  
+  // Memoize callback to prevent unnecessary re-renders
+  const handleUpdate = useCallback(() => {
+    setData(prev => [...prev, { id: Date.now(), name: 'New Item' }]);
+  }, []);
+  
+  return (
+    &lt;div&gt;
+      &lt;button onClick={() => setCount(c => c + 1)}&gt;Count: {count}&lt;/button&gt;
+      &lt;ExpensiveComponent data={data} onUpdate={handleUpdate} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <h4>useMemo và useCallback</h4>
+                        <pre><code>import { useMemo, useCallback } from 'react';
+
+function ProductList({ products, filter, sortBy }) {
+  // Memoize expensive calculation
+  const filteredAndSortedProducts = useMemo(() => {
+    console.log('Filtering and sorting products...');
+    return products
+      .filter(product => product.name.toLowerCase().includes(filter.toLowerCase()))
+      .sort((a, b) => {
+        if (sortBy === 'name') return a.name.localeCompare(b.name);
+        if (sortBy === 'price') return a.price - b.price;
+        return 0;
+      });
+  }, [products, filter, sortBy]);
+  
+  // Memoize callback function
+  const handleProductClick = useCallback((productId) => {
+    console.log('Product clicked:', productId);
+    // Handle product click
+  }, []);
+  
+  return (
+    &lt;div&gt;
+      {filteredAndSortedProducts.map(product => (
+        &lt;ProductCard 
+          key={product.id} 
+          product={product} 
+          onClick={handleProductClick}
+        /&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+                    </div>
+
+                    <h3>2. Code Splitting và Lazy Loading</h3>
+                    <div class="code-block">
+                        <h4>Lazy Loading Components</h4>
+                        <pre><code>import { lazy, Suspense } from 'react';
+
+// Lazy load heavy components
+const HeavyChart = lazy(() => import('./HeavyChart'));
+const DataTable = lazy(() => import('./DataTable'));
+const AdminPanel = lazy(() => import('./AdminPanel'));
+
+function App() {
+  const [activeTab, setActiveTab] = useState('chart');
+  
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'chart':
+        return (
+          &lt;Suspense fallback={&lt;div&gt;Loading chart...&lt;/div&gt;}&gt;
+            &lt;HeavyChart /&gt;
+          &lt;/Suspense&gt;
+        );
+      case 'table':
+        return (
+          &lt;Suspense fallback={&lt;div&gt;Loading table...&lt;/div&gt;}&gt;
+            &lt;DataTable /&gt;
+          &lt;/Suspense&gt;
+        );
+      case 'admin':
+        return (
+          &lt;Suspense fallback={&lt;div&gt;Loading admin panel...&lt;/div&gt;}&gt;
+            &lt;AdminPanel /&gt;
+          &lt;/Suspense&gt;
+        );
+      default:
+        return null;
+    }
+  };
+  
+  return (
+    &lt;div&gt;
+      &lt;nav&gt;
+        &lt;button onClick={() => setActiveTab('chart')}&gt;Chart&lt;/button&gt;
+        &lt;button onClick={() => setActiveTab('table')}&gt;Table&lt;/button&gt;
+        &lt;button onClick={() => setActiveTab('admin')}&gt;Admin&lt;/button&gt;
+      &lt;/nav&gt;
+      {renderTabContent()}
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-project-diagram"></i> State Management Patterns</h2>
+                    
+                    <h3>1. Container/Presentational Pattern</h3>
+                    <div class="code-block">
+                        <h4>Container Component (Logic)</h4>
+                        <pre><code>// UserListContainer.jsx
+import { useState, useEffect } from 'react';
+import UserList from './UserList';
+
+function UserListContainer() {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/users');
+        const data = await response.json();
+        setUsers(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUsers();
+  }, []);
+  
+  const handleUserSelect = (userId) => {
+    console.log('Selected user:', userId);
+    // Handle user selection logic
+  };
+  
+  const handleUserDelete = async (userId) => {
+    try {
+      await fetch(`/api/users/${userId}`, { method: 'DELETE' });
+      setUsers(prev => prev.filter(user => user.id !== userId));
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+  
+  return (
+    &lt;UserList
+      users={users}
+      loading={loading}
+      error={error}
+      onUserSelect={handleUserSelect}
+      onUserDelete={handleUserDelete}
+    /&gt;
+  );
+}
+</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <h4>Presentational Component (UI)</h4>
+                        <pre><code>// UserList.jsx
+import PropTypes from 'prop-types';
+
+function UserList({ users, loading, error, onUserSelect, onUserDelete }) {
+  if (loading) return &lt;div&gt;Loading users...&lt;/div&gt;;
+  if (error) return &lt;div&gt;Error: {error}&lt;/div&gt;;
+  
+  return (
+    &lt;div className="user-list"&gt;
+      &lt;h2&gt;Users ({users.length})&lt;/h2&gt;
+      {users.map(user => (
+        &lt;div key={user.id} className="user-item"&gt;
+          &lt;span onClick={() => onUserSelect(user.id)}&gt;
+            {user.name} - {user.email}
+          &lt;/span&gt;
+          &lt;button onClick={() => onUserDelete(user.id)}&gt;Delete&lt;/button&gt;
+        &lt;/div&gt;
+      ))}
+    &lt;/div&gt;
+  );
+}
+
+UserList.propTypes = {
+  users: PropTypes.array.isRequired,
+  loading: PropTypes.bool.isRequired,
+  error: PropTypes.string,
+  onUserSelect: PropTypes.func.isRequired,
+  onUserDelete: PropTypes.func.isRequired,
+};
+
+export default UserList;
+</code></pre>
+                    </div>
+
+                    <h3>2. Custom Hooks Pattern</h3>
+                    <div class="code-block">
+                        <h4>Custom Hook cho API calls</h4>
+                        <pre><code>// useApi.js
+import { useState, useEffect } from 'react';
+
+function useApi(url, options = {}) {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await fetch(url, options);
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        setData(result);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [url]);
+  
+  const refetch = () => {
+    setLoading(true);
+    setError(null);
+    // Trigger useEffect again
+  };
+  
+  return { data, loading, error, refetch };
+}
+
+// Usage
+function UserProfile({ userId }) {
+  const { data: user, loading, error, refetch } = useApi(`/api/users/${userId}`);
+  
+  if (loading) return &lt;div&gt;Loading user...&lt;/div&gt;;
+  if (error) return &lt;div&gt;Error: {error}&lt;/div&gt;;
+  if (!user) return &lt;div&gt;User not found&lt;/div&gt;;
+  
+  return (
+    &lt;div&gt;
+      &lt;h2&gt;{user.name}&lt;/h2&gt;
+      &lt;p&gt;{user.email}&lt;/p&gt;
+      &lt;button onClick={refetch}&gt;Refresh&lt;/button&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-chart-line"></i> Data Flow trong React</h2>
+                    <div class="data-flow-diagram">
+                        <div class="flow-step">
+                            <div class="flow-icon"><i class="fas fa-database"></i></div>
+                            <h4>Server State</h4>
+                            <p>API calls, caching, synchronization</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="flow-icon"><i class="fas fa-layer-group"></i></div>
+                            <h4>Global State</h4>
+                            <p>Context, Redux, Zustand</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="flow-icon"><i class="fas fa-cube"></i></div>
+                            <h4>Component State</h4>
+                            <p>useState, useReducer</p>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="flow-icon"><i class="fas fa-eye"></i></div>
+                            <h4>UI Render</h4>
+                            <p>JSX, Virtual DOM</p>
+                        </div>
+                    </div>
+
+                    <h2><i class="fas fa-lightbulb"></i> Best Practices</h2>
+                    <div class="best-practices">
+                        <div class="practice-item">
+                            <h4><i class="fas fa-check-circle"></i> State Structure</h4>
+                            <ul>
+                                <li>Giữ state càng gần component sử dụng càng tốt</li>
+                                <li>Tránh prop drilling bằng Context API</li>
+                                <li>Normalize nested data structures</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="practice-item">
+                            <h4><i class="fas fa-check-circle"></i> Performance</h4>
+                            <ul>
+                                <li>Sử dụng React DevTools Profiler</li>
+                                <li>Memoize expensive calculations</li>
+                                <li>Tránh inline objects/functions trong JSX</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="practice-item">
+                            <h4><i class="fas fa-check-circle"></i> Testing</h4>
+                            <ul>
+                                <li>Test component behavior, không phải implementation</li>
+                                <li>Sử dụng React Testing Library</li>
+                                <li>Mock external dependencies</li>
+                            </ul>
+                        </div>
                     </div>
 
                     <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
-                    <ul>
-                        <li><a href="https://react.dev/" target="_blank" rel="noopener">React (official)</a></li>
-                        <li><a href="https://redux.js.org/" target="_blank" rel="noopener">Redux</a></li>
-                    </ul>
+                    <div class="references">
+                        <div class="reference-category">
+                            <h4>Official Documentation</h4>
+                            <ul>
+                                <li><a href="https://react.dev/" target="_blank" rel="noopener">React Official Docs</a></li>
+                                <li><a href="https://react.dev/learn" target="_blank" rel="noopener">React Learn</a></li>
+                                <li><a href="https://react.dev/reference/react" target="_blank" rel="noopener">React API Reference</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="reference-category">
+                            <h4>State Management Libraries</h4>
+                            <ul>
+                                <li><a href="https://redux.js.org/" target="_blank" rel="noopener">Redux Toolkit</a></li>
+                                <li><a href="https://zustand-demo.pmnd.rs/" target="_blank" rel="noopener">Zustand</a></li>
+                                <li><a href="https://tanstack.com/query/latest" target="_blank" rel="noopener">TanStack Query</a></li>
+                                <li><a href="https://swr.vercel.app/" target="_blank" rel="noopener">SWR</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="reference-category">
+                            <h4>Tools & Testing</h4>
+                            <ul>
+                                <li><a href="https://testing-library.com/docs/react-testing-library/intro/" target="_blank" rel="noopener">React Testing Library</a></li>
+                                <li><a href="https://react.dev/learn/react-developer-tools" target="_blank" rel="noopener">React DevTools</a></li>
+                                <li><a href="https://storybook.js.org/" target="_blank" rel="noopener">Storybook</a></li>
+                            </ul>
+                        </div>
+                    </div>
 
+                    <!-- Blog Post Navigation -->
+                    <div class="blog-post-navigation">
+                        <a href="nodejs-server-express-mongodb.html" class="nav-post prev">
+                            <i class="fas fa-arrow-left nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài trước</h4>
+                                <h3>Node.js Server với Express & MongoDB</h3>
+                            </div>
+                        </a>
+                        
+                        <a href="es6-features-modern-js.html" class="nav-post next">
+                            <i class="fas fa-arrow-right nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài tiếp theo</h4>
+                                <h3>ES6+ Features: JavaScript hiện đại</h3>
+                            </div>
+                        </a>
+                    </div>
+                    
                     <div class="blog-navigation">
                         <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
                     </div>
@@ -138,7 +755,7 @@ function App() {
                     </div>
                 </div>
             </div>
-            <div class="footer-bottom"><p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
+            <div class="footer-bottom"><p>&copy; 2025 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
         </div>
     </footer>
 

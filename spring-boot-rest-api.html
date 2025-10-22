@@ -70,28 +70,157 @@
                 <div class="blog-detail-content">
                     <h2><i class="fas fa-rocket"></i> Khởi tạo và cấu trúc dự án</h2>
                     <p>
-                        Bắt đầu với Spring Initializr và các dependency tối thiểu: Spring Web, Spring Data JPA, Validation.
-                        Tổ chức mã theo layered architecture để dễ mở rộng và test.
+                        Spring Boot là framework mạnh mẽ giúp xây dựng ứng dụng Java nhanh chóng. Với Spring Initializr, 
+                        chúng ta có thể tạo dự án với các dependency cần thiết: Spring Web, Spring Data JPA, Validation, 
+                        Spring Security. Tổ chức mã theo layered architecture (Controller → Service → Repository → Entity) 
+                        giúp dễ mở rộng, bảo trì và test.
                     </p>
 
-                    <h3>Các bước chính</h3>
-                    <ol>
-                        <li>Tạo Entity và mapping với JPA</li>
-                        <li>Repository kế thừa JpaRepository</li>
-                        <li>Service chứa business logic</li>
-                        <li>Controller exposed endpoints (GET/POST/PUT/DELETE)</li>
-                    </ol>
+                    <div class="info-box">
+                        <h4><i class="fas fa-info-circle"></i> Dependencies cần thiết</h4>
+                        <ul>
+                            <li><strong>Spring Web:</strong> RESTful web services</li>
+                            <li><strong>Spring Data JPA:</strong> ORM và database operations</li>
+                            <li><strong>Validation:</strong> Bean validation</li>
+                            <li><strong>Spring Security:</strong> Authentication & Authorization</li>
+                            <li><strong>H2 Database:</strong> In-memory database cho development</li>
+                        </ul>
+                    </div>
+
+                    <h3>Cấu trúc dự án chuẩn</h3>
+                    <div class="code-block">
+                        <h4>Maven Dependencies (pom.xml)</h4>
+                        <pre><code>&lt;dependencies&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-web&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-data-jpa&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-validation&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-security&lt;/artifactId&gt;
+    &lt;/dependency&gt;
+    &lt;dependency&gt;
+        &lt;groupId&gt;com.h2database&lt;/groupId&gt;
+        &lt;artifactId&gt;h2&lt;/artifactId&gt;
+        &lt;scope&gt;runtime&lt;/scope&gt;
+    &lt;/dependency&gt;
+&lt;/dependencies&gt;</code></pre>
+                    </div>
+
+                    <h3>Các bước xây dựng API</h3>
+                    <div class="steps-container">
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Tạo Entity và mapping với JPA</h4>
+                                <p>Định nghĩa model với annotations như @Entity, @Table, @Id, @Column</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Repository kế thừa JpaRepository</h4>
+                                <p>Tạo interface repository với các method query tùy chỉnh</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Service chứa business logic</h4>
+                                <p>Implement các business rules và transaction management</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h4>Controller exposed endpoints</h4>
+                                <p>REST endpoints với HTTP methods (GET/POST/PUT/DELETE)</p>
+                            </div>
+                        </div>
+                    </div>
 
                     <h2><i class="fas fa-check-circle"></i> Validation và Error Handling</h2>
                     <p>
-                        Sử dụng Bean Validation (@NotBlank, @Email, @Size) kết hợp @Valid trong Controller.
-                        Tạo <code>@ControllerAdvice</code> để chuẩn hóa lỗi (status code, message, timestamp).
+                        Validation là yếu tố quan trọng để đảm bảo dữ liệu đầu vào hợp lệ. Spring Boot cung cấp 
+                        Bean Validation với các annotation như @NotBlank, @Email, @Size, @NotNull. Kết hợp với 
+                        @Valid trong Controller và @ControllerAdvice để xử lý lỗi một cách thống nhất.
                     </p>
 
+                    <h3>1. Entity với Validation</h3>
                     <div class="code-block">
-                        <h4>Controller mẫu với Validation</h4>
+                        <h4>User Entity với Validation</h4>
+                        <pre><code>@Entity
+@Table(name = "users")
+public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    @NotBlank(message = "Username không được để trống")
+    @Size(min = 3, max = 50, message = "Username phải từ 3-50 ký tự")
+    @Column(unique = true)
+    private String username;
+    
+    @NotBlank(message = "Email không được để trống")
+    @Email(message = "Email không hợp lệ")
+    @Column(unique = true)
+    private String email;
+    
+    @NotBlank(message = "Password không được để trống")
+    @Size(min = 6, message = "Password phải ít nhất 6 ký tự")
+    private String password;
+    
+    @CreationTimestamp
+    private LocalDateTime createdAt;
+    
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
+    
+    // Constructors, getters, setters...
+}</code></pre>
+                    </div>
+
+                    <h3>2. DTO với Validation</h3>
+                    <div class="code-block">
+                        <h4>Request/Response DTOs</h4>
+                        <pre><code>// Request DTO
+public record CreateUserRequest(
+    @NotBlank(message = "Username không được để trống")
+    @Size(min = 3, max = 50, message = "Username phải từ 3-50 ký tự")
+    String username,
+    
+    @NotBlank(message = "Email không được để trống")
+    @Email(message = "Email không hợp lệ")
+    String email,
+    
+    @NotBlank(message = "Password không được để trống")
+    @Size(min = 6, message = "Password phải ít nhất 6 ký tự")
+    String password
+) {}
+
+// Response DTO
+public record UserResponse(
+    Long id,
+    String username,
+    String email,
+    LocalDateTime createdAt
+) {}</code></pre>
+                    </div>
+
+                    <h3>3. Controller với Validation</h3>
+                    <div class="code-block">
+                        <h4>UserController với Validation</h4>
                         <pre><code>@RestController
 @RequestMapping("/api/v1/users")
+@Validated
 public class UserController {
     private final UserService userService;
 
@@ -100,72 +229,852 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity&lt;UserResponse&gt; create(@Valid @RequestBody CreateUserRequest req) {
-        UserResponse created = userService.createUser(req);
+    public ResponseEntity&lt;UserResponse&gt; createUser(
+            @Valid @RequestBody CreateUserRequest request) {
+        UserResponse created = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
-}
 
-record CreateUserRequest(@NotBlank String username, @Email String email) {}
-</code></pre>
+    @GetMapping("/{id}")
+    public ResponseEntity&lt;UserResponse&gt; getUser(@PathVariable Long id) {
+        UserResponse user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity&lt;UserResponse&gt; updateUser(
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateUserRequest request) {
+        UserResponse updated = userService.updateUser(id, request);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity&lt;Void&gt; deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
+    }
+}</code></pre>
                     </div>
 
-                    <h2><i class="fas fa-shield-alt"></i> Bảo mật cơ bản</h2>
-                    <p>
-                        Áp dụng Spring Security cho authentication/authorization. Với dự án demo, có thể dùng HTTP Basic hoặc JWT đơn giản.
-                    </p>
-
+                    <h3>4. Global Exception Handler</h3>
                     <div class="code-block">
-                        <h4>Cấu hình Spring Security đơn giản</h4>
-                        <pre><code>@Configuration
-@EnableWebSecurity
-public class SecurityConfig {
-    @Bean
-    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.csrf().disable()
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/v1/public/**").permitAll()
-                .anyRequest().authenticated())
-            .httpBasic();
-        return http.build();
+                        <h4>ControllerAdvice cho Error Handling</h4>
+                        <pre><code>@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
+        Map&lt;String, String&gt; errors = new HashMap&lt;&gt;();
+        ex.getBindingResult().getAllErrors().forEach((error) -&gt; {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        
+        ErrorResponse errorResponse = new ErrorResponse(
+            "VALIDATION_ERROR",
+            "Dữ liệu đầu vào không hợp lệ",
+            errors,
+            LocalDateTime.now()
+        );
+        
+        return ResponseEntity.badRequest().body(errorResponse);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleEntityNotFound(EntityNotFoundException ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+            "ENTITY_NOT_FOUND",
+            ex.getMessage(),
+            null,
+            LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity&lt;ErrorResponse&gt; handleGenericException(Exception ex) {
+        ErrorResponse errorResponse = new ErrorResponse(
+            "INTERNAL_SERVER_ERROR",
+            "Đã xảy ra lỗi hệ thống",
+            null,
+            LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }
-</code></pre>
+
+// Error Response DTO
+public record ErrorResponse(
+    String code,
+    String message,
+    Object details,
+    LocalDateTime timestamp
+) {}</code></pre>
                     </div>
 
-                    <h2><i class="fas fa-tools"></i> Tips triển khai</h2>
+                    <h2><i class="fas fa-shield-alt"></i> Bảo mật với Spring Security</h2>
+                    <p>
+                        Spring Security cung cấp framework bảo mật mạnh mẽ cho ứng dụng Spring Boot. 
+                        Hỗ trợ authentication (xác thực) và authorization (phân quyền) với nhiều phương thức 
+                        như HTTP Basic, JWT, OAuth2. Cấu hình linh hoạt cho phép bảo vệ endpoints theo nhu cầu.
+                    </p>
+
+                    <h3>1. Cấu hình Security cơ bản</h3>
+                    <div class="code-block">
+                        <h4>SecurityConfig với HTTP Basic</h4>
+                        <pre><code>@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
+public class SecurityConfig {
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/api/v1/public/**").permitAll()
+                .requestMatchers("/api/v1/users/**").hasRole("USER")
+                .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .httpBasic(Customizer.withDefaults())
+            .sessionManagement(session -> 
+                session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            );
+        
+        return http.build();
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>2. JWT Authentication</h3>
+                    <div class="code-block">
+                        <h4>JWT Service và Filter</h4>
+                        <pre><code>@Service
+public class JwtService {
+    private final String SECRET_KEY = "mySecretKey";
+    private final long EXPIRATION_TIME = 86400000; // 24 hours
+
+    public String generateToken(UserDetails userDetails) {
+        return Jwts.builder()
+            .setSubject(userDetails.getUsername())
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
+            .signWith(getSigningKey(), SignatureAlgorithm.HS256)
+            .compact();
+    }
+
+    public boolean validateToken(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+
+    private boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
+    }
+
+    public String extractUsername(String token) {
+        return extractClaim(token, Claims::getSubject);
+    }
+
+    private &lt;T&gt; T extractClaim(String token, Function&lt;Claims, T&gt; claimsResolver) {
+        final Claims claims = extractAllClaims(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims extractAllClaims(String token) {
+        return Jwts.parserBuilder()
+            .setSigningKey(getSigningKey())
+            .build()
+            .parseClaimsJws(token)
+            .getBody();
+    }
+
+    private Key getSigningKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>3. Authentication Controller</h3>
+                    <div class="code-block">
+                        <h4>AuthController với JWT</h4>
+                        <pre><code>@RestController
+@RequestMapping("/api/v1/auth")
+public class AuthController {
+    
+    private final UserService userService;
+    private final JwtService jwtService;
+    private final AuthenticationManager authenticationManager;
+
+    @PostMapping("/login")
+    public ResponseEntity&lt;AuthResponse&gt; login(@RequestBody LoginRequest request) {
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                request.username(), 
+                request.password()
+            )
+        );
+        
+        User user = (User) authentication.getPrincipal();
+        String token = jwtService.generateToken(user);
+        
+        return ResponseEntity.ok(new AuthResponse(token, user.getUsername()));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity&lt;AuthResponse&gt; register(@Valid @RequestBody RegisterRequest request) {
+        User user = userService.createUser(request);
+        String token = jwtService.generateToken(user);
+        
+        return ResponseEntity.status(HttpStatus.CREATED)
+            .body(new AuthResponse(token, user.getUsername()));
+    }
+}
+
+record LoginRequest(String username, String password) {}
+record RegisterRequest(String username, String email, String password) {}
+record AuthResponse(String token, String username) {}</code></pre>
+                    </div>
+
+                    <h3>4. JWT Authentication Filter</h3>
+                    <div class="code-block">
+                        <h4>JwtAuthenticationFilter</h4>
+                        <pre><code>@Component
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, 
+                                  HttpServletResponse response, 
+                                  FilterChain filterChain) throws ServletException, IOException {
+        
+        final String authHeader = request.getHeader("Authorization");
+        final String jwt;
+        final String username;
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        jwt = authHeader.substring(7);
+        username = jwtService.extractUsername(jwt);
+
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            
+            if (jwtService.validateToken(jwt, userDetails)) {
+                UsernamePasswordAuthenticationToken authToken = 
+                    new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities()
+                    );
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(authToken);
+            }
+        }
+        
+        filterChain.doFilter(request, response);
+    }
+}</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-database"></i> Service Layer và Repository</h2>
+                    <p>
+                        Service Layer chứa business logic và giao tiếp với Repository để truy cập dữ liệu. 
+                        Repository pattern với Spring Data JPA giúp giảm boilerplate code và cung cấp 
+                        các method query mạnh mẽ.
+                    </p>
+
+                    <h3>1. Repository Layer</h3>
+                    <div class="code-block">
+                        <h4>UserRepository với Custom Queries</h4>
+                        <pre><code>@Repository
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+    
+    // Query methods
+    Optional&lt;User&gt; findByUsername(String username);
+    Optional&lt;User&gt; findByEmail(String email);
+    boolean existsByUsername(String username);
+    boolean existsByEmail(String email);
+    
+    // Custom queries
+    @Query("SELECT u FROM User u WHERE u.active = true")
+    List&lt;User&gt; findActiveUsers();
+    
+    @Query("SELECT u FROM User u WHERE u.createdAt BETWEEN :startDate AND :endDate")
+    List&lt;User&gt; findUsersByDateRange(@Param("startDate") LocalDateTime startDate, 
+                                    @Param("endDate") LocalDateTime endDate);
+    
+    // Native query
+    @Query(value = "SELECT * FROM users WHERE username LIKE %:keyword%", nativeQuery = true)
+    List&lt;User&gt; searchByUsername(@Param("keyword") String keyword);
+    
+    // Paging and sorting
+    Page&lt;User&gt; findByActiveTrue(Pageable pageable);
+    Slice&lt;User&gt; findByEmailContaining(String email, Pageable pageable);
+}</code></pre>
+                    </div>
+
+                    <h3>2. Service Layer</h3>
+                    <div class="code-block">
+                        <h4>UserService với Business Logic</h4>
+                        <pre><code>@Service
+@Transactional
+public class UserService {
+    
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final ModelMapper modelMapper;
+
+    public UserService(UserRepository userRepository, 
+                      PasswordEncoder passwordEncoder,
+                      ModelMapper modelMapper) {
+        this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
+        this.modelMapper = modelMapper;
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponse getUserById(Long id) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+        return modelMapper.map(user, UserResponse.class);
+    }
+
+    @Transactional(readOnly = true)
+    public Page&lt;UserResponse&gt; getAllUsers(Pageable pageable) {
+        Page&lt;User&gt; users = userRepository.findByActiveTrue(pageable);
+        return users.map(user -> modelMapper.map(user, UserResponse.class));
+    }
+
+    public UserResponse createUser(CreateUserRequest request) {
+        // Validate unique constraints
+        if (userRepository.existsByUsername(request.username())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
+        if (userRepository.existsByEmail(request.email())) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
+        User user = new User();
+        user.setUsername(request.username());
+        user.setEmail(request.email());
+        user.setPassword(passwordEncoder.encode(request.password()));
+        user.setActive(true);
+        user.setCreatedAt(LocalDateTime.now());
+
+        User savedUser = userRepository.save(user);
+        return modelMapper.map(savedUser, UserResponse.class);
+    }
+
+    public UserResponse updateUser(Long id, UpdateUserRequest request) {
+        User user = userRepository.findById(id)
+            .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + id));
+
+        if (request.username() != null && !request.username().equals(user.getUsername())) {
+            if (userRepository.existsByUsername(request.username())) {
+                throw new IllegalArgumentException("Username already exists");
+            }
+            user.setUsername(request.username());
+        }
+
+        if (request.email() != null && !request.email().equals(user.getEmail())) {
+            if (userRepository.existsByEmail(request.email())) {
+                throw new IllegalArgumentException("Email already exists");
+            }
+            user.setEmail(request.email());
+        }
+
+        user.setUpdatedAt(LocalDateTime.now());
+        User updatedUser = userRepository.save(user);
+        return modelMapper.map(updatedUser, UserResponse.class);
+    }
+
+    public void deleteUser(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new EntityNotFoundException("User not found with id: " + id);
+        }
+        userRepository.deleteById(id);
+    }
+
+    @Transactional(readOnly = true)
+    public List&lt;UserResponse&gt; searchUsers(String keyword) {
+        List&lt;User&gt; users = userRepository.searchByUsername(keyword);
+        return users.stream()
+            .map(user -> modelMapper.map(user, UserResponse.class))
+            .collect(Collectors.toList());
+    }
+}</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-vial"></i> Testing với Spring Boot</h2>
+                    <p>
+                        Testing là phần quan trọng để đảm bảo chất lượng code. Spring Boot cung cấp 
+                        @SpringBootTest cho integration testing và @WebMvcTest cho unit testing Controller.
+                    </p>
+
+                    <h3>1. Unit Tests</h3>
+                    <div class="code-block">
+                        <h4>UserService Unit Test</h4>
+                        <pre><code>@ExtendWith(MockitoExtension.class)
+class UserServiceTest {
+
+    @Mock
+    private UserRepository userRepository;
+    
+    @Mock
+    private PasswordEncoder passwordEncoder;
+    
+    @Mock
+    private ModelMapper modelMapper;
+
+    @InjectMocks
+    private UserService userService;
+
+    @Test
+    void shouldCreateUserSuccessfully() {
+        // Given
+        CreateUserRequest request = new CreateUserRequest("testuser", "test@email.com", "password");
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testuser");
+        user.setEmail("test@email.com");
+        
+        UserResponse expectedResponse = new UserResponse(1L, "testuser", "test@email.com", LocalDateTime.now());
+        
+        when(userRepository.existsByUsername("testuser")).thenReturn(false);
+        when(userRepository.existsByEmail("test@email.com")).thenReturn(false);
+        when(passwordEncoder.encode("password")).thenReturn("encodedPassword");
+        when(userRepository.save(any(User.class))).thenReturn(user);
+        when(modelMapper.map(user, UserResponse.class)).thenReturn(expectedResponse);
+
+        // When
+        UserResponse result = userService.createUser(request);
+
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.username()).isEqualTo("testuser");
+        assertThat(result.email()).isEqualTo("test@email.com");
+        verify(userRepository).save(any(User.class));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenUsernameExists() {
+        // Given
+        CreateUserRequest request = new CreateUserRequest("existinguser", "test@email.com", "password");
+        when(userRepository.existsByUsername("existinguser")).thenReturn(true);
+
+        // When & Then
+        assertThatThrownBy(() -> userService.createUser(request))
+            .isInstanceOf(IllegalArgumentException.class)
+            .hasMessage("Username already exists");
+    }
+}</code></pre>
+                    </div>
+
+                    <h3>2. Integration Tests</h3>
+                    <div class="code-block">
+                        <h4>UserController Integration Test</h4>
+                        <pre><code>@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@TestPropertySource(locations = "classpath:application-test.properties")
+class UserControllerIntegrationTest {
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @LocalServerPort
+    private int port;
+
+    @BeforeEach
+    void setUp() {
+        userRepository.deleteAll();
+    }
+
+    @Test
+    void shouldCreateUserSuccessfully() {
+        // Given
+        CreateUserRequest request = new CreateUserRequest("testuser", "test@email.com", "password");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity&lt;CreateUserRequest&gt; entity = new HttpEntity&lt;&gt;(request, headers);
+
+        // When
+        ResponseEntity&lt;UserResponse&gt; response = restTemplate.postForEntity(
+            "http://localhost:" + port + "/api/v1/users", 
+            entity, 
+            UserResponse.class
+        );
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().username()).isEqualTo("testuser");
+        assertThat(response.getBody().email()).isEqualTo("test@email.com");
+    }
+
+    @Test
+    void shouldReturnValidationErrorForInvalidData() {
+        // Given
+        CreateUserRequest request = new CreateUserRequest("", "invalid-email", "123");
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity&lt;CreateUserRequest&gt; entity = new HttpEntity&lt;&gt;(request, headers);
+
+        // When
+        ResponseEntity&lt;ErrorResponse&gt; response = restTemplate.postForEntity(
+            "http://localhost:" + port + "/api/v1/users", 
+            entity, 
+            ErrorResponse.class
+        );
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().code()).isEqualTo("VALIDATION_ERROR");
+    }
+}</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-chart-line"></i> Performance và Monitoring</h2>
+                    <p>
+                        Monitoring và optimization là yếu tố quan trọng cho production. Spring Boot Actuator 
+                        cung cấp endpoints để monitor health, metrics, và caching giúp cải thiện performance.
+                    </p>
+
+                    <h3>1. Spring Boot Actuator</h3>
+                    <div class="code-block">
+                        <h4>Cấu hình Actuator</h4>
+                        <pre><code># application.yml
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Dependencies
+&lt;dependency&gt;
+    &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+    &lt;artifactId&gt;spring-boot-starter-actuator&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+    &lt;groupId&gt;io.micrometer&lt;/groupId&gt;
+    &lt;artifactId&gt;micrometer-registry-prometheus&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+                    </div>
+
+                    <h3>2. Caching với Spring Cache</h3>
+                    <div class="code-block">
+                        <h4>Cache Configuration</h4>
+                        <pre><code>@Configuration
+@EnableCaching
+public class CacheConfig {
+
+    @Bean
+    public CacheManager cacheManager() {
+        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
+        cacheManager.setCaffeine(Caffeine.newBuilder()
+            .maximumSize(1000)
+            .expireAfterWrite(10, TimeUnit.MINUTES)
+            .recordStats());
+        return cacheManager;
+    }
+}
+
+@Service
+public class UserService {
+    
+    @Cacheable(value = "users", key = "#id")
+    public UserResponse getUserById(Long id) {
+        // Implementation
+    }
+    
+    @CacheEvict(value = "users", key = "#id")
+    public void deleteUser(Long id) {
+        // Implementation
+    }
+}</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-tools"></i> Best Practices</h2>
+                    <div class="best-practices">
+                        <div class="practice-item">
+                            <h4><i class="fas fa-code"></i> Code Organization</h4>
                     <ul>
                         <li>Đặt prefix cho API: <code>/api/v1</code></li>
-                        <li>Chuẩn hóa response (data, pagination, errors)</li>
-                        <li>Viết Integration Tests cho endpoints quan trọng</li>
+                                <li>Sử dụng DTOs cho request/response</li>
+                                <li>Implement proper exception handling</li>
+                                <li>Follow RESTful conventions</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="practice-item">
+                            <h4><i class="fas fa-shield-alt"></i> Security</h4>
+                            <ul>
+                                <li>Validate input data với Bean Validation</li>
+                                <li>Implement proper authentication/authorization</li>
+                                <li>Use HTTPS in production</li>
+                                <li>Sanitize sensitive data in logs</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="practice-item">
+                            <h4><i class="fas fa-tachometer-alt"></i> Performance</h4>
+                            <ul>
+                                <li>Implement caching for frequently accessed data</li>
+                                <li>Use pagination for large datasets</li>
+                                <li>Optimize database queries</li>
+                                <li>Monitor application metrics</li>
                     </ul>
-
-                    <h2><i class="fas fa-exclamation-triangle"></i> Lỗi thường gặp</h2>
-                    <ul>
-                        <li>N+1 query: dùng fetch join hoặc DTO projection</li>
-                        <li>Validate thiếu: quên @Valid ở method param</li>
-                        <li>Mapping sai status code: 200 thay vì 201/204 cho create/delete</li>
-                    </ul>
-
-                    <h2><i class="fas fa-layer-group"></i> Paging và Sorting</h2>
-                    <div class="code-block">
-                        <h4>Repository với Pageable</h4>
-                        <pre><code>public interface UserRepository extends JpaRepository<User, Long> {
-  Page<User> findByActiveTrue(Pageable pageable);
-}
-
-@GetMapping
-public Page<User> list(@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-  return userService.listActive(pageable);
-}
-</code></pre>
+                        </div>
                     </div>
 
-                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                    <h2><i class="fas fa-exclamation-triangle"></i> Lỗi thường gặp</h2>
+                    <div class="error-section">
+                        <div class="error-item">
+                            <h4><i class="fas fa-database"></i> Database Issues</h4>
+                            <ul>
+                                <li><strong>N+1 Query:</strong> Sử dụng @EntityGraph hoặc fetch join</li>
+                                <li><strong>LazyInitializationException:</strong> Sử dụng @Transactional</li>
+                                <li><strong>Connection timeout:</strong> Cấu hình connection pool</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="error-item">
+                            <h4><i class="fas fa-bug"></i> Validation Issues</h4>
+                            <ul>
+                                <li><strong>Validation không hoạt động:</strong> Quên @Valid ở method param</li>
+                                <li><strong>Custom validation:</strong> Tạo custom validator</li>
+                                <li><strong>Error messages:</strong> Cấu hình message source</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="error-item">
+                            <h4><i class="fas fa-server"></i> API Issues</h4>
+                            <ul>
+                                <li><strong>Wrong status codes:</strong> 200 thay vì 201/204 cho create/delete</li>
+                                <li><strong>CORS issues:</strong> Cấu hình @CrossOrigin</li>
+                                <li><strong>Content-Type:</strong> Đảm bảo đúng media type</li>
+                    </ul>
+                        </div>
+                    </div>
+
+                    <h2><i class="fas fa-layer-group"></i> Paging và Sorting</h2>
+                    <p>
+                        Pagination và sorting là tính năng quan trọng cho API có lượng dữ liệu lớn. 
+                        Spring Data JPA cung cấp Pageable interface để xử lý phân trang và sắp xếp dữ liệu.
+                    </p>
+
+                    <h3>1. Repository với Pageable</h3>
                     <div class="code-block">
-                        <h4>Luồng REST API</h4>
-                        <pre><code>[Client] → [Controller] → [Service] → [Repository] → [DB]
-                 ←            ←            ←             ←</code></pre>
+                        <h4>UserRepository với Paging</h4>
+                        <pre><code>@Repository
+public interface UserRepository extends JpaRepository&lt;User, Long&gt; {
+    
+    // Basic paging
+    Page&lt;User&gt; findByActiveTrue(Pageable pageable);
+    
+    // Paging with custom query
+    @Query("SELECT u FROM User u WHERE u.active = true AND u.username LIKE %:keyword%")
+    Page&lt;User&gt; findActiveUsersByKeyword(@Param("keyword") String keyword, Pageable pageable);
+    
+    // Slice for better performance (no total count)
+    Slice&lt;User&gt; findByEmailContaining(String email, Pageable pageable);
+    
+    // Custom sorting
+    @Query("SELECT u FROM User u WHERE u.active = true")
+    Page&lt;User&gt; findActiveUsersWithCustomSort(Pageable pageable);
+}</code></pre>
+                    </div>
+
+                    <h3>2. Controller với Paging</h3>
+                    <div class="code-block">
+                        <h4>Controller với Pageable</h4>
+                        <pre><code>@RestController
+@RequestMapping("/api/v1/users")
+public class UserController {
+    
+    @GetMapping
+    public ResponseEntity&lt;PageResponse&lt;UserResponse&gt;&gt; getAllUsers(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) 
+            Pageable pageable,
+            @RequestParam(required = false) String keyword) {
+        
+        Page&lt;UserResponse&gt; users = userService.getAllUsers(pageable, keyword);
+        
+        PageResponse&lt;UserResponse&gt; response = PageResponse.&lt;UserResponse&gt;builder()
+            .content(users.getContent())
+            .page(users.getNumber())
+            .size(users.getSize())
+            .totalElements(users.getTotalElements())
+            .totalPages(users.getTotalPages())
+            .first(users.isFirst())
+            .last(users.isLast())
+            .build();
+            
+        return ResponseEntity.ok(response);
+    }
+}
+
+// PageResponse DTO
+public class PageResponse&lt;T&gt; {
+    private List&lt;T&gt; content;
+    private int page;
+    private int size;
+    private long totalElements;
+    private int totalPages;
+    private boolean first;
+    private boolean last;
+    
+    // Builder pattern
+    public static &lt;T&gt; PageResponseBuilder&lt;T&gt; builder() {
+        return new PageResponseBuilder&lt;&gt;();
+    }
+}</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-project-diagram"></i> Kiến trúc và Luồng xử lý</h2>
+                    
+                    <h3>1. Kiến trúc tổng quan</h3>
+                    <div class="architecture-diagram">
+                        <div class="diagram-container">
+                            <div class="layer client">
+                                <h4><i class="fas fa-desktop"></i> Client Layer</h4>
+                                <p>Web Browser, Mobile App, Postman</p>
+                            </div>
+                            <div class="arrow">↓</div>
+                            <div class="layer controller">
+                                <h4><i class="fas fa-cogs"></i> Controller Layer</h4>
+                                <p>REST Endpoints, Request/Response Mapping</p>
+                            </div>
+                            <div class="arrow">↓</div>
+                            <div class="layer service">
+                                <h4><i class="fas fa-briefcase"></i> Service Layer</h4>
+                                <p>Business Logic, Transaction Management</p>
+                            </div>
+                            <div class="arrow">↓</div>
+                            <div class="layer repository">
+                                <h4><i class="fas fa-database"></i> Repository Layer</h4>
+                                <p>Data Access, JPA Queries</p>
+                            </div>
+                            <div class="arrow">↓</div>
+                            <div class="layer database">
+                                <h4><i class="fas fa-server"></i> Database</h4>
+                                <p>MySQL, PostgreSQL, H2</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>2. Luồng xử lý Request</h3>
+                    <div class="flow-diagram">
+                        <div class="flow-step">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>Client Request</h4>
+                                <p>HTTP Request với JSON payload</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>Security Filter</h4>
+                                <p>JWT Authentication, CORS</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>Controller</h4>
+                                <p>Validation, Request Mapping</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">4</div>
+                            <div class="step-content">
+                                <h4>Service</h4>
+                                <p>Business Logic, Transaction</p>
+                            </div>
+                        </div>
+                        <div class="flow-arrow">→</div>
+                        <div class="flow-step">
+                            <div class="step-number">5</div>
+                            <div class="step-content">
+                                <h4>Repository</h4>
+                                <p>Database Operations</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h3>3. Response Flow</h3>
+                    <div class="response-flow">
+                        <div class="response-item">
+                            <div class="response-number">5</div>
+                            <div class="response-content">
+                                <h4>Database Response</h4>
+                                <p>Entity objects</p>
+                            </div>
+                        </div>
+                        <div class="response-arrow">←</div>
+                        <div class="response-item">
+                            <div class="response-number">4</div>
+                            <div class="response-content">
+                                <h4>Service Response</h4>
+                                <p>Business objects</p>
+                            </div>
+                        </div>
+                        <div class="response-arrow">←</div>
+                        <div class="response-item">
+                            <div class="response-number">3</div>
+                            <div class="response-content">
+                                <h4>Controller Response</h4>
+                                <p>DTO mapping, HTTP status</p>
+                            </div>
+                        </div>
+                        <div class="response-arrow">←</div>
+                        <div class="response-item">
+                            <div class="response-number">2</div>
+                            <div class="response-content">
+                                <h4>Security Headers</h4>
+                                <p>CORS, Security headers</p>
+                            </div>
+                        </div>
+                        <div class="response-arrow">←</div>
+                        <div class="response-item">
+                            <div class="response-number">1</div>
+                            <div class="response-content">
+                                <h4>Client Response</h4>
+                                <p>JSON response</p>
+                            </div>
+                        </div>
                     </div>
 
                     <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
@@ -175,6 +1084,25 @@ public Page<User> list(@PageableDefault(size = 20, sort = "createdAt", direction
                         <li><a href="https://docs.spring.io/spring-framework/reference/web/webmvc.html" target="_blank" rel="noopener">Spring MVC</a></li>
                     </ul>
 
+                    <!-- Blog Post Navigation -->
+                    <div class="blog-post-navigation">
+                        <a href="jwt-auth-spring-security.html" class="nav-post prev">
+                            <i class="fas fa-arrow-left nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài trước</h4>
+                                <h3>JWT Authentication với Spring Security</h3>
+                            </div>
+                        </a>
+                        
+                        <a href="microservices-spring-cloud.html" class="nav-post next">
+                            <i class="fas fa-arrow-right nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài tiếp theo</h4>
+                                <h3>Microservices với Spring Cloud</h3>
+                            </div>
+                        </a>
+                    </div>
+                    
                     <div class="blog-navigation">
                         <a href="blog.html" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i>
@@ -213,7 +1141,7 @@ public Page<User> list(@PageableDefault(size = 20, sort = "createdAt", direction
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p>
+                <p>&copy; 2025 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p>
             </div>
         </div>
     </footer>

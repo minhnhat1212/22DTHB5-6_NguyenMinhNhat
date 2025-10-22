@@ -44,53 +44,1327 @@
                 </div>
 
                 <div class="blog-detail-content">
-                    <h2><i class="fas fa-vial"></i> Unit test</h2>
-                    <p>Tập trung vào một lớp/hàm riêng lẻ, dùng mocks để cô lập dependency, chạy nhanh.</p>
+                    <h2><i class="fas fa-vial"></i> Unit Testing - Kiểm thử đơn vị</h2>
+                    <p>Unit testing là phương pháp kiểm thử tập trung vào một đơn vị nhỏ nhất của ứng dụng (thường là một method hoặc class). Mục tiêu là kiểm tra logic nghiệp vụ một cách cô lập, nhanh chóng và đáng tin cậy.</p>
+
+                    <h3><i class="fas fa-star"></i> Đặc điểm của Unit Test</h3>
+                    <ul>
+                        <li><strong>Nhanh:</strong> Chạy trong vài milliseconds</li>
+                        <li><strong>Cô lập:</strong> Không phụ thuộc vào database, network, file system</li>
+                        <li><strong>Đáng tin cậy:</strong> Kết quả nhất quán mỗi lần chạy</li>
+                        <li><strong>Dễ bảo trì:</strong> Khi code thay đổi, test cũng dễ update</li>
+                    </ul>
+
+                    <h3><i class="fas fa-code"></i> JUnit 5 - Framework cơ bản</h3>
+                    <div class="code-block">
+                        <h4>Annotations cơ bản</h4>
+                        <pre><code>@Test
+@DisplayName("Tên mô tả test case")
+@BeforeEach
+@AfterEach
+@BeforeAll
+@AfterAll
+@Disabled("Lý do tạm dừng test")
+@Tag("unit")
+@RepeatedTest(5)
+@ParameterizedTest
+@ValueSource(strings = {"test1", "test2"})
+</code></pre>
+                    </div>
 
                     <div class="code-block">
-                        <h4>JUnit 5 + Mockito</h4>
+                        <h4>Ví dụ Unit Test cơ bản</h4>
                         <pre><code>@ExtendWith(MockitoExtension.class)
+@DisplayName("UserService Unit Tests")
 class UserServiceTest {
-  @Mock UserRepository repo;
-  @InjectMocks UserService service;
+    
+    @Mock
+    private UserRepository userRepository;
+    
+    @Mock
+    private EmailService emailService;
+    
+    @InjectMocks
+    private UserService userService;
+    
+    @Test
+    @DisplayName("Tạo user thành công với thông tin hợp lệ")
+    void createUser_WithValidData_ShouldReturnUser() {
+        // Given
+        String username = "john_doe";
+        String email = "john@example.com";
+        User expectedUser = new User(username, email);
+        
+        when(userRepository.findByUsername(username)).thenReturn(Optional.empty());
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+            User user = invocation.getArgument(0);
+            user.setId(1L);
+            return user;
+        });
+        
+        // When
+        User result = userService.createUser(username, email);
+        
+        // Then
+        assertThat(result).isNotNull();
+        assertThat(result.getUsername()).isEqualTo(username);
+        assertThat(result.getEmail()).isEqualTo(email);
+        assertThat(result.getId()).isNotNull();
+        
+        verify(userRepository).save(any(User.class));
+        verify(emailService).sendWelcomeEmail(email);
+    }
 
   @Test
-  void createUser_success() {
-    when(repo.save(any())).thenAnswer(inv -> inv.getArgument(0));
-    var res = service.create("alice");
-    assertEquals("alice", res.getName());
+    @DisplayName("Tạo user thất bại khi username đã tồn tại")
+    void createUser_WithExistingUsername_ShouldThrowException() {
+        // Given
+        String username = "existing_user";
+        String email = "test@example.com";
+        User existingUser = new User(username, email);
+        
+        when(userRepository.findByUsername(username)).thenReturn(Optional.of(existingUser));
+        
+        // When & Then
+        assertThatThrownBy(() -> userService.createUser(username, email))
+            .isInstanceOf(UserAlreadyExistsException.class)
+            .hasMessage("Username already exists: " + username);
+        
+        verify(userRepository, never()).save(any(User.class));
+        verify(emailService, never()).sendWelcomeEmail(anyString());
+    }
+    
+    @ParameterizedTest
+    @ValueSource(strings = {"", " ", "invalid@", "@domain.com"})
+    @DisplayName("Tạo user thất bại với email không hợp lệ")
+    void createUser_WithInvalidEmail_ShouldThrowException(String invalidEmail) {
+        // Given
+        String username = "test_user";
+        
+        // When & Then
+        assertThatThrownBy(() -> userService.createUser(username, invalidEmail))
+            .isInstanceOf(InvalidEmailException.class);
   }
 }
 </code></pre>
                     </div>
 
-                    <h2><i class="fas fa-flask"></i> Integration test</h2>
-                    <p>Kiểm tra tương tác giữa các thành phần, có thể khởi động context hoặc dịch vụ phụ trợ (DB, MQ) bằng Testcontainers.</p>
+                    <h3><i class="fas fa-magic"></i> Mockito - Mocking Framework</h3>
+                    <div class="code-block">
+                        <h4>Mocking cơ bản</h4>
+                        <pre><code>// Tạo mock object
+@Mock
+private UserRepository userRepository;
+
+// Stubbing - định nghĩa hành vi của mock
+when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+when(userRepository.save(any(User.class))).thenReturn(savedUser);
+
+// Verification - kiểm tra mock có được gọi không
+verify(userRepository).save(user);
+verify(userRepository, times(2)).findById(1L);
+verify(userRepository, never()).delete(any());
+
+// Argument matchers
+when(userRepository.findByEmail(anyString())).thenReturn(Optional.empty());
+when(userRepository.findByAge(between(18, 65))).thenReturn(users);
+</code></pre>
+                    </div>
 
                     <div class="code-block">
-                        <h4>SpringBootTest với Testcontainers (ý tưởng)</h4>
-                        <pre><code>@SpringBootTest
-@Testcontainers
-class UserApiIT {
-  @Container static PostgreSQLContainer<?> db = new PostgreSQLContainer<>("postgres:15");
-  @Test void getUsers_ok() { /* call REST endpoint and assert */ }
+                        <h4>Advanced Mocking</h4>
+                        <pre><code>// Stubbing với callback
+when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
+    User user = invocation.getArgument(0);
+    user.setId(System.currentTimeMillis());
+    return user;
+});
+
+// Stubbing với exception
+when(userRepository.save(any(User.class)))
+    .thenThrow(new DatabaseException("Connection failed"));
+
+// Partial mocking
+UserService spyService = spy(userService);
+doReturn(cachedUser).when(spyService).getCachedUser(anyString());
+
+// Argument captor
+ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
+verify(userRepository).save(userCaptor.capture());
+User capturedUser = userCaptor.getValue();
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-flask"></i> Integration Testing - Kiểm thử tích hợp</h2>
+                    <p>Integration testing kiểm tra tương tác giữa các thành phần khác nhau của hệ thống. Khác với unit test, integration test sử dụng các dependency thực tế như database, message queue, external APIs.</p>
+
+                    <h3><i class="fas fa-star"></i> Các loại Integration Test</h3>
+                    <ul>
+                        <li><strong>Component Integration:</strong> Test tương tác giữa các component trong cùng một module</li>
+                        <li><strong>API Integration:</strong> Test REST API endpoints với database thực</li>
+                        <li><strong>Database Integration:</strong> Test tương tác với database thực</li>
+                        <li><strong>External Service Integration:</strong> Test với external APIs, message queues</li>
+                    </ul>
+
+                    <h3><i class="fas fa-leaf"></i> Spring Boot Test</h3>
+                    <div class="code-block">
+                        <h4>Annotations Spring Boot Test</h4>
+                        <pre><code>@SpringBootTest                    // Khởi động toàn bộ Spring context
+@WebMvcTest(UserController.class)   // Chỉ test Web layer
+@DataJpaTest                        // Chỉ test JPA layer với H2 in-memory
+@JsonTest                          // Test JSON serialization/deserialization
+@RestClientTest                    // Test RestTemplate/WebClient
+@MockBean                          // Mock Spring beans
+@SpyBean                           // Spy Spring beans
+@TestPropertySource                // Override application properties
+@ActiveProfiles("test")            // Sử dụng test profile
+</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <h4>Web Layer Integration Test</h4>
+                        <pre><code>@WebMvcTest(UserController.class)
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+class UserControllerIntegrationTest {
+    
+    @Autowired
+    private MockMvc mockMvc;
+    
+    @MockBean
+    private UserService userService;
+    
+    @Test
+    @DisplayName("GET /api/users - Trả về danh sách users")
+    void getAllUsers_ShouldReturnUserList() throws Exception {
+        // Given
+        List<User> users = Arrays.asList(
+            new User("john", "john@example.com"),
+            new User("jane", "jane@example.com")
+        );
+        when(userService.getAllUsers()).thenReturn(users);
+        
+        // When & Then
+        mockMvc.perform(get("/api/users")
+                .contentType(MediaType.APPLICATION_JSON))
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$", hasSize(2)))
+            .andExpect(jsonPath("$[0].username", is("john")))
+            .andExpect(jsonPath("$[0].email", is("john@example.com")))
+            .andExpect(jsonPath("$[1].username", is("jane")))
+            .andExpect(jsonPath("$[1].email", is("jane@example.com")));
+    }
+    
+    @Test
+    @DisplayName("POST /api/users - Tạo user mới")
+    void createUser_WithValidData_ShouldReturnCreatedUser() throws Exception {
+        // Given
+        String userJson = """
+            {
+                "username": "newuser",
+                "email": "newuser@example.com"
+            }
+            """;
+        
+        User createdUser = new User("newuser", "newuser@example.com");
+        createdUser.setId(1L);
+        when(userService.createUser(any(User.class))).thenReturn(createdUser);
+        
+        // When & Then
+        mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(userJson))
+            .andExpect(status().isCreated())
+            .andExpect(jsonPath("$.id", is(1)))
+            .andExpect(jsonPath("$.username", is("newuser")))
+            .andExpect(jsonPath("$.email", is("newuser@example.com")));
+    }
 }
 </code></pre>
                     </div>
 
-                    <h2><i class="fas fa-tasks"></i> Chiến lược test</h2>
+                    <h3><i class="fas fa-database"></i> Database Integration với Testcontainers</h3>
+                    <div class="code-block">
+                        <h4>Setup Testcontainers</h4>
+                        <pre><code>@SpringBootTest
+@Testcontainers
+@ActiveProfiles("test")
+class UserRepositoryIntegrationTest {
+    
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
+            .withDatabaseName("testdb")
+            .withUsername("test")
+            .withPassword("test");
+    
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+    }
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Autowired
+    private TestEntityManager entityManager;
+    
+    @Test
+    @DisplayName("Tìm user theo username")
+    void findByUsername_WithExistingUser_ShouldReturnUser() {
+        // Given
+        User user = new User("testuser", "test@example.com");
+        entityManager.persistAndFlush(user);
+        
+        // When
+        Optional<User> found = userRepository.findByUsername("testuser");
+        
+        // Then
+        assertThat(found).isPresent();
+        assertThat(found.get().getUsername()).isEqualTo("testuser");
+        assertThat(found.get().getEmail()).isEqualTo("test@example.com");
+    }
+    
+    @Test
+    @DisplayName("Tìm user theo email")
+    void findByEmail_WithExistingUser_ShouldReturnUser() {
+        // Given
+        User user = new User("testuser", "test@example.com");
+        entityManager.persistAndFlush(user);
+        
+        // When
+        Optional<User> found = userRepository.findByEmail("test@example.com");
+        
+        // Then
+        assertThat(found).isPresent();
+        assertThat(found.get().getEmail()).isEqualTo("test@example.com");
+    }
+}
+</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <h4>Full Stack Integration Test</h4>
+                        <pre><code>@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Testcontainers
+@ActiveProfiles("test")
+class UserApiFullIntegrationTest {
+    
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
+            .withDatabaseName("testdb")
+            .withUsername("test")
+            .withPassword("test");
+    
+    @Container
+    static RedisContainer redis = new RedisContainer("redis:7-alpine")
+            .withExposedPorts(6379);
+    
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.redis.host", redis::getHost);
+        registry.add("spring.redis.port", () -> redis.getMappedPort(6379));
+    }
+    
+    @Autowired
+    private TestRestTemplate restTemplate;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Test
+    @DisplayName("Tạo user qua API và lưu vào database")
+    void createUser_ThroughApi_ShouldSaveToDatabase() {
+        // Given
+        UserRequest request = new UserRequest("newuser", "newuser@example.com");
+        
+        // When
+        ResponseEntity<UserResponse> response = restTemplate.postForEntity(
+            "/api/users", request, UserResponse.class);
+        
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody().getUsername()).isEqualTo("newuser");
+        
+        // Verify in database
+        Optional<User> savedUser = userRepository.findByUsername("newuser");
+        assertThat(savedUser).isPresent();
+        assertThat(savedUser.get().getEmail()).isEqualTo("newuser@example.com");
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-tasks"></i> Chiến lược Testing nâng cao</h2>
+                    
+                    <h3><i class="fas fa-pyramid"></i> Testing Pyramid</h3>
+                    <p>Mô hình kim tự tháp testing giúp cân bằng giữa tốc độ, chi phí và độ tin cậy của test suite.</p>
+                    
+                    <div class="code-block">
+                        <h4>Cấu trúc Testing Pyramid</h4>
+                        <pre><code>        [ E2E Tests ]          ← Ít nhất, chậm nhất, đắt nhất
+      [Integration Tests]      ← Vừa phải, test tương tác
+    [   Unit Tests   ]        ← Nhiều nhất, nhanh nhất, rẻ nhất
+
+Tỷ lệ khuyến nghị:
+- Unit Tests: 70-80%
+- Integration Tests: 15-25% 
+- E2E Tests: 5-10%
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-code-branch"></i> TDD - Test Driven Development</h3>
+                    <p>Phương pháp phát triển phần mềm theo chu trình Red-Green-Refactor.</p>
+                    
+                    <div class="code-block">
+                        <h4>Quy trình TDD</h4>
+                        <pre><code>1. RED   - Viết test trước (test sẽ fail)
+2. GREEN - Viết code tối thiểu để test pass
+3. REFACTOR - Cải thiện code mà không làm test fail
+
+Ví dụ TDD cho Calculator:
+
+// RED: Test fail
+@Test
+void add_TwoNumbers_ShouldReturnSum() {
+    Calculator calc = new Calculator();
+    assertEquals(5, calc.add(2, 3));
+}
+
+// GREEN: Code tối thiểu
+public class Calculator {
+    public int add(int a, int b) {
+        return a + b;
+    }
+}
+
+// REFACTOR: Cải thiện
+public class Calculator {
+    public int add(int a, int b) {
+        if (a < 0 || b < 0) {
+            throw new IllegalArgumentException("Numbers must be positive");
+        }
+        return a + b;
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-language"></i> BDD - Behavior Driven Development</h3>
+                    <p>BDD tập trung vào hành vi của hệ thống từ góc độ người dùng cuối.</p>
+                    
+                    <div class="code-block">
+                        <h4>Cucumber + JUnit 5</h4>
+                        <pre><code>// Feature file: user_registration.feature
+Feature: User Registration
+  As a new user
+  I want to register an account
+  So that I can access the system
+
+  Scenario: Successful registration
+    Given I am on the registration page
+    When I enter valid user information
+    And I submit the registration form
+    Then I should see a success message
+    And I should receive a welcome email
+
+// Step definitions
+@Given("I am on the registration page")
+public void iAmOnTheRegistrationPage() {
+    // Navigate to registration page
+}
+
+@When("I enter valid user information")
+public void iEnterValidUserInformation() {
+    // Fill in valid form data
+}
+
+@Then("I should see a success message")
+public void iShouldSeeASuccessMessage() {
+    // Assert success message is displayed
+}
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-pattern"></i> Testing Patterns</h3>
+                    
+                    <h4><i class="fas fa-factory"></i> Test Data Builder Pattern</h4>
+                    <div class="code-block">
+                        <pre><code>public class UserTestDataBuilder {
+    private String username = "default_user";
+    private String email = "default@example.com";
+    private String firstName = "Default";
+    private String lastName = "User";
+    private boolean active = true;
+    
+    public static UserTestDataBuilder aUser() {
+        return new UserTestDataBuilder();
+    }
+    
+    public UserTestDataBuilder withUsername(String username) {
+        this.username = username;
+        return this;
+    }
+    
+    public UserTestDataBuilder withEmail(String email) {
+        this.email = email;
+        return this;
+    }
+    
+    public UserTestDataBuilder inactive() {
+        this.active = false;
+        return this;
+    }
+    
+    public User build() {
+        return new User(username, email, firstName, lastName, active);
+    }
+}
+
+// Usage in tests
+@Test
+void createUser_WithValidData_ShouldReturnUser() {
+    User user = UserTestDataBuilder.aUser()
+        .withUsername("john_doe")
+        .withEmail("john@example.com")
+        .build();
+    
+    // Test logic...
+}
+</code></pre>
+                    </div>
+
+                    <h4><i class="fas fa-object-group"></i> Page Object Pattern (cho Web Testing)</h4>
+                    <div class="code-block">
+                        <pre><code>public class LoginPage {
+    private final WebDriver driver;
+    
+    public LoginPage(WebDriver driver) {
+        this.driver = driver;
+    }
+    
+    public LoginPage enterUsername(String username) {
+        driver.findElement(By.id("username")).sendKeys(username);
+        return this;
+    }
+    
+    public LoginPage enterPassword(String password) {
+        driver.findElement(By.id("password")).sendKeys(password);
+        return this;
+    }
+    
+    public DashboardPage clickLogin() {
+        driver.findElement(By.id("login-button")).click();
+        return new DashboardPage(driver);
+    }
+    
+    public String getErrorMessage() {
+        return driver.findElement(By.className("error")).getText();
+    }
+}
+
+// Usage in tests
+@Test
+void login_WithValidCredentials_ShouldRedirectToDashboard() {
+    DashboardPage dashboard = new LoginPage(driver)
+        .enterUsername("testuser")
+        .enterPassword("password")
+        .clickLogin();
+    
+    assertThat(dashboard.isDisplayed()).isTrue();
+}
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-chart-line"></i> Test Coverage và Quality</h3>
+                    <div class="code-block">
+                        <h4>JaCoCo Configuration</h4>
+                        <pre><code>// build.gradle
+plugins {
+    id 'jacoco'
+}
+
+jacoco {
+    toolVersion = "0.8.8"
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+}
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = 0.80  // 80% coverage
+            }
+        }
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-rocket"></i> CI/CD Integration</h3>
+                    <div class="code-block">
+                        <h4>GitHub Actions Workflow</h4>
+                        <pre><code>name: Java CI/CD Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+    
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+    
+    - name: Run tests
+      run: ./gradlew test
+    
+    - name: Generate coverage report
+      run: ./gradlew jacocoTestReport
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: build/reports/jacoco/test/jacocoTestReport.xml
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-tools"></i> Công cụ Testing nâng cao</h2>
+                    
+                    <h3><i class="fas fa-check-circle"></i> AssertJ - Fluent Assertions</h3>
+                    <p>AssertJ cung cấp API fluent để viết assertions dễ đọc và mạnh mẽ hơn.</p>
+                    
+                    <div class="code-block">
+                        <h4>AssertJ Examples</h4>
+                        <pre><code>// Basic assertions
+assertThat(user.getName()).isEqualTo("John");
+assertThat(user.getAge()).isGreaterThan(18);
+assertThat(user.getEmail()).contains("@");
+
+// Collection assertions
+assertThat(users)
+    .hasSize(3)
+    .extracting(User::getName)
+    .containsExactly("John", "Jane", "Bob");
+
+// Exception assertions
+assertThatThrownBy(() -> userService.createUser(null, "email"))
+    .isInstanceOf(IllegalArgumentException.class)
+    .hasMessage("Username cannot be null");
+
+// Soft assertions - tất cả assertions được kiểm tra
+SoftAssertions softly = new SoftAssertions();
+softly.assertThat(user.getName()).isEqualTo("John");
+softly.assertThat(user.getAge()).isGreaterThan(18);
+softly.assertThat(user.getEmail()).contains("@");
+softly.assertAll(); // Tất cả assertions được thực hiện
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-wifi"></i> WireMock - API Mocking</h3>
+                    <p>WireMock giúp mock external APIs một cách dễ dàng và linh hoạt.</p>
+                    
+                    <div class="code-block">
+                        <h4>WireMock Setup</h4>
+                        <pre><code>@SpringBootTest
+@TestPropertySource(properties = {
+    "external.api.base-url=http://localhost:8089"
+})
+class ExternalApiIntegrationTest {
+    
+    @RegisterExtension
+    static WireMockExtension wireMock = WireMockExtension.newInstance()
+            .options(wireMockConfig().port(8089))
+            .build();
+    
+    @Test
+    void callExternalApi_ShouldReturnExpectedResponse() {
+        // Given
+        wireMock.stubFor(get(urlEqualTo("/api/users/1"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody("""
+                    {
+                        "id": 1,
+                        "name": "John Doe",
+                        "email": "john@example.com"
+                    }
+                    """)));
+        
+        // When
+        User user = userService.getExternalUser(1L);
+        
+        // Then
+        assertThat(user.getName()).isEqualTo("John Doe");
+        assertThat(user.getEmail()).isEqualTo("john@example.com");
+    }
+    
+    @Test
+    void callExternalApi_WithTimeout_ShouldHandleGracefully() {
+        // Given
+        wireMock.stubFor(get(urlEqualTo("/api/users/1"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withFixedDelay(5000) // 5 second delay
+                .withBody("{}")));
+        
+        // When & Then
+        assertThatThrownBy(() -> userService.getExternalUser(1L))
+            .isInstanceOf(TimeoutException.class);
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-database"></i> Testcontainers - Container Testing</h3>
+                    <p>Testcontainers cho phép sử dụng Docker containers trong tests một cách dễ dàng.</p>
+                    
+                    <div class="code-block">
+                        <h4>Multiple Containers</h4>
+                        <pre><code>@SpringBootTest
+@Testcontainers
+class MultiContainerIntegrationTest {
+    
+    @Container
+    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15")
+            .withDatabaseName("testdb")
+            .withUsername("test")
+            .withPassword("test");
+    
+    @Container
+    static RedisContainer redis = new RedisContainer("redis:7-alpine");
+    
+    @Container
+    static GenericContainer<?> elasticsearch = new GenericContainer<>("elasticsearch:8.5.0")
+            .withExposedPorts(9200)
+            .withEnv("discovery.type", "single-node")
+            .withEnv("xpack.security.enabled", "false");
+    
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url", postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.redis.host", redis::getHost);
+        registry.add("spring.redis.port", () -> redis.getMappedPort(6379));
+        registry.add("elasticsearch.host", elasticsearch::getHost);
+        registry.add("elasticsearch.port", () -> elasticsearch.getMappedPort(9200));
+    }
+    
+    @Test
+    void fullStackTest_WithAllServices_ShouldWork() {
+        // Test với tất cả services
+        User user = new User("testuser", "test@example.com");
+        userRepository.save(user);
+        
+        // Verify in database
+        assertThat(userRepository.findByUsername("testuser")).isPresent();
+        
+        // Verify cache
+        assertThat(redisTemplate.hasKey("user:testuser")).isTrue();
+        
+        // Verify search index
+        // ... search operations
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-chart-bar"></i> JMeter - Performance Testing</h3>
+                    <p>Apache JMeter giúp thực hiện load testing và performance testing.</p>
+                    
+                    <div class="code-block">
+                        <h4>JMeter Test Plan (JMX)</h4>
+                        <pre><code>&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;jmeterTestPlan version="1.2"&gt;
+  &lt;hashTree&gt;
+    &lt;TestPlan testname="User API Load Test"&gt;
+      &lt;elementProp name="TestPlan.arguments" elementType="Arguments"&gt;
+        &lt;collectionProp name="Arguments.arguments"/&gt;
+      &lt;/elementProp&gt;
+      &lt;stringProp name="TestPlan.user_define_classpath"&gt;&lt;/stringProp&gt;
+    &lt;/TestPlan&gt;
+    &lt;hashTree&gt;
+      &lt;ThreadGroup testname="User API Thread Group"&gt;
+        &lt;stringProp name="ThreadGroup.num_threads"&gt;100&lt;/stringProp&gt;
+        &lt;stringProp name="ThreadGroup.ramp_time"&gt;60&lt;/stringProp&gt;
+        &lt;stringProp name="ThreadGroup.duration"&gt;300&lt;/stringProp&gt;
+        &lt;hashTree&gt;
+          &lt;HTTPSamplerProxy testname="GET Users"&gt;
+            &lt;stringProp name="HTTPSampler.domain"&gt;localhost&lt;/stringProp&gt;
+            &lt;stringProp name="HTTPSampler.port"&gt;8080&lt;/stringProp&gt;
+            &lt;stringProp name="HTTPSampler.path"&gt;/api/users&lt;/stringProp&gt;
+            &lt;stringProp name="HTTPSampler.method"&gt;GET&lt;/stringProp&gt;
+          &lt;/HTTPSamplerProxy&gt;
+        &lt;/hashTree&gt;
+      &lt;/ThreadGroup&gt;
+    &lt;/hashTree&gt;
+  &lt;/hashTree&gt;
+&lt;/jmeterTestPlan&gt;
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-microscope"></i> TestNG - Alternative Testing Framework</h3>
+                    <p>TestNG cung cấp nhiều tính năng nâng cao hơn JUnit.</p>
+                    
+                    <div class="code-block">
+                        <h4>TestNG Features</h4>
+                        <pre><code>@Test(groups = {"unit", "user-service"})
+public class UserServiceTestNGTest {
+    
+    @Test(groups = "smoke", priority = 1)
+    public void createUser_ShouldReturnUser() {
+        // Test implementation
+    }
+    
+    @Test(groups = "integration", dependsOnMethods = "createUser_ShouldReturnUser")
+    public void updateUser_ShouldUpdateSuccessfully() {
+        // Test implementation
+    }
+    
+    @Test(groups = "unit", dataProvider = "userData")
+    public void validateUser_WithVariousInputs_ShouldValidateCorrectly(
+            String username, String email, boolean expected) {
+        // Parameterized test
+    }
+    
+    @DataProvider(name = "userData")
+    public Object[][] userData() {
+        return new Object[][] {
+            {"validuser", "valid@example.com", true},
+            {"", "invalid@", false},
+            {"user", "", false}
+        };
+    }
+    
+    @Test(groups = "unit", expectedExceptions = IllegalArgumentException.class)
+    public void createUser_WithNullUsername_ShouldThrowException() {
+        userService.createUser(null, "email@example.com");
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-image"></i> Sơ đồ và Hình minh họa</h2>
+                    
+                    <h3><i class="fas fa-pyramid"></i> Testing Pyramid - Mô hình Kim tự tháp</h3>
+                    <div class="code-block">
+                        <h4>Phân bố Testing theo tầng</h4>
+                        <pre><code>                    ┌─────────────────┐
+                    │   E2E Tests     │  ← 5-10%  (Chậm, Đắt, Ít)
+                    │   (End-to-End)  │
+                    └─────────────────┘
+                  ┌─────────────────────┐
+                  │ Integration Tests   │  ← 15-25% (Vừa phải)
+                  │ (Component + API)   │
+                  └─────────────────────┘
+                ┌─────────────────────────┐
+                │     Unit Tests          │  ← 70-80% (Nhanh, Rẻ, Nhiều)
+                │   (Business Logic)      │
+                └─────────────────────────┘
+
+Tỷ lệ khuyến nghị:
+• Unit Tests: 70-80% (Nhanh nhất, rẻ nhất, nhiều nhất)
+• Integration Tests: 15-25% (Vừa phải, test tương tác)
+• E2E Tests: 5-10% (Chậm nhất, đắt nhất, ít nhất)
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-cogs"></i> Testing Lifecycle - Vòng đời Testing</h3>
+                    <div class="code-block">
+                        <h4>Quy trình Testing trong Development</h4>
+                        <pre><code>┌─────────────────────────────────────────────────────────┐
+│                    Testing Lifecycle                    │
+├─────────────────────────────────────────────────────────┤
+│ 1. RED   → Viết test trước (test sẽ fail)               │
+│ 2. GREEN → Viết code tối thiểu để test pass             │
+│ 3. REFACTOR → Cải thiện code mà không làm test fail    │
+│                                                         │
+│ TDD Cycle:                                              │
+│ ┌─────────┐    ┌─────────┐    ┌─────────┐             │
+│ │   RED   │───▶│  GREEN  │───▶│REFACTOR │             │
+│ │ (Write  │    │ (Write  │    │(Improve │             │
+│ │  Test)  │    │  Code)  │    │  Code)  │             │
+│ └─────────┘    └─────────┘    └─────────┘             │
+│     ▲                              │                   │
+│     └──────────────────────────────┘                   │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-tools"></i> Testing Tools Ecosystem</h3>
+                    <div class="code-block">
+                        <h4>Hệ sinh thái công cụ Testing</h4>
+                        <pre><code>┌─────────────────────────────────────────────────────────┐
+│                    Testing Tools Ecosystem              │
+├─────────────────────────────────────────────────────────┤
+│ Unit Testing:                                           │
+│ ├─ JUnit 5 (Core Framework)                            │
+│ ├─ Mockito (Mocking)                                    │
+│ ├─ AssertJ (Fluent Assertions)                          │
+│ └─ TestNG (Alternative Framework)                      │
+├─────────────────────────────────────────────────────────┤
+│ Integration Testing:                                    │
+│ ├─ Spring Boot Test                                    │
+│ ├─ Testcontainers (Docker)                             │
+│ ├─ WireMock (API Mocking)                              │
+│ └─ Selenium (Web Testing)                              │
+├─────────────────────────────────────────────────────────┤
+│ Performance Testing:                                    │
+│ ├─ JMeter (Load Testing)                               │
+│ ├─ Gatling (Performance Testing)                       │
+│ └─ Artillery (Load Testing)                            │
+├─────────────────────────────────────────────────────────┤
+│ BDD Testing:                                           │
+│ ├─ Cucumber (BDD Framework)                            │
+│ ├─ Serenity BDD (Reporting)                            │
+│ └─ JGiven (Given-When-Then)                            │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-project-diagram"></i> Test Architecture - Kiến trúc Test</h3>
+                    <div class="code-block">
+                        <h4>Layered Testing Architecture</h4>
+                        <pre><code>┌─────────────────────────────────────────────────────────┐
+│                    Test Architecture                    │
+├─────────────────────────────────────────────────────────┤
+│ Presentation Layer (Controllers)                       │
+│ ├─ @WebMvcTest                                         │
+│ ├─ MockMvc                                             │
+│ └─ API Integration Tests                               │
+├─────────────────────────────────────────────────────────┤
+│ Business Layer (Services)                              │
+│ ├─ @ExtendWith(MockitoExtension.class)                 │
+│ ├─ @Mock, @Spy, @InjectMocks                          │
+│ └─ Unit Tests                                          │
+├─────────────────────────────────────────────────────────┤
+│ Data Layer (Repositories)                              │
+│ ├─ @DataJpaTest                                        │
+│ ├─ @Testcontainers                                     │
+│ └─ Database Integration Tests                          │
+├─────────────────────────────────────────────────────────┤
+│ External Services                                       │
+│ ├─ @WireMockTest                                       │
+│ ├─ WireMock                                            │
+│ └─ External API Tests                                  │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-chart-bar"></i> Test Coverage Metrics</h3>
+                    <div class="code-block">
+                        <h4>Chỉ số Coverage và Quality</h4>
+                        <pre><code>┌─────────────────────────────────────────────────────────┐
+│                    Test Coverage                        │
+├─────────────────────────────────────────────────────────┤
+│ Line Coverage: 85% ████████████████░░░░                │
+│ Branch Coverage: 78% ██████████████░░░░░░               │
+│ Method Coverage: 92% ██████████████████░░              │
+│ Class Coverage: 88% █████████████████░░░               │
+│                                                         │
+│ Quality Gates:                                          │
+│ ├─ Minimum Line Coverage: 80%                          │
+│ ├─ Minimum Branch Coverage: 75%                        │
+│ ├─ Maximum Cyclomatic Complexity: 10                   │
+│ └─ Zero Critical Issues                                │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-rocket"></i> CI/CD Pipeline với Testing</h3>
+                    <div class="code-block">
+                        <h4>Automated Testing Pipeline</h4>
+                        <pre><code>┌─────────────────────────────────────────────────────────┐
+│                    CI/CD Pipeline                       │
+├─────────────────────────────────────────────────────────┤
+│ 1. Code Commit                                         │
+│    ↓                                                   │
+│ 2. Unit Tests (Fast)                                    │
+│    ├─ JUnit 5                                          │
+│    ├─ Mockito                                          │
+│    └─ AssertJ                                          │
+│    ↓                                                   │
+│ 3. Integration Tests (Medium)                          │
+│    ├─ Spring Boot Test                                │
+│    ├─ Testcontainers                                  │
+│    └─ WireMock                                         │
+│    ↓                                                   │
+│ 4. Performance Tests (Slow)                           │
+│    ├─ Gatling                                          │
+│    ├─ Artillery                                        │
+│    └─ JMeter                                           │
+│    ↓                                                   │
+│ 5. E2E Tests (Slowest)                                │
+│    ├─ Selenium                                         │
+│    └─ Cucumber                                         │
+│    ↓                                                   │
+│ 6. Deploy to Production                                │
+└─────────────────────────────────────────────────────────┘
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-bug"></i> Testing Anti-patterns - Các lỗi thường gặp</h3>
+                    <div class="code-block">
+                        <h4>Những điều cần tránh trong Testing</h4>
+                        <pre><code>❌ ANTI-PATTERNS (Tránh):
+├─ Testing implementation details thay vì behavior
+├─ Mocking quá nhiều dependencies
+├─ Test phụ thuộc vào thứ tự thực hiện
+├─ Hard-coded test data
+├─ Test quá phức tạp và khó hiểu
+├─ Không có naming convention rõ ràng
+└─ Test không có assertion hoặc assertion yếu
+
+✅ BEST PRACTICES (Nên làm):
+├─ Test behavior, không test implementation
+├─ Mock chỉ những gì cần thiết
+├─ Test độc lập với nhau
+├─ Sử dụng Test Data Builder
+├─ Test đơn giản và dễ hiểu
+├─ Naming convention: methodName_condition_expectedResult
+└─ Assertion mạnh mẽ và rõ ràng
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-tachometer-alt"></i> Performance Testing</h2>
+                    <p>Performance testing đảm bảo ứng dụng hoạt động tốt dưới các điều kiện tải khác nhau.</p>
+                    
+                    <h3><i class="fas fa-chart-line"></i> Các loại Performance Testing</h3>
                     <ul>
-                        <li>Pyramid testing: nhiều unit test, ít integration, rất ít e2e</li>
-                        <li>Test theo hành vi (Given-When-Then), tránh mock quá mức</li>
-                        <li>CI: chạy test song song, báo cáo coverage</li>
+                        <li><strong>Load Testing:</strong> Test với tải bình thường dự kiến</li>
+                        <li><strong>Stress Testing:</strong> Test vượt quá khả năng xử lý bình thường</li>
+                        <li><strong>Spike Testing:</strong> Test với tải đột ngột tăng cao</li>
+                        <li><strong>Volume Testing:</strong> Test với lượng dữ liệu lớn</li>
+                        <li><strong>Endurance Testing:</strong> Test trong thời gian dài</li>
                     </ul>
 
-                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                    <h3><i class="fas fa-rocket"></i> Gatling - Performance Testing Framework</h3>
                     <div class="code-block">
-                        <h4>Pyramid Testing</h4>
-                        <pre><code>      [ E2E ]
-    [Integration]
- [   Unit Tests   ]
+                        <h4>Gatling Scala DSL</h4>
+                        <pre><code>import io.gatling.core.Predef._
+import io.gatling.http.Predef._
+import scala.concurrent.duration._
+
+class UserApiLoadTest extends Simulation {
+  
+  val httpProtocol = http
+    .baseUrl("http://localhost:8080")
+    .acceptHeader("application/json")
+    .contentTypeHeader("application/json")
+  
+  val userFeeder = csv("users.csv").random
+  
+  val scn = scenario("User API Load Test")
+    .feed(userFeeder)
+    .exec(
+      http("Get All Users")
+        .get("/api/users")
+        .check(status.is(200))
+        .check(jsonPath("$[*].id").findAll.saveAs("userIds"))
+    )
+    .pause(1, 3)
+    .exec(
+      http("Get User by ID")
+        .get("/api/users/${userId}")
+        .check(status.is(200))
+        .check(jsonPath("$.username").is("${username}"))
+    )
+    .pause(1, 2)
+    .exec(
+      http("Create User")
+        .post("/api/users")
+        .body(StringBody("""{"username":"${username}","email":"${email}"}"""))
+        .check(status.is(201))
+        .check(jsonPath("$.id").saveAs("newUserId"))
+    )
+  
+  setUp(
+    scn.inject(
+      rampUsers(10).during(30.seconds),
+      constantUsersPerSec(20).during(2.minutes),
+      rampUsersPerSec(10).to(50).during(1.minute)
+    )
+  ).protocols(httpProtocol)
+   .assertions(
+     global.responseTime.max.lt(2000),
+     global.successfulRequests.percent.gt(95)
+   )
+}
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-bolt"></i> Artillery - Modern Load Testing</h3>
+                    <div class="code-block">
+                        <h4>Artillery Configuration</h4>
+                        <pre><code># artillery-config.yml
+config:
+  target: 'http://localhost:8080'
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: "Warm up"
+    - duration: 120
+      arrivalRate: 50
+      name: "Ramp up load"
+    - duration: 300
+      arrivalRate: 100
+      name: "Sustained load"
+  defaults:
+    headers:
+      Content-Type: "application/json"
+  processor: "./user-data.js"
+
+scenarios:
+  - name: "User API Test"
+    weight: 100
+    flow:
+      - get:
+          url: "/api/users"
+          expect:
+            - statusCode: 200
+      - think: 1
+      - post:
+          url: "/api/users"
+          json:
+            username: "{{ username }}"
+            email: "{{ email }}"
+          expect:
+            - statusCode: 201
+      - think: 2
+      - get:
+          url: "/api/users/{{ userId }}"
+          expect:
+            - statusCode: 200
+            - hasProperty: "username"
+
+# user-data.js
+module.exports = {
+  generateUserData: function(context, events, done) {
+    const userId = Math.floor(Math.random() * 1000);
+    const username = `user${userId}`;
+    const email = `user${userId}@example.com`;
+    
+    context.vars.userId = userId;
+    context.vars.username = username;
+    context.vars.email = email;
+    
+    return done();
+  }
+};
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-stopwatch"></i> JUnit 5 Performance Testing</h3>
+                    <div class="code-block">
+                        <h4>Timing Assertions</h4>
+                        <pre><code>@ExtendWith(MockitoExtension.class)
+class UserServicePerformanceTest {
+    
+    @Mock
+    private UserRepository userRepository;
+    
+    @InjectMocks
+    private UserService userService;
+    
+    @Test
+    @Timeout(value = 100, unit = TimeUnit.MILLISECONDS)
+    void createUser_ShouldCompleteWithin100ms() {
+        // Given
+        when(userRepository.save(any(User.class))).thenReturn(new User());
+        
+        // When
+        long startTime = System.currentTimeMillis();
+        User result = userService.createUser("test", "test@example.com");
+        long endTime = System.currentTimeMillis();
+        
+        // Then
+        assertThat(endTime - startTime).isLessThan(100);
+        assertThat(result).isNotNull();
+    }
+    
+    @Test
+    @DisplayName("Performance test với multiple iterations")
+    void createUser_WithMultipleUsers_ShouldMaintainPerformance() {
+        // Given
+        when(userRepository.save(any(User.class))).thenReturn(new User());
+        
+        // When
+        long totalTime = 0;
+        int iterations = 1000;
+        
+        for (int i = 0; i < iterations; i++) {
+            long startTime = System.nanoTime();
+            userService.createUser("user" + i, "user" + i + "@example.com");
+            long endTime = System.nanoTime();
+            totalTime += (endTime - startTime);
+        }
+        
+        // Then
+        double averageTimeMs = (totalTime / iterations) / 1_000_000.0;
+        assertThat(averageTimeMs).isLessThan(10.0); // 10ms average
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-memory"></i> Memory Testing với JProfiler</h3>
+                    <div class="code-block">
+                        <h4>Memory Leak Detection</h4>
+                        <pre><code>@SpringBootTest
+@TestPropertySource(properties = {
+    "spring.jpa.show-sql=true",
+    "spring.jpa.properties.hibernate.format_sql=true"
+})
+class MemoryLeakTest {
+    
+    @Autowired
+    private UserService userService;
+    
+    @Autowired
+    private UserRepository userRepository;
+    
+    @Test
+    @DisplayName("Memory leak test - tạo nhiều users")
+    void createManyUsers_ShouldNotCauseMemoryLeak() {
+        // Given
+        Runtime runtime = Runtime.getRuntime();
+        long initialMemory = runtime.totalMemory() - runtime.freeMemory();
+        
+        // When - Tạo 10000 users
+        for (int i = 0; i < 10000; i++) {
+            userService.createUser("user" + i, "user" + i + "@example.com");
+            
+            // Force garbage collection every 1000 iterations
+            if (i % 1000 == 0) {
+                System.gc();
+                Thread.sleep(100);
+            }
+        }
+        
+        // Then
+        long finalMemory = runtime.totalMemory() - runtime.freeMemory();
+        long memoryIncrease = finalMemory - initialMemory;
+        
+        // Memory increase should be reasonable (less than 100MB)
+        assertThat(memoryIncrease).isLessThan(100 * 1024 * 1024);
+    }
+    
+    @Test
+    @DisplayName("Database connection pool test")
+    void databaseOperations_ShouldNotExhaustConnectionPool() {
+        // Given
+        int maxConnections = 10;
+        
+        // When - Thực hiện nhiều operations đồng thời
+        ExecutorService executor = Executors.newFixedThreadPool(maxConnections);
+        List<Future<User>> futures = new ArrayList<>();
+        
+        for (int i = 0; i < 100; i++) {
+            final int userId = i;
+            Future<User> future = executor.submit(() -> {
+                return userService.getUserById((long) userId);
+            });
+            futures.add(future);
+        }
+        
+        // Then - Tất cả operations phải thành công
+        for (Future<User> future : futures) {
+            assertThatCode(() -> future.get(5, TimeUnit.SECONDS))
+                .doesNotThrowAnyException();
+        }
+        
+        executor.shutdown();
+    }
+}
+</code></pre>
+                    </div>
+
+                    <h3><i class="fas fa-chart-area"></i> Performance Monitoring</h3>
+                    <div class="code-block">
+                        <h4>Micrometer + Prometheus</h4>
+                        <pre><code>@Component
+public class PerformanceMetrics {
+    
+    private final MeterRegistry meterRegistry;
+    private final Timer userCreationTimer;
+    private final Counter userCreationCounter;
+    private final Gauge activeUsersGauge;
+    
+    public PerformanceMetrics(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
+        this.userCreationTimer = Timer.builder("user.creation.time")
+            .description("Time taken to create a user")
+            .register(meterRegistry);
+        this.userCreationCounter = Counter.builder("user.creation.count")
+            .description("Number of users created")
+            .register(meterRegistry);
+        this.activeUsersGauge = Gauge.builder("user.active.count")
+            .description("Number of active users")
+            .register(meterRegistry, this, PerformanceMetrics::getActiveUserCount);
+    }
+    
+    public void recordUserCreation(Duration duration) {
+        userCreationTimer.record(duration);
+        userCreationCounter.increment();
+    }
+    
+    private double getActiveUserCount() {
+        // Implementation to get active user count
+        return 0.0;
+    }
+}
+
+// Usage in service
+@Service
+public class UserService {
+    
+    private final PerformanceMetrics metrics;
+    
+    public User createUser(String username, String email) {
+        long startTime = System.currentTimeMillis();
+        try {
+            User user = new User(username, email);
+            // ... creation logic
+            return user;
+        } finally {
+            long duration = System.currentTimeMillis() - startTime;
+            metrics.recordUserCreation(Duration.ofMillis(duration));
+        }
+    }
+}
 </code></pre>
                     </div>
 
@@ -99,8 +1373,33 @@ class UserApiIT {
                         <li><a href="https://junit.org/junit5/" target="_blank" rel="noopener">JUnit 5</a></li>
                         <li><a href="https://site.mockito.org/" target="_blank" rel="noopener">Mockito</a></li>
                         <li><a href="https://testcontainers.com/" target="_blank" rel="noopener">Testcontainers</a></li>
+                        <li><a href="https://assertj.github.io/doc/" target="_blank" rel="noopener">AssertJ</a></li>
+                        <li><a href="https://wiremock.org/" target="_blank" rel="noopener">WireMock</a></li>
+                        <li><a href="https://gatling.io/" target="_blank" rel="noopener">Gatling</a></li>
+                        <li><a href="https://artillery.io/" target="_blank" rel="noopener">Artillery</a></li>
+                        <li><a href="https://cucumber.io/" target="_blank" rel="noopener">Cucumber</a></li>
+                        <li><a href="https://testng.org/" target="_blank" rel="noopener">TestNG</a></li>
                     </ul>
 
+                    <!-- Blog Post Navigation -->
+                    <div class="blog-post-navigation">
+                        <a href="typescript-type-safety.html" class="nav-post prev">
+                            <i class="fas fa-arrow-left nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài trước</h4>
+                                <h3>TypeScript: Type Safety cho JavaScript</h3>
+                            </div>
+                        </a>
+                        
+                        <a href="web-performance-optimization.html" class="nav-post next">
+                            <i class="fas fa-arrow-right nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài tiếp theo</h4>
+                                <h3>Web Performance Optimization</h3>
+                            </div>
+                        </a>
+                    </div>
+                    
                     <div class="blog-navigation">
                         <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
                     </div>
@@ -129,7 +1428,7 @@ class UserApiIT {
                     </div>
                 </div>
             </div>
-            <div class="footer-bottom"><p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
+            <div class="footer-bottom"><p>&copy; 2025 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
         </div>
     </footer>
 

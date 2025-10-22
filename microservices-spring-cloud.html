@@ -44,58 +44,419 @@
                 </div>
 
                 <div class="blog-detail-content">
-                    <h2><i class="fas fa-network-wired"></i> Các thành phần cốt lõi</h2>
-                    <ul>
-                        <li>Service Registry: Eureka giúp services tự đăng ký và tìm nhau</li>
-                        <li>API Gateway: Điều phối traffic, auth, rate limit</li>
-                        <li>Config Server: Quản lý cấu hình tập trung</li>
-                        <li>Resilience: Circuit breaker, retry, bulkhead</li>
-                    </ul>
+                    <div class="intro-section">
+                        <p class="lead">Microservices architecture đã trở thành xu hướng chính trong việc xây dựng các hệ thống phân tán hiện đại. Spring Cloud cung cấp một bộ công cụ mạnh mẽ để triển khai và quản lý microservices một cách hiệu quả.</p>
+                    </div>
+
+                    <h2><i class="fas fa-network-wired"></i> Kiến trúc Microservices với Spring Cloud</h2>
+                    <p>Spring Cloud cung cấp các thành phần cốt lõi để xây dựng hệ thống microservices:</p>
+                    
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-search"></i></div>
+                            <h3>Service Discovery (Eureka)</h3>
+                            <p>Cho phép các services tự động đăng ký và tìm kiếm lẫn nhau, loại bỏ nhu cầu cấu hình tĩnh.</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-door-open"></i></div>
+                            <h3>API Gateway</h3>
+                            <p>Điều phối traffic, xử lý authentication, rate limiting và load balancing.</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-cogs"></i></div>
+                            <h3>Config Server</h3>
+                            <p>Quản lý cấu hình tập trung cho tất cả các services trong hệ thống.</p>
+                        </div>
+                        
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                            <h3>Resilience Patterns</h3>
+                            <p>Circuit breaker, retry, bulkhead và timeout để đảm bảo tính ổn định.</p>
+                        </div>
+                    </div>
+
+                    <h2><i class="fas fa-code"></i> Triển khai Service Discovery với Eureka</h2>
+                    <p>Eureka Server hoạt động như một service registry, nơi các microservices đăng ký và tìm kiếm lẫn nhau.</p>
+
+                    <div class="code-block">
+                        <h4>Eureka Server Configuration</h4>
+                        <pre><code>@SpringBootApplication
+@EnableEurekaServer
+public class EurekaServerApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaServerApplication.class, args);
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <h4>application.yml cho Eureka Server</h4>
+                        <pre><code>server:
+  port: 8761
+
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+  server:
+    wait-time-in-ms-when-sync-empty: 0</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <h4>Eureka Client Configuration</h4>
+                        <pre><code>@SpringBootApplication
+@EnableEurekaClient
+@EnableDiscoveryClient
+public class OrderServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(OrderServiceApplication.class, args);
+    }
+}</code></pre>
+                    </div>
 
                     <div class="code-block">
                         <h4>application.yml cho Eureka Client</h4>
                         <pre><code>spring:
   application:
     name: order-service
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-</code></pre>
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 30
+    lease-expiration-duration-in-seconds: 90</code></pre>
                     </div>
 
-                    <h2><i class="fas fa-project-diagram"></i> Gợi ý kiến trúc</h2>
-                    <p>Tách domain theo bounded context, giao tiếp qua REST/Message broker, quan sát hệ thống với metrics/logs/tracing.</p>
-
-                    <h2><i class="fas fa-tools"></i> Observability & Resilience</h2>
-                    <ul>
-                        <li>Metrics (Micrometer + Prometheus), logs cấu trúc (JSON), tracing (OpenTelemetry)</li>
-                        <li>Resilience4j: circuit breaker, retry, rate limiter</li>
-                    </ul>
+                    <h2><i class="fas fa-door-open"></i> API Gateway với Spring Cloud Gateway</h2>
+                    <p>Spring Cloud Gateway cung cấp một cách đơn giản và hiệu quả để định tuyến đến các APIs và cung cấp các tính năng cross-cutting như security, monitoring/metrics, và resilience.</p>
 
                     <div class="code-block">
-                        <h4>Resilience4j annotations</h4>
-                        <pre><code>@Retry(name = "inventory")
-@CircuitBreaker(name = "inventory", fallbackMethod = "fallback")
-public Stock checkStock(String sku) { /* ... */ }
-</code></pre>
+                        <h4>Gateway Configuration</h4>
+                        <pre><code>@SpringBootApplication
+@EnableEurekaClient
+public class GatewayApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(GatewayApplication.class, args);
+    }
+}</code></pre>
                     </div>
 
-                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
                     <div class="code-block">
-                        <h4>Kiến trúc microservices (giản lược)</h4>
-                        <pre><code>[Client] → [API Gateway] → [Service A] ↔ [Service B]
-                                   ↘ [Service C]
-[Services] ↔ [Service Registry]   [Config Server]
-</code></pre>
+                        <h4>Gateway Routes Configuration</h4>
+                        <pre><code>spring:
+  cloud:
+    gateway:
+      routes:
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - Path=/api/orders/**
+          filters:
+            - StripPrefix=2
+            - name: CircuitBreaker
+              args:
+                name: order-service
+                fallbackUri: forward:/fallback/order
+        - id: user-service
+          uri: lb://user-service
+          predicates:
+            - Path=/api/users/**
+          filters:
+            - StripPrefix=2
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 10
+                redis-rate-limiter.burstCapacity: 20</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-cogs"></i> Centralized Configuration với Config Server</h2>
+                    <p>Config Server cho phép quản lý cấu hình tập trung cho tất cả các microservices, hỗ trợ nhiều môi trường và tự động refresh cấu hình.</p>
+
+                    <div class="code-block">
+                        <h4>Config Server Setup</h4>
+                        <pre><code>@SpringBootApplication
+@EnableConfigServer
+@EnableEurekaClient
+public class ConfigServerApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ConfigServerApplication.class, args);
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <h4>Config Server Properties</h4>
+                        <pre><code>server:
+  port: 8888
+
+spring:
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/your-org/config-repo
+          search-paths: configs
+          default-label: main
+  application:
+    name: config-server
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-shield-alt"></i> Resilience Patterns với Resilience4j</h2>
+                    <p>Resilience4j cung cấp các patterns để xử lý lỗi và đảm bảo tính ổn định của hệ thống:</p>
+
+                    <div class="code-block">
+                        <h4>Circuit Breaker Implementation</h4>
+                        <pre><code>@Service
+public class OrderService {
+    
+    @CircuitBreaker(name = "inventory-service", fallbackMethod = "fallbackCheckStock")
+    @Retry(name = "inventory-service")
+    @TimeLimiter(name = "inventory-service")
+    public CompletableFuture<Stock> checkStock(String sku) {
+        return CompletableFuture.supplyAsync(() -> {
+            // Call to inventory service
+            return inventoryServiceClient.checkStock(sku);
+        });
+    }
+    
+    public CompletableFuture<Stock> fallbackCheckStock(String sku, Exception ex) {
+        return CompletableFuture.completedFuture(
+            Stock.builder()
+                .sku(sku)
+                .available(false)
+                .reason("Service temporarily unavailable")
+                .build()
+        );
+    }
+}</code></pre>
+                    </div>
+
+                    <div class="code-block">
+                        <h4>Resilience4j Configuration</h4>
+                        <pre><code>resilience4j:
+  circuitbreaker:
+    instances:
+      inventory-service:
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 30s
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+  retry:
+    instances:
+      inventory-service:
+        max-attempts: 3
+        wait-duration: 1s
+        exponential-backoff-multiplier: 2
+  timelimiter:
+    instances:
+      inventory-service:
+        timeout-duration: 5s</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-chart-line"></i> Observability & Monitoring</h2>
+                    <p>Để đảm bảo hệ thống microservices hoạt động ổn định, cần có observability stack đầy đủ:</p>
+
+                    <div class="observability-grid">
+                        <div class="obs-card">
+                            <h3><i class="fas fa-chart-bar"></i> Metrics</h3>
+                            <ul>
+                                <li>Micrometer + Prometheus</li>
+                                <li>Custom business metrics</li>
+                                <li>JVM metrics</li>
+                                <li>HTTP request metrics</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="obs-card">
+                            <h3><i class="fas fa-file-alt"></i> Logging</h3>
+                            <ul>
+                                <li>Structured logging (JSON)</li>
+                                <li>Correlation IDs</li>
+                                <li>ELK Stack (Elasticsearch, Logstash, Kibana)</li>
+                                <li>Centralized log aggregation</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="obs-card">
+                            <h3><i class="fas fa-route"></i> Tracing</h3>
+                            <ul>
+                                <li>Distributed tracing</li>
+                                <li>OpenTelemetry</li>
+                                <li>Jaeger/Zipkin</li>
+                                <li>Request flow visualization</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="code-block">
+                        <h4>Micrometer Configuration</h4>
+                        <pre><code>management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true
+      percentiles:
+        http.server.requests: 0.5, 0.95, 0.99</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-project-diagram"></i> Kiến trúc tổng thể</h2>
+                    <div class="architecture-diagram">
+                        <div class="diagram-container">
+                            <div class="diagram-layer">
+                                <div class="diagram-title">Client Layer</div>
+                                <div class="diagram-box">Web Client</div>
+                                <div class="diagram-box">Mobile App</div>
+                            </div>
+                            
+                            <div class="diagram-arrow">↓</div>
+                            
+                            <div class="diagram-layer">
+                                <div class="diagram-title">API Gateway</div>
+                                <div class="diagram-box">Spring Cloud Gateway</div>
+                            </div>
+                            
+                            <div class="diagram-arrow">↓</div>
+                            
+                            <div class="diagram-layer">
+                                <div class="diagram-title">Microservices</div>
+                                <div class="diagram-box">Order Service</div>
+                                <div class="diagram-box">User Service</div>
+                                <div class="diagram-box">Payment Service</div>
+                                <div class="diagram-box">Inventory Service</div>
+                            </div>
+                            
+                            <div class="diagram-arrow">↓</div>
+                            
+                            <div class="diagram-layer">
+                                <div class="diagram-title">Infrastructure</div>
+                                <div class="diagram-box">Eureka Server</div>
+                                <div class="diagram-box">Config Server</div>
+                                <div class="diagram-box">Database</div>
+                                <div class="diagram-box">Message Queue</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2><i class="fas fa-lightbulb"></i> Best Practices</h2>
+                    <div class="best-practices">
+                        <div class="practice-item">
+                            <h3><i class="fas fa-check-circle"></i> Domain-Driven Design</h3>
+                            <p>Tách domain theo bounded context, mỗi microservice quản lý một business capability riêng biệt.</p>
+                        </div>
+                        
+                        <div class="practice-item">
+                            <h3><i class="fas fa-check-circle"></i> Database per Service</h3>
+                            <p>Mỗi microservice có database riêng, tránh shared database để đảm bảo loose coupling.</p>
+                        </div>
+                        
+                        <div class="practice-item">
+                            <h3><i class="fas fa-check-circle"></i> API-First Design</h3>
+                            <p>Thiết kế API trước, sử dụng OpenAPI/Swagger để document và generate client code.</p>
+                        </div>
+                        
+                        <div class="practice-item">
+                            <h3><i class="fas fa-check-circle"></i> Event-Driven Architecture</h3>
+                            <p>Sử dụng message brokers (RabbitMQ, Kafka) cho async communication giữa services.</p>
+                        </div>
+                    </div>
+
+                    <h2><i class="fas fa-tools"></i> Development Tools</h2>
+                    <div class="tools-grid">
+                        <div class="tool-card">
+                            <h3><i class="fab fa-docker"></i> Docker & Kubernetes</h3>
+                            <p>Containerization và orchestration cho microservices deployment.</p>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h3><i class="fas fa-code-branch"></i> CI/CD Pipeline</h3>
+                            <p>Jenkins, GitLab CI, hoặc GitHub Actions cho automated deployment.</p>
+                        </div>
+                        
+                        <div class="tool-card">
+                            <h3><i class="fas fa-database"></i> Service Mesh</h3>
+                            <p>Istio hoặc Linkerd cho service-to-service communication.</p>
+                        </div>
                     </div>
 
                     <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
-                    <ul>
-                        <li><a href="https://spring.io/projects/spring-cloud" target="_blank" rel="noopener">Spring Cloud</a></li>
-                        <li><a href="https://resilience4j.readme.io/" target="_blank" rel="noopener">Resilience4j</a></li>
-                    </ul>
+                    <div class="reference-links">
+                        <div class="ref-category">
+                            <h3>Spring Cloud</h3>
+                            <ul>
+                                <li><a href="https://spring.io/projects/spring-cloud" target="_blank" rel="noopener">Spring Cloud Documentation</a></li>
+                                <li><a href="https://spring.io/guides/gs/service-registration-and-discovery/" target="_blank" rel="noopener">Service Registration and Discovery</a></li>
+                                <li><a href="https://spring.io/guides/gs/routing-and-filtering/" target="_blank" rel="noopener">API Gateway Routing</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="ref-category">
+                            <h3>Resilience & Monitoring</h3>
+                            <ul>
+                                <li><a href="https://resilience4j.readme.io/" target="_blank" rel="noopener">Resilience4j Documentation</a></li>
+                                <li><a href="https://micrometer.io/" target="_blank" rel="noopener">Micrometer Metrics</a></li>
+                                <li><a href="https://opentelemetry.io/" target="_blank" rel="noopener">OpenTelemetry</a></li>
+                            </ul>
+                        </div>
+                        
+                        <div class="ref-category">
+                            <h3>Architecture Patterns</h3>
+                            <ul>
+                                <li><a href="https://microservices.io/" target="_blank" rel="noopener">Microservices.io</a></li>
+                                <li><a href="https://martinfowler.com/articles/microservices.html" target="_blank" rel="noopener">Martin Fowler on Microservices</a></li>
+                                <li><a href="https://www.nginx.com/resources/glossary/microservices-architecture/" target="_blank" rel="noopener">NGINX Microservices Guide</a></li>
+                            </ul>
+                        </div>
+                    </div>
 
+                    <!-- Blog Post Navigation -->
+                    <div class="blog-post-navigation">
+                        <a href="jwt-auth-spring-security.html" class="nav-post prev">
+                            <i class="fas fa-arrow-left nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài trước</h4>
+                                <h3>JWT Authentication với Spring Security</h3>
+                            </div>
+                        </a>
+                        
+                        <a href="nodejs-server-express-mongodb.html" class="nav-post next">
+                            <i class="fas fa-arrow-right nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài tiếp theo</h4>
+                                <h3>Node.js Server với Express & MongoDB</h3>
+                            </div>
+                        </a>
+                    </div>
+                    
                     <div class="blog-navigation">
                         <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
                     </div>
@@ -124,7 +485,7 @@ public Stock checkStock(String sku) { /* ... */ }
                     </div>
                 </div>
             </div>
-            <div class="footer-bottom"><p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
+            <div class="footer-bottom"><p>&copy; 2025 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
         </div>
     </footer>
 

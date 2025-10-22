@@ -44,62 +44,467 @@
                 </div>
 
                 <div class="blog-detail-content">
-                    <h2><i class="fas fa-check-double"></i> Vì sao cần TypeScript</h2>
-                    <p>Giảm bug runtime, auto-completion tốt hơn, refactor an toàn, tài liệu hóa code qua types.</p>
+                    <div class="intro-section">
+                        <p class="lead">TypeScript là một superset của JavaScript được phát triển bởi Microsoft, mang lại khả năng type checking tĩnh và các tính năng hiện đại cho JavaScript. Với TypeScript, bạn có thể viết code JavaScript an toàn hơn, dễ bảo trì hơn và có trải nghiệm phát triển tốt hơn.</p>
+                    </div>
 
-                    <h2><i class="fas fa-cubes"></i> Các khối xây dựng</h2>
-                    <ul>
-                        <li>Type/Interface cho cấu trúc dữ liệu</li>
-                        <li>Generics cho tính tái sử dụng</li>
-                        <li>Union/Intersection types cho mô tả linh hoạt</li>
-                    </ul>
+                    <h2><i class="fas fa-check-double"></i> Vì sao cần TypeScript?</h2>
+                    <div class="benefits-grid">
+                        <div class="benefit-item">
+                            <h4><i class="fas fa-bug"></i> Giảm lỗi runtime</h4>
+                            <p>TypeScript phát hiện lỗi ngay trong quá trình phát triển, trước khi code được chạy.</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h4><i class="fas fa-lightbulb"></i> Auto-completion thông minh</h4>
+                            <p>IDE cung cấp gợi ý chính xác dựa trên type definitions.</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h4><i class="fas fa-refresh"></i> Refactor an toàn</h4>
+                            <p>Thay đổi code với sự tự tin, TypeScript sẽ báo lỗi nếu có vấn đề.</p>
+                        </div>
+                        <div class="benefit-item">
+                            <h4><i class="fas fa-book"></i> Tài liệu hóa code</h4>
+                            <p>Types tự động tạo documentation cho API và cấu trúc dữ liệu.</p>
+                        </div>
+                    </div>
+
+                    <h2><i class="fas fa-cogs"></i> Cài đặt và thiết lập</h2>
+                    <div class="code-block">
+                        <h4>1. Cài đặt TypeScript</h4>
+                        <pre><code># Cài đặt global
+npm install -g typescript
+
+# Hoặc cài đặt local cho project
+npm install --save-dev typescript
+
+# Khởi tạo tsconfig.json
+tsc --init</code></pre>
+                    </div>
 
                     <div class="code-block">
-                        <h4>Interfaces và Generics</h4>
-                        <pre><code>interface ApiResponse<T> {
+                        <h4>2. Cấu hình tsconfig.json cơ bản</h4>
+                        <pre><code>{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "rootDir": "./src"
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-cubes"></i> Các khối xây dựng cơ bản</h2>
+                    
+                    <h3>1. Basic Types</h3>
+                    <div class="code-block">
+                        <pre><code>// Primitive types
+let name: string = "Nguyễn Minh Nhật";
+let age: number = 25;
+let isActive: boolean = true;
+let data: any = "có thể là bất kỳ kiểu nào";
+
+// Arrays
+let numbers: number[] = [1, 2, 3, 4, 5];
+let names: Array<string> = ["Alice", "Bob", "Charlie"];
+
+// Tuples
+let person: [string, number] = ["Alice", 30];
+
+// Enums
+enum Status {
+  PENDING = "pending",
+  APPROVED = "approved",
+  REJECTED = "rejected"
+}</code></pre>
+                    </div>
+
+                    <h3>2. Interfaces và Type Aliases</h3>
+                    <div class="code-block">
+                        <pre><code>// Interface
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  isActive?: boolean; // Optional property
+  readonly createdAt: Date; // Readonly property
+}
+
+// Type alias
+type ApiResponse<T> = {
   data: T;
+  success: boolean;
+  message?: string;
   error?: string;
-}
+};
 
-type User = { id: number; name: string };
-
-function wrap<T>(data: T): ApiResponse<T> {
-  return { data };
-}
-
-const res = wrap<User>({ id: 1, name: 'Alice' });
-</code></pre>
+// Extending interfaces
+interface AdminUser extends User {
+  permissions: string[];
+  canDelete: boolean;
+}</code></pre>
                     </div>
 
-                    <h2><i class="fas fa-exchange-alt"></i> Narrowing & Guards</h2>
+                    <h3>3. Generics - Tính tái sử dụng cao</h3>
                     <div class="code-block">
-                        <h4>Type guards</h4>
-                        <pre><code>type Cat = { meow: () => void };
-type Dog = { bark: () => void };
-type Pet = Cat | Dog;
-
-function isCat(p: Pet): p is Cat { return 'meow' in p; }
-
-function speak(p: Pet) {
-  if (isCat(p)) p.meow(); else p.bark();
+                        <pre><code>// Generic function
+function identity<T>(arg: T): T {
+  return arg;
 }
-</code></pre>
+
+// Generic interface
+interface Repository<T> {
+  findById(id: number): T | null;
+  save(entity: T): T;
+  delete(id: number): boolean;
+}
+
+// Generic class
+class DataService<T> {
+  private data: T[] = [];
+  
+  add(item: T): void {
+    this.data.push(item);
+  }
+  
+  getAll(): T[] {
+    return this.data;
+  }
+  
+  find(predicate: (item: T) => boolean): T | undefined {
+    return this.data.find(predicate);
+  }
+}
+
+// Usage
+const userService = new DataService<User>();
+const productService = new DataService<Product>();</code></pre>
                     </div>
 
-                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                    <h2><i class="fas fa-exchange-alt"></i> Union Types và Type Guards</h2>
                     <div class="code-block">
-                        <h4>Luồng type checking</h4>
-                        <pre><code>[TS source] → [Type Checker] → [JS output]
-Errors (nếu có)   ↑
-</code></pre>
+                        <pre><code>// Union types
+type Status = "loading" | "success" | "error";
+type StringOrNumber = string | number;
+
+// Discriminated unions
+type LoadingState = {
+  status: "loading";
+};
+
+type SuccessState = {
+  status: "success";
+  data: any;
+};
+
+type ErrorState = {
+  status: "error";
+  error: string;
+};
+
+type AppState = LoadingState | SuccessState | ErrorState;
+
+// Type guards
+function isSuccessState(state: AppState): state is SuccessState {
+  return state.status === "success";
+}
+
+function handleState(state: AppState) {
+  switch (state.status) {
+    case "loading":
+      console.log("Đang tải...");
+      break;
+    case "success":
+      console.log("Dữ liệu:", state.data);
+      break;
+    case "error":
+      console.log("Lỗi:", state.error);
+      break;
+  }
+}</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-magic"></i> Advanced Types</h2>
+                    
+                    <h3>1. Utility Types</h3>
+                    <div class="code-block">
+                        <pre><code>interface User {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  createdAt: Date;
+}
+
+// Partial - tất cả properties đều optional
+type UserUpdate = Partial<User>;
+
+// Pick - chỉ lấy một số properties
+type UserPublic = Pick<User, 'id' | 'name' | 'email'>;
+
+// Omit - loại bỏ một số properties
+type UserCreate = Omit<User, 'id' | 'createdAt'>;
+
+// Record - tạo object type với key-value
+type UserRoles = Record<string, string[]>;
+
+// Required - tất cả properties đều required
+type UserRequired = Required<User>;</code></pre>
+                    </div>
+
+                    <h3>2. Conditional Types</h3>
+                    <div class="code-block">
+                        <pre><code>// Conditional type
+type ApiResponse<T> = T extends string 
+  ? { message: T } 
+  : { data: T };
+
+// Mapped types
+type Optional<T> = {
+  [P in keyof T]?: T[P];
+};
+
+// Template literal types
+type EventName<T extends string> = `on${Capitalize<T>}`;
+type ClickEvent = EventName<'click'>; // "onClick"</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-tools"></i> Best Practices</h2>
+                    <div class="best-practices">
+                        <div class="practice-item">
+                            <h4><i class="fas fa-star"></i> Sử dụng strict mode</h4>
+                            <p>Bật strict mode trong tsconfig.json để có type checking nghiêm ngặt nhất.</p>
+                        </div>
+                        <div class="practice-item">
+                            <h4><i class="fas fa-star"></i> Tránh sử dụng 'any'</h4>
+                            <p>Thay vì dùng 'any', hãy định nghĩa types cụ thể hoặc sử dụng 'unknown'.</p>
+                        </div>
+                        <div class="practice-item">
+                            <h4><i class="fas fa-star"></i> Sử dụng interfaces cho objects</h4>
+                            <p>Interfaces phù hợp cho việc định nghĩa cấu trúc object, types cho unions và primitives.</p>
+                        </div>
+                        <div class="practice-item">
+                            <h4><i class="fas fa-star"></i> Leverage type inference</h4>
+                            <p>Để TypeScript tự suy luận types khi có thể, chỉ khai báo explicit types khi cần thiết.</p>
+                        </div>
+                    </div>
+
+                    <h2><i class="fas fa-chart-line"></i> So sánh với JavaScript</h2>
+                    <div class="comparison-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Tính năng</th>
+                                    <th>JavaScript</th>
+                                    <th>TypeScript</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>Type Safety</td>
+                                    <td>Runtime errors</td>
+                                    <td>Compile-time errors</td>
+                                </tr>
+                                <tr>
+                                    <td>IntelliSense</td>
+                                    <td>Cơ bản</td>
+                                    <td>Nâng cao với type info</td>
+                                </tr>
+                                <tr>
+                                    <td>Refactoring</td>
+                                    <td>Rủi ro cao</td>
+                                    <td>An toàn với type checking</td>
+                                </tr>
+                                <tr>
+                                    <td>Documentation</td>
+                                    <td>JSDoc comments</td>
+                                    <td>Types tự động tạo docs</td>
+                                </tr>
+                                <tr>
+                                    <td>Learning Curve</td>
+                                    <td>Dễ học</td>
+                                    <td>Trung bình (cần hiểu types)</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h2><i class="fas fa-rocket"></i> Ví dụ thực tế: API Service</h2>
+                    <div class="code-block">
+                        <pre><code>// types/api.ts
+export interface ApiResponse<T> {
+  data: T;
+  success: boolean;
+  message?: string;
+  errors?: string[];
+}
+
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  avatar?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateUserRequest {
+  name: string;
+  email: string;
+  password: string;
+}
+
+export interface UpdateUserRequest {
+  name?: string;
+  email?: string;
+  avatar?: string;
+}
+
+// services/userService.ts
+export class UserService {
+  private baseUrl: string;
+
+  constructor(baseUrl: string = '/api') {
+    this.baseUrl = baseUrl;
+  }
+
+  async getUsers(): Promise<ApiResponse<User[]>> {
+    const response = await fetch(`${this.baseUrl}/users`);
+    return response.json();
+  }
+
+  async getUserById(id: number): Promise<ApiResponse<User>> {
+    const response = await fetch(`${this.baseUrl}/users/${id}`);
+    return response.json();
+  }
+
+  async createUser(userData: CreateUserRequest): Promise<ApiResponse<User>> {
+    const response = await fetch(`${this.baseUrl}/users`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
+    return response.json();
+  }
+
+  async updateUser(id: number, userData: UpdateUserRequest): Promise<ApiResponse<User>> {
+    const response = await fetch(`${this.baseUrl}/users/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(userData),
+    });
+    return response.json();
+  }
+
+  async deleteUser(id: number): Promise<ApiResponse<void>> {
+    const response = await fetch(`${this.baseUrl}/users/${id}`, {
+      method: 'DELETE',
+    });
+    return response.json();
+  }
+}
+
+// Usage
+const userService = new UserService();
+
+// Type-safe API calls
+const users = await userService.getUsers();
+if (users.success) {
+  console.log('Users:', users.data);
+} else {
+  console.error('Error:', users.errors);
+}</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-lightbulb"></i> Tips và Tricks</h2>
+                    <div class="tips-section">
+                        <div class="tip-item">
+                            <h4><i class="fas fa-code"></i> Type Assertions</h4>
+                            <div class="code-block">
+                                <pre><code>// Khi bạn biết chắc type của một value
+const userInput = document.getElementById('username') as HTMLInputElement;
+const value = userInput.value; // TypeScript biết đây là string</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="tip-item">
+                            <h4><i class="fas fa-code"></i> Non-null Assertion</h4>
+                            <div class="code-block">
+                                <pre><code>// Khi bạn chắc chắn value không null/undefined
+const element = document.getElementById('myDiv')!;
+element.classList.add('active');</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="tip-item">
+                            <h4><i class="fas fa-code"></i> Index Signatures</h4>
+                            <div class="code-block">
+                                <pre><code>interface StringDictionary {
+  [key: string]: string;
+}
+
+const config: StringDictionary = {
+  apiUrl: 'https://api.example.com',
+  timeout: '5000'
+};</code></pre>
+                            </div>
+                        </div>
                     </div>
 
                     <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
-                    <ul>
-                        <li><a href="https://www.typescriptlang.org/docs/" target="_blank" rel="noopener">TypeScript Docs</a></li>
-                        <li><a href="https://www.typescriptlang.org/tsconfig" target="_blank" rel="noopener">tsconfig reference</a></li>
-                    </ul>
+                    <div class="resources-grid">
+                        <div class="resource-item">
+                            <h4><i class="fas fa-globe"></i> Tài liệu chính thức</h4>
+                            <ul>
+                                <li><a href="https://www.typescriptlang.org/docs/" target="_blank" rel="noopener">TypeScript Handbook</a></li>
+                                <li><a href="https://www.typescriptlang.org/tsconfig" target="_blank" rel="noopener">TSConfig Reference</a></li>
+                                <li><a href="https://www.typescriptlang.org/play" target="_blank" rel="noopener">TypeScript Playground</a></li>
+                            </ul>
+                        </div>
+                        <div class="resource-item">
+                            <h4><i class="fas fa-video"></i> Học qua video</h4>
+                            <ul>
+                                <li><a href="https://www.youtube.com/watch?v=BwuLxPH8IDs" target="_blank" rel="noopener">TypeScript Course for Beginners</a></li>
+                                <li><a href="https://www.youtube.com/watch?v=ahCwqrYpIuM" target="_blank" rel="noopener">Advanced TypeScript Patterns</a></li>
+                            </ul>
+                        </div>
+                        <div class="resource-item">
+                            <h4><i class="fas fa-book-open"></i> Sách hay</h4>
+                            <ul>
+                                <li><a href="https://www.oreilly.com/library/view/programming-typescript/9781492037644/" target="_blank" rel="noopener">Programming TypeScript</a></li>
+                                <li><a href="https://basarat.gitbook.io/typescript/" target="_blank" rel="noopener">TypeScript Deep Dive</a></li>
+                            </ul>
+                        </div>
+                    </div>
 
+                    <!-- Blog Post Navigation -->
+                    <div class="blog-post-navigation">
+                        <a href="es6-features-modern-js.html" class="nav-post prev">
+                            <i class="fas fa-arrow-left nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài trước</h4>
+                                <h3>ES6+ Features: JavaScript hiện đại</h3>
+                            </div>
+                        </a>
+                        
+                        <a href="unit-integration-testing-java.html" class="nav-post next">
+                            <i class="fas fa-arrow-right nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài tiếp theo</h4>
+                                <h3>Unit & Integration Testing với Java</h3>
+                            </div>
+                        </a>
+                    </div>
+                    
                     <div class="blog-navigation">
                         <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
                     </div>
@@ -128,7 +533,7 @@ Errors (nếu có)   ↑
                     </div>
                 </div>
             </div>
-            <div class="footer-bottom"><p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
+            <div class="footer-bottom"><p>&copy; 2025 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
         </div>
     </footer>
 

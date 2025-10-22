@@ -166,7 +166,10 @@ const handleNavbarScroll = throttle(() => {
     }
 }, 16); // ~60fps
 
-window.addEventListener('scroll', handleNavbarScroll, { passive: true });
+// Only add scroll listener if navbar exists
+if (navbar) {
+    window.addEventListener('scroll', handleNavbarScroll, { passive: true });
+}
 
 // Optimized active navigation link highlighting (only for pages with sections)
 const handleNavHighlight = throttle(() => {
@@ -190,7 +193,10 @@ const handleNavHighlight = throttle(() => {
     });
 }, 100);
 
-window.addEventListener('scroll', handleNavHighlight, { passive: true });
+// Only add scroll listener if sections exist
+if (sections.length > 0) {
+    window.addEventListener('scroll', handleNavHighlight, { passive: true });
+}
 
 // Optimized Intersection Observer for animations
 const observerOptions = {
@@ -208,68 +214,76 @@ const observer = new IntersectionObserver((entries) => {
     });
 }, observerOptions);
 
-// Observe elements for animation - reduced scope
-const animatedElements = document.querySelectorAll('.blog-card, .cv-section-item, .timeline-item, .skill-item');
-animatedElements.forEach(el => {
-    observer.observe(el);
-});
+// Observe elements for animation - reduced scope and only on CV page
+const animatedElements = document.querySelectorAll('.cv-section-item, .timeline-item, .skill-item');
+if (animatedElements.length > 0) {
+    animatedElements.forEach(el => {
+        observer.observe(el);
+    });
+}
 
 // Optimized skill bars animation
 const skillBars = document.querySelectorAll('.skill-progress');
-const skillObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const skillBar = entry.target;
-            const width = skillBar.getAttribute('data-width');
-            requestAnimationFrame(() => {
-                skillBar.style.width = width;
-            });
-            // Unobserve after animation
-            skillObserver.unobserve(entry.target);
-        }
-    });
-}, { threshold: 0.3 });
+if (skillBars.length > 0) {
+    const skillObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const skillBar = entry.target;
+                const width = skillBar.getAttribute('data-width');
+                requestAnimationFrame(() => {
+                    skillBar.style.width = width;
+                });
+                // Unobserve after animation
+                skillObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.3 });
 
-skillBars.forEach(bar => {
-    skillObserver.observe(bar);
-});
+    skillBars.forEach(bar => {
+        skillObserver.observe(bar);
+    });
+}
 
 // Optimized blog card hover effects with CSS transforms
-blogCards.forEach(card => {
-    card.addEventListener('mouseenter', () => {
-        card.style.transform = 'translate3d(0, -5px, 0)';
+if (blogCards.length > 0) {
+    blogCards.forEach(card => {
+        card.addEventListener('mouseenter', () => {
+            card.style.transform = 'translate3d(0, -5px, 0)';
+        });
+        
+        card.addEventListener('mouseleave', () => {
+            card.style.transform = 'translate3d(0, 0, 0)';
+        });
     });
-    
-    card.addEventListener('mouseleave', () => {
-        card.style.transform = 'translate3d(0, 0, 0)';
-    });
-});
+}
 
 // Removed typing effect for better performance - static text is faster
 // Navigate to detail page when clicking anywhere on a blog card
-blogCards.forEach(card => {
-    const link = card.querySelector('.blog-link');
-    if (!link) return;
+if (blogCards.length > 0) {
+    blogCards.forEach(card => {
+        const link = card.querySelector('.blog-link');
+        if (!link) return;
 
-    // Visual cue for interactivity
-    card.style.cursor = 'pointer';
+        // Visual cue for interactivity
+        card.style.cursor = 'pointer';
 
-    // Click handler
-    card.addEventListener('click', (e) => {
-        // If the click originated from an interactive element with its own href, let it proceed
-        const target = e.target;
-        if (target.closest && target.closest('a')) return;
-        window.location.href = link.getAttribute('href');
-    });
-
-    // Keyboard accessibility: allow Enter to activate
-    card.setAttribute('tabindex', '0');
-    card.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' || e.keyCode === 13) {
+        // Click handler
+        card.addEventListener('click', (e) => {
+            // If the click originated from an interactive element with its own href, let it proceed
+            const target = e.target;
+            if (target.closest && target.closest('a')) return;
             window.location.href = link.getAttribute('href');
-        }
+        });
+
+        // Keyboard accessibility: allow Enter to activate
+        card.setAttribute('tabindex', '0');
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.keyCode === 13) {
+                window.location.href = link.getAttribute('href');
+            }
+        });
     });
-});
+}
 
 // Optimized search functionality with debouncing (only on blog page)
 function createSearchBox() {
@@ -430,3 +444,29 @@ function generateQRCode() {
 
 // Initialize QR Code when page loads
 document.addEventListener('DOMContentLoaded', generateQRCode);
+
+// Add click functionality to QR Code
+document.addEventListener('DOMContentLoaded', function() {
+    const qrContainer = document.getElementById('qrcode');
+    if (!qrContainer) return;
+    
+    const credlyUrl = 'https://www.credly.com/users/2207-nguy-n-minh-nh-t';
+    
+    // Add click event to QR code container
+    qrContainer.style.cursor = 'pointer';
+    qrContainer.title = 'Click để mở link Credly';
+    
+    qrContainer.addEventListener('click', function() {
+        window.open(credlyUrl, '_blank');
+    });
+    
+    // Add hover effect
+    qrContainer.addEventListener('mouseenter', function() {
+        qrContainer.style.transform = 'scale(1.05)';
+        qrContainer.style.transition = 'transform 0.2s ease';
+    });
+    
+    qrContainer.addEventListener('mouseleave', function() {
+        qrContainer.style.transform = 'scale(1)';
+    });
+});

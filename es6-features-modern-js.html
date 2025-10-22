@@ -46,76 +46,453 @@
                 </div>
 
                 <div class="blog-detail-content">
-                    <h2><i class="fas fa-code"></i> Cú pháp hiện đại giúp code gọn hơn</h2>
-                    <ul>
-                        <li><strong>let/const</strong>: tránh hoisting khó hiểu của var, tăng tính an toàn</li>
-                        <li><strong>Arrow functions</strong>: lexical this, code ngắn</li>
-                        <li><strong>Destructuring</strong>: lấy dữ liệu từ object/array nhanh</li>
-                        <li><strong>Spread/Rest</strong>: sao chép/hợp nhất và nhận tham số linh hoạt</li>
-                    </ul>
+                    <div class="intro-section">
+                        <p class="intro-text">ES6+ (ECMAScript 2015+) đã cách mạng hóa JavaScript với những tính năng mạnh mẽ giúp code trở nên sạch sẽ, dễ đọc và hiệu quả hơn. Trong bài viết này, chúng ta sẽ khám phá những tính năng quan trọng nhất mà mọi developer JavaScript cần nắm vững.</p>
+                    </div>
 
-                    <h2><i class="fas fa-plug"></i> Modules và Async/Await</h2>
-                    <p>Modules (import/export) giúp chia nhỏ code, dễ tái sử dụng. Async/Await làm rõ luồng bất đồng bộ, thay thế callback hell.</p>
-
+                    <h2><i class="fas fa-code"></i> 1. Khai báo biến với let/const</h2>
+                    <p>ES6 giới thiệu <code>let</code> và <code>const</code> để thay thế <code>var</code>, giải quyết vấn đề hoisting và tăng tính an toàn cho code.</p>
+                    
                     <div class="code-block">
-                        <h4>Async/Await ví dụ</h4>
-                        <pre><code>// api.js
-export async function fetchUsers() {
-  const res = await fetch('https://jsonplaceholder.typicode.com/users');
-  if (!res.ok) throw new Error('Network error');
-  return res.json();
+                        <h4>So sánh var vs let/const</h4>
+                        <pre><code>// Vấn đề với var
+function example() {
+  console.log(x); // undefined (hoisting)
+  var x = 5;
+  if (true) {
+    var x = 10; // Ghi đè biến x
+  }
+  console.log(x); // 10
 }
 
-// main.js
-import { fetchUsers } from './api.js';
+// Giải pháp với let/const
+function example() {
+  // console.log(x); // ReferenceError
+  let x = 5;
+  if (true) {
+    let x = 10; // Biến x riêng biệt
+  }
+  console.log(x); // 5
+}
 
+// const cho hằng số
+const PI = 3.14159;
+const user = { name: 'John', age: 30 };
+user.age = 31; // OK - chỉ thay đổi property
+// user = {}; // Error - không thể reassign
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-arrow-right"></i> 2. Arrow Functions</h2>
+                    <p>Arrow functions cung cấp cú pháp ngắn gọn và lexical <code>this</code> binding, rất hữu ích cho callbacks và functional programming.</p>
+                    
+                    <div class="code-block">
+                        <h4>Arrow Functions trong thực tế</h4>
+                        <pre><code>// Traditional function
+const numbers = [1, 2, 3, 4, 5];
+const doubled = numbers.map(function(n) {
+  return n * 2;
+});
+
+// Arrow function
+const doubled = numbers.map(n => n * 2);
+
+// Lexical this
+class Timer {
+  constructor() {
+    this.seconds = 0;
+  }
+  
+  start() {
+    // Arrow function giữ nguyên this
+    setInterval(() => {
+      this.seconds++;
+      console.log(this.seconds);
+    }, 1000);
+  }
+}
+
+// So sánh với regular function
+class Timer {
+  constructor() {
+    this.seconds = 0;
+  }
+  
+  start() {
+    // Regular function có this riêng
+    setInterval(function() {
+      this.seconds++; // this là window/undefined
+    }, 1000);
+  }
+}
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-unpack"></i> 3. Destructuring Assignment</h2>
+                    <p>Destructuring cho phép trích xuất dữ liệu từ arrays và objects một cách ngắn gọn và rõ ràng.</p>
+                    
+                    <div class="code-block">
+                        <h4>Destructuring Arrays và Objects</h4>
+                        <pre><code>// Array destructuring
+const colors = ['red', 'green', 'blue'];
+const [primary, secondary, tertiary] = colors;
+console.log(primary); // 'red'
+
+// Object destructuring
+const user = {
+  name: 'John Doe',
+  email: 'john@example.com',
+  age: 30,
+  address: {
+    city: 'Hanoi',
+    country: 'Vietnam'
+  }
+};
+
+const { name, email, age, address: { city } } = user;
+console.log(name, city); // 'John Doe', 'Hanoi'
+
+// Destructuring với default values
+const { phone = 'N/A', name: fullName } = user;
+console.log(phone); // 'N/A'
+
+// Destructuring trong function parameters
+function createUser({ name, email, age = 18 }) {
+  return { name, email, age };
+}
+
+const newUser = createUser({
+  name: 'Jane',
+  email: 'jane@example.com'
+  // age sẽ là 18 (default)
+});
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-expand-arrows-alt"></i> 4. Spread và Rest Operators</h2>
+                    <p>Spread operator (<code>...</code>) và Rest parameters giúp làm việc với arrays và objects linh hoạt hơn.</p>
+                    
+                    <div class="code-block">
+                        <h4>Spread và Rest trong thực tế</h4>
+                        <pre><code>// Spread với arrays
+const arr1 = [1, 2, 3];
+const arr2 = [4, 5, 6];
+const combined = [...arr1, ...arr2]; // [1, 2, 3, 4, 5, 6]
+
+// Spread với objects
+const user = { name: 'John', age: 30 };
+const updatedUser = { ...user, age: 31, city: 'Hanoi' };
+// { name: 'John', age: 31, city: 'Hanoi' }
+
+// Rest parameters
+function sum(...numbers) {
+  return numbers.reduce((total, num) => total + num, 0);
+}
+console.log(sum(1, 2, 3, 4)); // 10
+
+// Rest với destructuring
+const [first, second, ...rest] = [1, 2, 3, 4, 5];
+console.log(first, second, rest); // 1, 2, [3, 4, 5]
+
+// Spread trong function calls
+const numbers = [1, 2, 3];
+console.log(Math.max(...numbers)); // 3
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-plug"></i> 5. Modules (ES6 Modules)</h2>
+                    <p>ES6 Modules cung cấp cách tổ chức code thành các module riêng biệt, dễ quản lý và tái sử dụng.</p>
+                    
+                    <div class="code-block">
+                        <h4>Export và Import</h4>
+                        <pre><code>// utils.js - Named exports
+export const formatDate = (date) => {
+  return new Intl.DateTimeFormat('vi-VN').format(date);
+};
+
+export const formatCurrency = (amount) => {
+  return new Intl.NumberFormat('vi-VN', {
+    style: 'currency',
+    currency: 'VND'
+  }).format(amount);
+};
+
+// Default export
+export default class ApiClient {
+  constructor(baseURL) {
+    this.baseURL = baseURL;
+  }
+  
+  async get(endpoint) {
+    const response = await fetch(`${this.baseURL}${endpoint}`);
+    return response.json();
+  }
+}
+
+// main.js - Import
+import ApiClient, { formatDate, formatCurrency } from './utils.js';
+
+const api = new ApiClient('https://api.example.com');
+const date = formatDate(new Date());
+const price = formatCurrency(1000000);
+</code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-sync"></i> 6. Async/Await</h2>
+                    <p>Async/Await làm cho việc xử lý bất đồng bộ trở nên dễ đọc và dễ debug hơn so với Promises và callbacks.</p>
+                    
+                    <div class="code-block">
+                        <h4>Async/Await trong thực tế</h4>
+                        <pre><code>// Callback hell (cũ)
+function fetchUserData(userId, callback) {
+  fetchUser(userId, (user) => {
+    fetchPosts(user.id, (posts) => {
+      fetchComments(posts[0].id, (comments) => {
+        callback({ user, posts, comments });
+      });
+    });
+  });
+}
+
+// Promise chain
+function fetchUserData(userId) {
+  return fetchUser(userId)
+    .then(user => fetchPosts(user.id))
+    .then(posts => fetchComments(posts[0].id))
+    .then(comments => ({ user, posts, comments }));
+}
+
+// Async/Await (hiện đại)
+async function fetchUserData(userId) {
+  try {
+    const user = await fetchUser(userId);
+    const posts = await fetchPosts(user.id);
+    const comments = await fetchComments(posts[0].id);
+    
+    return { user, posts, comments };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+    throw error;
+  }
+}
+
+// Sử dụng
 (async () => {
   try {
-    const users = await fetchUsers();
-    console.log(users.map(u => u.name));
-  } catch (e) {
-    console.error(e.message);
+    const data = await fetchUserData(123);
+    console.log(data);
+  } catch (error) {
+    console.error('Failed to fetch user data');
   }
 })();
 </code></pre>
                     </div>
 
-                    <h2><i class="fas fa-lightbulb"></i> Best practices</h2>
-                    <ul>
-                        <li>Dùng const mặc định, chuyển sang let khi cần reassign</li>
-                        <li>Ưu tiên arrow functions cho callbacks</li>
-                        <li>Tránh lồng await trong vòng lặp, dùng Promise.all khi phù hợp</li>
-                    </ul>
-
-                    <h2><i class="fas fa-bug"></i> Pitfalls thường gặp</h2>
-                    <ul>
-                        <li>this trong arrow function là lexical, không dùng được làm method cần bind</li>
-                        <li>Destructuring với default values có thể che lỗi null/undefined</li>
-                        <li>Top-level await chỉ khả dụng trong ESM, chú ý môi trường build</li>
-                    </ul>
-
+                    <h2><i class="fas fa-bolt"></i> 7. Template Literals</h2>
+                    <p>Template literals cung cấp cú pháp mạnh mẽ để tạo strings với interpolation và multiline.</p>
+                    
                     <div class="code-block">
-                        <h4>Promise.all tối ưu vòng lặp</h4>
-                        <pre><code>const urls = ['a.json','b.json','c.json'];
-const results = await Promise.all(urls.map(u => fetch(u).then(r => r.json())));
-console.log(results);
+                        <h4>Template Literals nâng cao</h4>
+                        <pre><code>// String interpolation
+const name = 'John';
+const age = 30;
+const message = `Xin chào, tôi là ${name}, ${age} tuổi.`;
+
+// Multiline strings
+const html = `
+  <div class="user-card">
+    <h2>${name}</h2>
+    <p>Tuổi: ${age}</p>
+    <p>Ngày tạo: ${new Date().toLocaleDateString('vi-VN')}</p>
+  </div>
+`;
+
+// Tagged templates
+function highlight(strings, ...values) {
+  return strings.reduce((result, string, i) => {
+    const value = values[i] ? `<mark>${values[i]}</mark>` : '';
+    return result + string + value;
+  }, '');
+}
+
+const name = 'JavaScript';
+const version = 'ES6+';
+const html = highlight`Ngôn ngữ ${name} phiên bản ${version} rất mạnh mẽ!`;
+// "Ngôn ngữ <mark>JavaScript</mark> phiên bản <mark>ES6+</mark> rất mạnh mẽ!"
 </code></pre>
                     </div>
 
-                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
+                    <h2><i class="fas fa-lightbulb"></i> 8. Best Practices và Tips</h2>
+                    <div class="tips-section">
+                        <div class="tip-item">
+                            <h4><i class="fas fa-check-circle"></i> Sử dụng const mặc định</h4>
+                            <p>Chỉ dùng <code>let</code> khi thực sự cần reassign biến. Điều này giúp code an toàn hơn và dễ debug.</p>
+                        </div>
+                        
+                        <div class="tip-item">
+                            <h4><i class="fas fa-check-circle"></i> Arrow functions cho callbacks</h4>
+                            <p>Ưu tiên arrow functions cho callbacks và functional programming, nhưng tránh dùng làm object methods.</p>
+                        </div>
+                        
+                        <div class="tip-item">
+                            <h4><i class="fas fa-check-circle"></i> Destructuring với default values</h4>
+                            <p>Sử dụng default values để tránh undefined errors và làm code robust hơn.</p>
+                        </div>
+                        
+                        <div class="tip-item">
+                            <h4><i class="fas fa-check-circle"></i> Promise.all cho parallel operations</h4>
+                            <p>Khi cần thực hiện nhiều async operations song song, dùng <code>Promise.all</code> thay vì await tuần tự.</p>
+                        </div>
+                    </div>
+
                     <div class="code-block">
-                        <h4>Module dependency (giản lược)</h4>
-                        <pre><code>[main.js] → imports → [api.js]
-[main.js] → imports → [utils.js]
+                        <h4>Promise.all tối ưu</h4>
+                        <pre><code>// Chậm - tuần tự
+async function fetchDataSlow() {
+  const users = await fetchUsers();
+  const posts = await fetchPosts();
+  const comments = await fetchComments();
+  return { users, posts, comments };
+}
+
+// Nhanh - song song
+async function fetchDataFast() {
+  const [users, posts, comments] = await Promise.all([
+    fetchUsers(),
+    fetchPosts(),
+    fetchComments()
+  ]);
+  return { users, posts, comments };
+}
+
+// Xử lý lỗi với Promise.allSettled
+async function fetchDataWithErrorHandling() {
+  const results = await Promise.allSettled([
+    fetchUsers(),
+    fetchPosts(),
+    fetchComments()
+  ]);
+  
+  const successful = results
+    .filter(result => result.status === 'fulfilled')
+    .map(result => result.value);
+    
+  const failed = results
+    .filter(result => result.status === 'rejected')
+    .map(result => result.reason);
+    
+  return { successful, failed };
+}
 </code></pre>
+                    </div>
+
+                    <h2><i class="fas fa-exclamation-triangle"></i> 9. Common Pitfalls và Cách tránh</h2>
+                    <div class="pitfalls-section">
+                        <div class="pitfall-item">
+                            <h4><i class="fas fa-bug"></i> Arrow functions và this</h4>
+                            <p>Arrow functions không có <code>this</code> riêng, không dùng được làm object methods cần bind.</p>
+                            <div class="code-block">
+                                <pre><code>// Sai
+const obj = {
+  name: 'John',
+  greet: () => {
+    console.log(`Hello, I'm ${this.name}`); // this là window
+  }
+};
+
+// Đúng
+const obj = {
+  name: 'John',
+  greet() {
+    console.log(`Hello, I'm ${this.name}`); // this là obj
+  }
+};</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="pitfall-item">
+                            <h4><i class="fas fa-bug"></i> Destructuring với null/undefined</h4>
+                            <p>Destructuring có thể che giấu lỗi null/undefined, cần kiểm tra kỹ.</p>
+                            <div class="code-block">
+                                <pre><code>// Nguy hiểm
+const { name, age } = user; // user có thể null
+
+// An toàn
+const { name = 'Unknown', age = 0 } = user || {};
+</code></pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2><i class="fas fa-chart-line"></i> 10. Performance và Optimization</h2>
+                    <div class="performance-section">
+                        <div class="perf-tip">
+                            <h4><i class="fas fa-rocket"></i> Lazy Loading với Dynamic Imports</h4>
+                            <div class="code-block">
+                                <pre><code>// Dynamic import cho code splitting
+async function loadFeature() {
+  const { heavyFunction } = await import('./heavy-module.js');
+  return heavyFunction();
+}
+
+// Chỉ load khi cần
+if (userNeedsAdvancedFeature) {
+  const advancedModule = await import('./advanced.js');
+  advancedModule.init();
+}
+</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="perf-tip">
+                            <h4><i class="fas fa-rocket"></i> Memoization với useMemo pattern</h4>
+                            <div class="code-block">
+                                <pre><code>// Cache expensive calculations
+const memoizedCalculation = (() => {
+  const cache = new Map();
+  return (input) => {
+    if (cache.has(input)) {
+      return cache.get(input);
+    }
+    const result = expensiveCalculation(input);
+    cache.set(input, result);
+    return result;
+  };
+})();
+</code></pre>
+                            </div>
+                        </div>
                     </div>
 
                     <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
-                    <ul>
-                        <li><a href="https://developer.mozilla.org/docs/Web/JavaScript" target="_blank" rel="noopener">MDN JavaScript</a></li>
-                        <li><a href="https://tc39.es/ecma262/" target="_blank" rel="noopener">ECMA-262 Spec</a></li>
-                    </ul>
+                    <div class="references">
+                        <ul>
+                            <li><a href="https://developer.mozilla.org/docs/Web/JavaScript" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> MDN JavaScript Documentation</a></li>
+                            <li><a href="https://tc39.es/ecma262/" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> ECMA-262 Specification</a></li>
+                            <li><a href="https://javascript.info/" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> JavaScript.info - Modern JavaScript Tutorial</a></li>
+                            <li><a href="https://github.com/getify/You-Dont-Know-JS" target="_blank" rel="noopener"><i class="fas fa-external-link-alt"></i> You Don't Know JS Book Series</a></li>
+                        </ul>
+                    </div>
 
+                    <!-- Blog Post Navigation -->
+                    <div class="blog-post-navigation">
+                        <a href="react-lifecycle-state-management.html" class="nav-post prev">
+                            <i class="fas fa-arrow-left nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài trước</h4>
+                                <h3>React Lifecycle & State Management</h3>
+                            </div>
+                        </a>
+                        
+                        <a href="typescript-type-safety.html" class="nav-post next">
+                            <i class="fas fa-arrow-right nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài tiếp theo</h4>
+                                <h3>TypeScript: Type Safety cho JavaScript</h3>
+                            </div>
+                        </a>
+                    </div>
+                    
                     <div class="blog-navigation">
                         <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
                     </div>
@@ -150,7 +527,7 @@ console.log(results);
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p>
+                <p>&copy; 2025 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p>
             </div>
         </div>
     </footer>
@@ -158,5 +535,3 @@ console.log(results);
     <script src="script.js"></script>
 </body>
 </html>
-
-

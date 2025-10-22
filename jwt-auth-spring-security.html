@@ -44,69 +44,583 @@
                 </div>
 
                 <div class="blog-detail-content">
+                    <!-- JWT Overview -->
+                    <div class="content-section">
                     <h2><i class="fas fa-id-badge"></i> JWT là gì?</h2>
-                    <p>JWT (JSON Web Token) là chuỗi mã hóa gồm header, payload và signature. Dùng để xác thực stateless giữa client và server.</p>
-
-                    <h2><i class="fas fa-link"></i> Flow xác thực</h2>
-                    <ol>
-                        <li>Đăng nhập nhận access token</li>
-                        <li>Client gửi token trong Authorization header</li>
-                        <li>Filter verify token, set Authentication vào SecurityContext</li>
-                    </ol>
+                        <p>JWT (JSON Web Token) là một chuẩn mở (RFC 7519) định nghĩa cách truyền thông tin an toàn giữa các bên dưới dạng JSON object. JWT được ký số để có thể xác minh và tin cậy.</p>
+                        
+                        <div class="info-box">
+                            <h4><i class="fas fa-info-circle"></i> Cấu trúc JWT</h4>
+                            <p>JWT gồm 3 phần được phân cách bởi dấu chấm (.)</p>
+                            <ul>
+                                <li><strong>Header:</strong> Chứa metadata về token (thuật toán mã hóa, loại token)</li>
+                                <li><strong>Payload:</strong> Chứa claims (thông tin về user, quyền hạn, thời gian hết hạn)</li>
+                                <li><strong>Signature:</strong> Được tạo từ header, payload và secret key để xác thực</li>
+                            </ul>
+                        </div>
 
                     <div class="code-block">
-                        <h4>Bộ lọc xác thực JWT (ví dụ rút gọn)</h4>
-                        <pre><code>public class JwtAuthFilter extends OncePerRequestFilter {
-  @Override
-  protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain)
-      throws ServletException, IOException {
-    String header = request.getHeader("Authorization");
-    if (header != null && header.startsWith("Bearer ")) {
-      String token = header.substring(7);
-      // verify token -> set Authentication
-      UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("user", null, List.of());
-      SecurityContextHolder.getContext().setAuthentication(auth);
+                            <h4>Ví dụ JWT Token</h4>
+                            <pre><code>eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyMTIzIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Authentication Flow -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-route"></i> JWT Authentication Flow</h2>
+                        <div class="flow-diagram">
+                            <div class="flow-step">
+                                <div class="step-number">1</div>
+                                <div class="step-content">
+                                    <h4>Client Login</h4>
+                                    <p>User gửi credentials (username/password) đến /login endpoint</p>
+                                </div>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <div class="step-number">2</div>
+                                <div class="step-content">
+                                    <h4>Server Validation</h4>
+                                    <p>Server xác thực credentials và tạo JWT token</p>
+                                </div>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <div class="step-number">3</div>
+                                <div class="step-content">
+                                    <h4>Token Response</h4>
+                                    <p>Server trả về JWT token cho client</p>
+                                </div>
+                            </div>
+                            <div class="flow-arrow">→</div>
+                            <div class="flow-step">
+                                <div class="step-number">4</div>
+                                <div class="step-content">
+                                    <h4>API Requests</h4>
+                                    <p>Client gửi token trong Authorization header cho các request tiếp theo</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spring Security Configuration -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-cogs"></i> Cấu hình Spring Security</h2>
+                        
+                        <div class="code-block">
+                            <h4>Security Configuration</h4>
+                            <pre><code>@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
+public class SecurityConfig {
+
+    @Autowired
+    private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+    
+    @Autowired
+    private JwtRequestFilter jwtRequestFilter;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration authConfig) throws Exception {
+        return authConfig.getAuthenticationManager();
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(csrf -> csrf.disable())
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/api/auth/**").permitAll()
+                .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/user/**").hasAnyRole("USER", "ADMIN")
+                .anyRequest().authenticated()
+            )
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+            )
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            );
+
+        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);
+        return http.build();
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- JWT Service -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-key"></i> JWT Service Implementation</h2>
+                        
+                        <div class="code-block">
+                            <h4>JWT Utility Service</h4>
+                            <pre><code>@Service
+public class JwtTokenUtil {
+
+    private static final String SECRET = "mySecretKey";
+    private static final int JWT_TOKEN_VALIDITY = 5 * 60 * 60; // 5 hours
+
+    public String getUsernameFromToken(String token) {
+        return getClaimFromToken(token, Claims::getSubject);
+    }
+
+    public Date getExpirationDateFromToken(String token) {
+        return getClaimFromToken(token, Claims::getExpiration);
+    }
+
+    public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+        final Claims claims = getAllClaimsFromToken(token);
+        return claimsResolver.apply(claims);
+    }
+
+    private Claims getAllClaimsFromToken(String token) {
+        return Jwts.parser().setSigningKey(SECRET).parseClaimsJws(token).getBody();
+    }
+
+    private Boolean isTokenExpired(String token) {
+        final Date expiration = getExpirationDateFromToken(token);
+        return expiration.before(new Date());
+    }
+
+    public String generateToken(UserDetails userDetails) {
+        Map<String, Object> claims = new HashMap<>();
+        return createToken(claims, userDetails.getUsername());
+    }
+
+    private String createToken(Map<String, Object> claims, String subject) {
+        return Jwts.builder()
+                .setClaims(claims)
+                .setSubject(subject)
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+                .signWith(SignatureAlgorithm.HS512, SECRET)
+                .compact();
+    }
+
+    public Boolean validateToken(String token, UserDetails userDetails) {
+        final String username = getUsernameFromToken(token);
+        return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- JWT Filter -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-filter"></i> JWT Authentication Filter</h2>
+                        
+                        <div class="code-block">
+                            <h4>JWT Request Filter</h4>
+                            <pre><code>@Component
+public class JwtRequestFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request, 
+                                  HttpServletResponse response, 
+                                  FilterChain chain) throws ServletException, IOException {
+
+        final String requestTokenHeader = request.getHeader("Authorization");
+
+        String username = null;
+        String jwtToken = null;
+
+        if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
+            jwtToken = requestTokenHeader.substring(7);
+            try {
+                username = jwtTokenUtil.getUsernameFromToken(jwtToken);
+            } catch (IllegalArgumentException e) {
+                logger.error("Unable to get JWT Token");
+            } catch (ExpiredJwtException e) {
+                logger.error("JWT Token has expired");
+            }
+        }
+
+        if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(username);
+
+            if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
+                UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = 
+                    new UsernamePasswordAuthenticationToken(
+                        userDetails, null, userDetails.getAuthorities());
+                usernamePasswordAuthenticationToken
+                    .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+            }
     }
     chain.doFilter(request, response);
   }
-}
-</code></pre>
+}</code></pre>
+                        </div>
                     </div>
 
-                    <h2><i class="fas fa-user-shield"></i> Phân quyền</h2>
-                    <p>Dùng roles/authorities, cấu hình antMatchers/http.authorizeHttpRequests cho endpoints tương ứng.</p>
+                    <!-- Authentication Controller -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-sign-in-alt"></i> Authentication Controller</h2>
+                        
+                        <div class="code-block">
+                            <h4>Auth Controller</h4>
+                            <pre><code>@RestController
+@RequestMapping("/api/auth")
+@CrossOrigin(origins = "*")
+public class AuthController {
 
-                    <h2><i class="fas fa-key"></i> Refresh Token và TTL</h2>
-                    <ul>
-                        <li>Dùng access token ngắn hạn, refresh token dài hạn lưu an toàn (HTTP-only cookie)</li>
-                        <li>Rotate refresh token và revoke khi nghi ngờ bị lộ</li>
+    @Autowired
+    private AuthenticationManager authenticationManager;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    @Autowired
+    private UserDetailsService userDetailsService;
+
+    @PostMapping("/login")
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) 
+            throws Exception {
+
+        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+
+        final UserDetails userDetails = userDetailsService
+                .loadUserByUsername(authenticationRequest.getUsername());
+
+        final String token = jwtTokenUtil.generateToken(userDetails);
+
+        return ResponseEntity.ok(new JwtResponse(token));
+    }
+
+    private void authenticate(String username, String password) throws Exception {
+        try {
+            authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password)
+            );
+        } catch (DisabledException e) {
+            throw new Exception("USER_DISABLED", e);
+        } catch (BadCredentialsException e) {
+            throw new Exception("INVALID_CREDENTIALS", e);
+        }
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Authorization & Roles -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-user-shield"></i> Phân quyền và Roles</h2>
+                        <p>Spring Security hỗ trợ phân quyền dựa trên roles và authorities. Có thể sử dụng annotations hoặc cấu hình trong SecurityConfig.</p>
+                        
+                        <div class="code-block">
+                            <h4>Method-level Security</h4>
+                            <pre><code>@RestController
+@RequestMapping("/api/user")
+public class UserController {
+
+    @GetMapping("/profile")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<UserProfile> getUserProfile() {
+        // Logic để lấy thông tin user
+        return ResponseEntity.ok(userProfile);
+    }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> getAdminData() {
+        return ResponseEntity.ok("Admin only data");
+    }
+
+    @PostMapping("/update")
+    @PreAuthorize("hasRole('USER') and #userId == authentication.principal.id")
+    public ResponseEntity<String> updateUser(@PathVariable Long userId) {
+        // User chỉ có thể update chính mình
+        return ResponseEntity.ok("Updated successfully");
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Security Best Practices -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-shield-alt"></i> Security Best Practices</h2>
+                        
+                        <div class="best-practices">
+                            <div class="practice-item">
+                                <h4><i class="fas fa-clock"></i> Token Expiration</h4>
+                                <ul>
+                                    <li>Access token: 15-30 phút</li>
+                                    <li>Refresh token: 7-30 ngày</li>
+                                    <li>Implement token rotation</li>
+                                </ul>
+                            </div>
+
+                            <div class="practice-item">
+                                <h4><i class="fas fa-lock"></i> Secure Storage</h4>
+                                <ul>
+                                    <li>Lưu refresh token trong HTTP-only cookie</li>
+                                    <li>Không lưu access token trong localStorage</li>
+                                    <li>Sử dụng secure flag cho cookies</li>
+                                </ul>
+                            </div>
+
+                            <div class="practice-item">
+                                <h4><i class="fas fa-key"></i> Secret Management</h4>
+                                <ul>
+                                    <li>Sử dụng strong secret key (256-bit)</li>
+                                    <li>Rotate secret keys định kỳ</li>
+                                    <li>Lưu secret trong environment variables</li>
+                                </ul>
+                            </div>
+
+                            <div class="practice-item">
+                                <h4><i class="fas fa-ban"></i> Token Revocation</h4>
+                                <ul>
+                                    <li>Implement blacklist cho revoked tokens</li>
+                                    <li>Logout endpoint để revoke tokens</li>
+                                    <li>Monitor suspicious activities</li>
                     </ul>
-
-                    <div class="code-block">
-                        <h4>Tạo JWT (ý tưởng)</h4>
-                        <pre><code>String token = Jwts.builder()
-  .setSubject(username)
-  .setIssuedAt(new Date())
-  .setExpiration(Date.from(Instant.now().plusSeconds(900)))
-  .signWith(SignatureAlgorithm.HS256, secret)
-  .compact();
-</code></pre>
+                            </div>
+                        </div>
                     </div>
 
-                    <h2><i class="fas fa-image"></i> Hình minh họa / Sơ đồ</h2>
-                    <div class="code-block">
-                        <h4>Auth Flow</h4>
-                        <pre><code>[Client] --login--> [Auth API] --JWT--> [Client]
-[Client] --Bearer--> [Protected API] --validate--> [OK]
-</code></pre>
+                    <!-- Refresh Token Implementation -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-sync-alt"></i> Refresh Token Strategy</h2>
+                        
+                        <div class="code-block">
+                            <h4>Refresh Token Service</h4>
+                            <pre><code>@Service
+public class RefreshTokenService {
+
+    @Autowired
+    private RefreshTokenRepository refreshTokenRepository;
+
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+
+    public RefreshToken createRefreshToken(Long userId) {
+        RefreshToken refreshToken = new RefreshToken();
+        refreshToken.setUserId(userId);
+        refreshToken.setToken(UUID.randomUUID().toString());
+        refreshToken.setExpiryDate(Instant.now().plusMillis(7 * 24 * 60 * 60 * 1000)); // 7 days
+        
+        return refreshTokenRepository.save(refreshToken);
+    }
+
+    public RefreshToken verifyExpiration(RefreshToken token) {
+        if (token.getExpiryDate().compareTo(Instant.now()) < 0) {
+            refreshTokenRepository.delete(token);
+            throw new TokenRefreshException(token.getToken(), "Refresh token was expired");
+        }
+        return token;
+    }
+
+    @Transactional
+    public int deleteByUserId(Long userId) {
+        return refreshTokenRepository.deleteByUserId(userId);
+    }
+}</code></pre>
+                        </div>
                     </div>
 
+                    <!-- Error Handling -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-exclamation-triangle"></i> Error Handling</h2>
+
+                    <div class="code-block">
+                            <h4>JWT Exception Handler</h4>
+                            <pre><code>@RestControllerAdvice
+public class JwtExceptionHandler {
+
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<ErrorResponse> handleExpiredJwt(ExpiredJwtException ex) {
+        ErrorResponse error = new ErrorResponse("JWT_EXPIRED", "Token has expired");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(SignatureException.class)
+    public ResponseEntity<ErrorResponse> handleSignatureException(SignatureException ex) {
+        ErrorResponse error = new ErrorResponse("JWT_INVALID", "Invalid JWT signature");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+
+    @ExceptionHandler(MalformedJwtException.class)
+    public ResponseEntity<ErrorResponse> handleMalformedJwt(MalformedJwtException ex) {
+        ErrorResponse error = new ErrorResponse("JWT_MALFORMED", "Malformed JWT");
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Testing -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-vial"></i> Testing JWT Authentication</h2>
+                        
+                    <div class="code-block">
+                            <h4>Integration Test Example</h4>
+                            <pre><code>@SpringBootTest
+@AutoConfigureTestDatabase
+class JwtAuthenticationTest {
+
+    @Autowired
+    private TestRestTemplate restTemplate;
+
+    @Test
+    void testSuccessfulAuthentication() {
+        JwtRequest request = new JwtRequest("user", "password");
+        
+        ResponseEntity<JwtResponse> response = restTemplate.postForEntity(
+            "/api/auth/login", request, JwtResponse.class);
+        
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody().getToken()).isNotNull();
+    }
+
+    @Test
+    void testProtectedEndpoint() {
+        // First login to get token
+        JwtRequest request = new JwtRequest("user", "password");
+        ResponseEntity<JwtResponse> authResponse = restTemplate.postForEntity(
+            "/api/auth/login", request, JwtResponse.class);
+        
+        String token = authResponse.getBody().getToken();
+        
+        // Use token to access protected endpoint
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        HttpEntity<String> entity = new HttpEntity<>(headers);
+        
+        ResponseEntity<String> response = restTemplate.exchange(
+            "/api/user/profile", HttpMethod.GET, entity, String.class);
+        
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+}</code></pre>
+                        </div>
+                    </div>
+
+                    <!-- Performance Considerations -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-tachometer-alt"></i> Performance Considerations</h2>
+                        
+                        <div class="performance-tips">
+                            <div class="tip-item">
+                                <h4><i class="fas fa-database"></i> Database Optimization</h4>
+                                <ul>
+                                    <li>Cache user details để giảm database calls</li>
+                                    <li>Sử dụng Redis cho token blacklist</li>
+                                    <li>Index database cho user lookups</li>
+                                </ul>
+                            </div>
+
+                            <div class="tip-item">
+                                <h4><i class="fas fa-memory"></i> Memory Management</h4>
+                                <ul>
+                                    <li>Stateless authentication giảm memory usage</li>
+                                    <li>Cleanup expired tokens định kỳ</li>
+                                    <li>Monitor JVM heap usage</li>
+                                </ul>
+                            </div>
+
+                            <div class="tip-item">
+                                <h4><i class="fas fa-network-wired"></i> Network Optimization</h4>
+                                <ul>
+                                    <li>Compress JWT payload khi có thể</li>
+                                    <li>Sử dụng HTTP/2 cho multiplexing</li>
+                                    <li>Implement connection pooling</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Troubleshooting -->
+                    <div class="content-section">
+                        <h2><i class="fas fa-bug"></i> Troubleshooting Common Issues</h2>
+                        
+                        <div class="troubleshooting">
+                            <div class="issue-item">
+                                <h4><i class="fas fa-exclamation-circle"></i> Token Expired</h4>
+                                <p><strong>Symptom:</strong> 401 Unauthorized với message "JWT expired"</p>
+                                <p><strong>Solution:</strong> Implement refresh token mechanism hoặc tăng token expiration time</p>
+                            </div>
+
+                            <div class="issue-item">
+                                <h4><i class="fas fa-key"></i> Invalid Signature</h4>
+                                <p><strong>Symptom:</strong> 401 Unauthorized với message "Invalid JWT signature"</p>
+                                <p><strong>Solution:</strong> Kiểm tra secret key consistency giữa token generation và validation</p>
+                            </div>
+
+                            <div class="issue-item">
+                                <h4><i class="fas fa-user-times"></i> User Not Found</h4>
+                                <p><strong>Symptom:</strong> 401 Unauthorized sau khi token validation thành công</p>
+                                <p><strong>Solution:</strong> Kiểm tra UserDetailsService implementation và database connection</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Resources -->
+                    <div class="content-section">
                     <h2><i class="fas fa-book"></i> Tài liệu tham khảo</h2>
-                    <ul>
-                        <li><a href="https://spring.io/projects/spring-security" target="_blank" rel="noopener">Spring Security</a></li>
-                        <li><a href="https://jwt.io/" target="_blank" rel="noopener">JWT.io</a></li>
-                    </ul>
+                        <div class="resources-grid">
+                            <div class="resource-item">
+                                <h4><i class="fas fa-globe"></i> Official Documentation</h4>
+                                <ul>
+                                    <li><a href="https://spring.io/projects/spring-security" target="_blank" rel="noopener">Spring Security Documentation</a></li>
+                                    <li><a href="https://jwt.io/" target="_blank" rel="noopener">JWT.io - JWT Debugger</a></li>
+                                    <li><a href="https://tools.ietf.org/html/rfc7519" target="_blank" rel="noopener">RFC 7519 - JWT Specification</a></li>
+                                </ul>
+                            </div>
 
+                            <div class="resource-item">
+                                <h4><i class="fas fa-graduation-cap"></i> Learning Resources</h4>
+                                <ul>
+                                    <li><a href="https://www.baeldung.com/spring-security-jwt" target="_blank" rel="noopener">Baeldung - Spring Security JWT</a></li>
+                                    <li><a href="https://auth0.com/blog/implementing-jwt-authentication-on-spring-boot/" target="_blank" rel="noopener">Auth0 - JWT with Spring Boot</a></li>
+                                    <li><a href="https://www.youtube.com/watch?v=X80NxJ2XqOs" target="_blank" rel="noopener">JWT Tutorial Video</a></li>
+                                </ul>
+                            </div>
+
+                            <div class="resource-item">
+                                <h4><i class="fas fa-tools"></i> Tools & Libraries</h4>
+                                <ul>
+                                    <li><a href="https://github.com/jwtk/jjwt" target="_blank" rel="noopener">JJWT - Java JWT Library</a></li>
+                                    <li><a href="https://github.com/auth0/java-jwt" target="_blank" rel="noopener">Auth0 Java JWT</a></li>
+                                    <li><a href="https://jwt.io/libraries" target="_blank" rel="noopener">JWT Libraries List</a></li>
+                    </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Blog Post Navigation -->
+                    <div class="blog-post-navigation">
+                        <a href="spring-boot-rest-api.html" class="nav-post prev">
+                            <i class="fas fa-arrow-left nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài trước</h4>
+                                <h3>Spring Boot: Xây dựng RESTful API</h3>
+                            </div>
+                        </a>
+                        
+                        <a href="microservices-spring-cloud.html" class="nav-post next">
+                            <i class="fas fa-arrow-right nav-post-icon"></i>
+                            <div class="nav-post-content">
+                                <h4>Bài tiếp theo</h4>
+                                <h3>Microservices với Spring Cloud</h3>
+                            </div>
+                        </a>
+                    </div>
+                    
                     <div class="blog-navigation">
                         <a href="blog.html" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Quay lại Blog</a>
                     </div>
@@ -135,7 +649,7 @@
                     </div>
                 </div>
             </div>
-            <div class="footer-bottom"><p>&copy; 2024 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
+            <div class="footer-bottom"><p>&copy; 2025 Nguyễn Minh Nhật. Tất cả quyền được bảo lưu.</p></div>
         </div>
     </footer>
 
