@@ -478,3 +478,243 @@ document.addEventListener('DOMContentLoaded', function() {
         qrContainer.style.transform = 'scale(1)';
     });
 });
+
+// PDF Viewer Enhancement for Certificates Page
+document.addEventListener('DOMContentLoaded', function() {
+    const pdfViewers = document.querySelectorAll('.pdf-viewer');
+    const fallbacks = document.querySelectorAll('.pdf-fallback');
+    
+    if (pdfViewers.length === 0) return; // Only run on certificates page
+    
+    // Check PDF support and handle fallbacks
+    pdfViewers.forEach((viewer, index) => {
+        const fallback = fallbacks[index];
+        const certificateViewer = viewer.parentNode;
+        
+        // Add error handling for PDF loading
+        viewer.addEventListener('error', function() {
+            console.log('PDF không thể tải, hiển thị fallback');
+            viewer.style.display = 'none';
+            if (fallback) {
+                fallback.style.display = 'block';
+            }
+        });
+        
+        // Add loading state
+        viewer.addEventListener('load', function() {
+            console.log('PDF đã tải thành công');
+            if (fallback) {
+                fallback.style.display = 'none';
+            }
+        });
+        
+        // Add zoom controls
+        const zoomControls = document.createElement('div');
+        zoomControls.className = 'pdf-zoom-controls';
+        zoomControls.innerHTML = `
+            <button class="zoom-btn zoom-in" title="Phóng to">
+                <i class="fas fa-plus"></i>
+            </button>
+            <button class="zoom-btn zoom-out" title="Thu nhỏ">
+                <i class="fas fa-minus"></i>
+            </button>
+            <button class="zoom-btn zoom-reset" title="Đặt lại">
+                <i class="fas fa-expand-arrows-alt"></i>
+            </button>
+            <button class="zoom-btn zoom-fullscreen" title="Toàn màn hình">
+                <i class="fas fa-expand"></i>
+            </button>
+        `;
+        
+        // Insert zoom controls into the certificate viewer
+        certificateViewer.appendChild(zoomControls);
+        
+        // Add zoom functionality
+        let currentZoom = 1;
+        const zoomInBtn = zoomControls.querySelector('.zoom-in');
+        const zoomOutBtn = zoomControls.querySelector('.zoom-out');
+        const zoomResetBtn = zoomControls.querySelector('.zoom-reset');
+        const zoomFullscreenBtn = zoomControls.querySelector('.zoom-fullscreen');
+        
+        zoomInBtn.addEventListener('click', () => {
+            currentZoom = Math.min(currentZoom + 0.2, 2);
+            viewer.style.transform = `scale(${currentZoom})`;
+            viewer.style.transformOrigin = 'top left';
+        });
+        
+        zoomOutBtn.addEventListener('click', () => {
+            currentZoom = Math.max(currentZoom - 0.2, 0.5);
+            viewer.style.transform = `scale(${currentZoom})`;
+            viewer.style.transformOrigin = 'top left';
+        });
+        
+        zoomResetBtn.addEventListener('click', () => {
+            currentZoom = 1;
+            viewer.style.transform = 'scale(1)';
+        });
+        
+        // Fullscreen functionality
+        zoomFullscreenBtn.addEventListener('click', () => {
+            if (viewer.requestFullscreen) {
+                viewer.requestFullscreen();
+            } else if (viewer.webkitRequestFullscreen) {
+                viewer.webkitRequestFullscreen();
+            } else if (viewer.msRequestFullscreen) {
+                viewer.msRequestFullscreen();
+            }
+        });
+        
+        // Add keyboard shortcuts
+        certificateViewer.addEventListener('keydown', (e) => {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '=':
+                    case '+':
+                        e.preventDefault();
+                        zoomInBtn.click();
+                        break;
+                    case '-':
+                        e.preventDefault();
+                        zoomOutBtn.click();
+                        break;
+                    case '0':
+                        e.preventDefault();
+                        zoomResetBtn.click();
+                        break;
+                }
+            }
+        });
+        
+        // Make certificate viewer focusable for keyboard shortcuts
+        certificateViewer.setAttribute('tabindex', '0');
+    });
+});
+
+// Add CSS for zoom controls
+const zoomControlsCSS = `
+    .pdf-zoom-controls {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        display: flex;
+        gap: 8px;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 8px;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+    
+    .certificate-viewer:hover .pdf-zoom-controls {
+        opacity: 1;
+    }
+    
+    .zoom-btn {
+        width: 40px;
+        height: 40px;
+        background: rgba(79, 70, 229, 0.9);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+    }
+    
+    .zoom-btn:hover {
+        background: rgba(79, 70, 229, 1);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
+    }
+    
+    .zoom-btn:active {
+        transform: translateY(0);
+    }
+    
+    .pdf-viewer {
+        transition: transform 0.3s ease;
+    }
+    
+    .certificate-viewer:focus {
+        outline: 2px solid rgba(79, 70, 229, 0.5);
+        outline-offset: 2px;
+    }
+`;
+
+// Inject CSS
+const style = document.createElement('style');
+style.textContent = zoomControlsCSS;
+document.head.appendChild(style);
+
+// Image Modal Functions for Certificates
+function openImageModal(imageSrc) {
+    const modal = document.getElementById('imageModal');
+    const modalImage = document.getElementById('modalImage');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalDescription = document.getElementById('modalDescription');
+    
+    // Set image source
+    modalImage.src = imageSrc;
+    
+    // Set title and description based on image
+    const imageName = imageSrc.split('/').pop().split('.')[0];
+    const certificateData = {
+        '1': {
+            title: 'Networking Basics',
+            description: 'Chứng chỉ hoàn thành khóa học Networking Basics từ Cisco'
+        },
+        '2': {
+            title: 'JavaScript Essentials 2',
+            description: 'Chứng chỉ hoàn thành khóa học JavaScript Essentials 2 từ Cisco'
+        },
+        '3': {
+            title: 'JavaScript Essentials 1',
+            description: 'Chứng chỉ hoàn thành khóa học JavaScript Essentials 1 từ Cisco'
+        }
+    };
+    
+    const data = certificateData[imageName] || {
+        title: 'Chứng chỉ',
+        description: 'Chứng chỉ đạt được trong quá trình học tập'
+    };
+    
+    modalTitle.textContent = data.title;
+    modalDescription.textContent = data.description;
+    
+    // Show modal
+    modal.style.display = 'block';
+    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    
+    // Add escape key listener
+    document.addEventListener('keydown', handleEscapeKey);
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('imageModal');
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto'; // Restore scrolling
+    
+    // Remove escape key listener
+    document.removeEventListener('keydown', handleEscapeKey);
+}
+
+function handleEscapeKey(event) {
+    if (event.key === 'Escape') {
+        closeImageModal();
+    }
+}
+
+// Close modal when clicking outside the image
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('imageModal');
+    if (event.target === modal) {
+        closeImageModal();
+    }
+});
