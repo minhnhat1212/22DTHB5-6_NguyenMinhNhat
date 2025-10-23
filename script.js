@@ -718,3 +718,125 @@ document.addEventListener('click', function(event) {
         closeImageModal();
     }
 });
+
+// Blog Detail Features
+function initializeBlogDetail() {
+    // Article Progress Bar
+    const progressFill = document.querySelector('.progress-fill');
+    const progressPercent = document.getElementById('progressPercent');
+    
+    if (progressFill && progressPercent) {
+        function updateProgress() {
+            const article = document.querySelector('.blog-detail-content');
+            if (!article) return;
+            
+            const articleHeight = article.offsetHeight;
+            const windowHeight = window.innerHeight;
+            const scrollTop = window.pageYOffset;
+            const articleTop = article.offsetTop;
+            const articleBottom = articleTop + articleHeight;
+            
+            const scrollProgress = Math.max(0, Math.min(100, 
+                ((scrollTop + windowHeight - articleTop) / articleHeight) * 100
+            ));
+            
+            progressFill.style.width = scrollProgress + '%';
+            progressPercent.textContent = Math.round(scrollProgress);
+        }
+        
+        window.addEventListener('scroll', throttle(updateProgress, 100));
+        updateProgress(); // Initial call
+    }
+    
+    // Copy Link Functionality
+    const copyLinkBtn = document.querySelector('.copy-link');
+    if (copyLinkBtn) {
+        copyLinkBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(window.location.href);
+                
+                // Visual feedback
+                const originalIcon = copyLinkBtn.innerHTML;
+                copyLinkBtn.innerHTML = '<i class="fas fa-check"></i>';
+                copyLinkBtn.style.background = '#10B981';
+                
+                setTimeout(() => {
+                    copyLinkBtn.innerHTML = originalIcon;
+                    copyLinkBtn.style.background = '';
+                }, 2000);
+                
+                // Show toast notification
+                showToast('Đã sao chép liên kết!');
+            } catch (err) {
+                console.error('Failed to copy link:', err);
+                showToast('Không thể sao chép liên kết', 'error');
+            }
+        });
+    }
+    
+    // Social Share Functions
+    const socialBtns = document.querySelectorAll('.social-btn:not(.copy-link)');
+    socialBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const platform = btn.querySelector('i').className;
+            let shareUrl = '';
+            
+            if (platform.includes('facebook')) {
+                shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(window.location.href)}`;
+            } else if (platform.includes('twitter')) {
+                shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(document.title)}`;
+            } else if (platform.includes('linkedin')) {
+                shareUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(window.location.href)}`;
+            }
+            
+            if (shareUrl) {
+                window.open(shareUrl, '_blank', 'width=600,height=400');
+            }
+        });
+    });
+}
+
+// Toast Notification
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    
+    // Add toast styles
+    Object.assign(toast.style, {
+        position: 'fixed',
+        top: '20px',
+        right: '20px',
+        background: type === 'error' ? '#EF4444' : '#10B981',
+        color: 'white',
+        padding: '12px 20px',
+        borderRadius: '8px',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        zIndex: '10000',
+        transform: 'translateX(100%)',
+        transition: 'transform 0.3s ease',
+        fontSize: '14px',
+        fontWeight: '500'
+    });
+    
+    document.body.appendChild(toast);
+    
+    // Animate in
+    setTimeout(() => {
+        toast.style.transform = 'translateX(0)';
+    }, 100);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        toast.style.transform = 'translateX(100%)';
+        setTimeout(() => {
+            document.body.removeChild(toast);
+        }, 300);
+    }, 3000);
+}
+
+// Initialize blog detail features
+document.addEventListener('DOMContentLoaded', () => {
+    initializeBlogDetail();
+});

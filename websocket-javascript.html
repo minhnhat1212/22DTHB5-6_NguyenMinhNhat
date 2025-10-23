@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket với JavaScript - NMN Blog</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="blog-layout.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="home.html"><h2>NMN</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="home.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="cv.html" class="nav-link">CV</a>
+                </li>
+                <li class="nav-item">
+                    <a href="certificates.html" class="nav-link">Chứng chỉ</a>
+                </li>
+                <li class="nav-item">
+                    <a href="blog.html" class="nav-link active">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-link">Liên hệ</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="blog-detail">
+        <a href="blog.html" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại Blog
+        </a>
+        
+        <h1>WebSocket với JavaScript: Giao tiếp Real-time</h1>
+        
+        <div class="blog-meta">
+            <span><i class="fa-brands fa-js"></i> JavaScript</span>
+            <span><i class="fas fa-calendar"></i> 14/12/2024</span>
+            <span><i class="fas fa-clock"></i> 4 phút đọc</span>
+        </div>
+
+        <p>WebSocket là một công nghệ cho phép giao tiếp hai chiều real-time giữa client và server.</p>
+
+        <h2>1. Nó là gì?</h2>
+        
+        <p><strong>WebSocket:</strong> Giao thức mạng cung cấp kênh giao tiếp hai chiều qua một kết nối TCP duy nhất.</p>
+        
+        <p><strong>Real-time Communication:</strong> Cho phép server gửi dữ liệu đến client mà không cần client yêu cầu trước.</p>
+        
+        <p><strong>Persistent Connection:</strong> Duy trì kết nối mở để trao đổi dữ liệu liên tục.</p>
+
+        <h2>2. Nó giúp ích cho tôi ra sao khi sử dụng?</h2>
+
+        <ul>
+            <li><strong>Chat applications:</strong> Xây dựng hệ thống nhắn tin real-time</li>
+            <li><strong>Live notifications:</strong> Thông báo tức thì cho người dùng</li>
+            <li><strong>Live updates:</strong> Cập nhật dữ liệu thời gian thực</li>
+            <li><strong>Collaborative tools:</strong> Làm việc nhóm với cập nhật đồng bộ</li>
+            <li><strong>Gaming:</strong> Xây dựng game multiplayer real-time</li>
+        </ul>
+
+        <h2>3. Cách sử dụng</h2>
+
+        <h3>3.1. Tạo kết nối WebSocket</h3>
+
+        <pre><code class="language-javascript">// Tạo kết nối WebSocket
+const socket = new WebSocket('ws://localhost:8080');
+
+// Lắng nghe sự kiện kết nối
+socket.addEventListener('open', function (event) {
+    console.log('Đã kết nối đến WebSocket server');
+    
+    // Gửi message đầu tiên
+    socket.send('Hello Server!');
+});
+
+// Lắng nghe message từ server
+socket.addEventListener('message', function (event) {
+    console.log('Nhận message từ server:', event.data);
+    
+    // Xử lý dữ liệu JSON
+    try {
+        const data = JSON.parse(event.data);
+        console.log('Dữ liệu JSON:', data);
+    } catch (e) {
+        console.log('Dữ liệu text:', event.data);
+    }
+});
+
+// Lắng nghe lỗi
+socket.addEventListener('error', function (event) {
+    console.error('WebSocket error:', event);
+});
+
+// Lắng nghe đóng kết nối
+socket.addEventListener('close', function (event) {
+    console.log('WebSocket đã đóng:', event.code, event.reason);
+});</code></pre>
+
+        <h3>3.2. Gửi dữ liệu</h3>
+
+        <pre><code class="language-javascript">// Gửi text message
+socket.send('Hello World!');
+
+// Gửi JSON data
+const message = {
+    type: 'chat',
+    content: 'Hello everyone!',
+    timestamp: Date.now()
+};
+socket.send(JSON.stringify(message));
+
+// Kiểm tra trạng thái kết nối trước khi gửi
+function sendMessage(message) {
+    if (socket.readyState === WebSocket.OPEN) {
+        socket.send(message);
+    } else {
+        console.error('WebSocket chưa kết nối');
+    }
+}</code></pre>
+
+        <h3>3.3. Chat Application đơn giản</h3>
+
+        <pre><code class="language-javascript">class ChatApp {
+    constructor() {
+        this.socket = null;
+        this.messageContainer = document.getElementById('messages');
+        this.messageInput = document.getElementById('messageInput');
+        this.sendButton = document.getElementById('sendButton');
+        
+        this.init();
+    }
+    
+    init() {
+        this.connect();
+        this.setupEventListeners();
+    }
+    
+    connect() {
+        this.socket = new WebSocket('ws://localhost:8080');
+        
+        this.socket.onopen = () => {
+            console.log('Connected to chat server');
+            this.addMessage('System', 'Connected to chat server');
+        };
+        
+        this.socket.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            this.addMessage(data.username, data.message);
+        };
+        
+        this.socket.onclose = () => {
+            console.log('Disconnected from chat server');
+            this.addMessage('System', 'Disconnected from chat server');
+        };
+    }
+    
+    setupEventListeners() {
+        this.sendButton.addEventListener('click', () => {
+            this.sendMessage();
+        });
+        
+        this.messageInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                this.sendMessage();
+            }
+        });
+    }
+    
+    sendMessage() {
+        const message = this.messageInput.value.trim();
+        if (message && this.socket.readyState === WebSocket.OPEN) {
+            this.socket.send(JSON.stringify({
+                username: 'User',
+                message: message
+            }));
+            this.messageInput.value = '';
+        }
+    }
+    
+    addMessage(username, message) {
+        const messageElement = document.createElement('div');
+        messageElement.innerHTML = `<strong>${username}:</strong> ${message}`;
+        this.messageContainer.appendChild(messageElement);
+        this.messageContainer.scrollTop = this.messageContainer.scrollHeight;
+    }
+}
+
+// Khởi tạo chat app
+const chatApp = new ChatApp();</code></pre>
+
+        <h2>4. Kết luận</h2>
+
+        <p><strong>Khuyến nghị:</strong> Sử dụng WebSocket cho các ứng dụng cần giao tiếp real-time, implement proper error handling và reconnection logic.</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>NMN</h3>
+                    <p>Chia sẻ kiến thức về lập trình và công nghệ</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Trang chủ</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Theo dõi</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 NMN. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

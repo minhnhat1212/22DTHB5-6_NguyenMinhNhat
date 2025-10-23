@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Security trong Java - NMN Blog</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="blog-layout.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="home.html"><h2>NMN</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="home.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="cv.html" class="nav-link">CV</a>
+                </li>
+                <li class="nav-item">
+                    <a href="certificates.html" class="nav-link">Chứng chỉ</a>
+                </li>
+                <li class="nav-item">
+                    <a href="blog.html" class="nav-link active">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-link">Liên hệ</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="blog-detail">
+        <a href="blog.html" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại Blog
+        </a>
+        
+        <h1>Network Security trong Java: Bảo mật ứng dụng mạng</h1>
+        
+        <div class="blog-meta">
+            <span><i class="fa-brands fa-java"></i> Java</span>
+            <span><i class="fas fa-calendar"></i> 12/12/2024</span>
+            <span><i class="fas fa-clock"></i> 4 phút đọc</span>
+        </div>
+
+        <p>Bảo mật mạng là một khía cạnh quan trọng trong phát triển ứng dụng Java.</p>
+
+        <h2>1. Nó là gì?</h2>
+        
+        <p><strong>SSL/TLS:</strong> Giao thức mã hóa để bảo mật kết nối mạng giữa client và server.</p>
+        
+        <p><strong>Authentication:</strong> Xác thực danh tính người dùng hoặc hệ thống.</p>
+        
+        <p><strong>Authorization:</strong> Kiểm soát quyền truy cập vào tài nguyên.</p>
+        
+        <p><strong>Encryption:</strong> Mã hóa dữ liệu để bảo vệ thông tin nhạy cảm.</p>
+
+        <h2>2. Nó giúp ích cho tôi ra sao khi sử dụng?</h2>
+
+        <ul>
+            <li><strong>Bảo vệ dữ liệu:</strong> Mã hóa thông tin nhạy cảm trong quá trình truyền tải</li>
+            <li><strong>Xác thực người dùng:</strong> Đảm bảo chỉ người dùng hợp lệ mới có thể truy cập</li>
+            <li><strong>Kiểm soát quyền:</strong> Phân quyền truy cập theo vai trò và chức năng</li>
+            <li><strong>Tuân thủ quy định:</strong> Đáp ứng các yêu cầu bảo mật của pháp luật</li>
+            <li><strong>Xây dựng niềm tin:</strong> Tăng độ tin cậy của người dùng với ứng dụng</li>
+        </ul>
+
+        <h2>3. Cách sử dụng</h2>
+
+        <h3>3.1. SSL/TLS với Spring Boot</h3>
+
+        <pre><code class="language-java">// application.yml
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: classpath:keystore.p12
+    key-store-password: password
+    key-store-type: PKCS12
+    key-alias: tomcat
+
+// SSL Configuration
+@Configuration
+public class SSLConfig {
+    
+    @Bean
+    public TomcatServletWebServerFactory tomcatServletWebServerFactory() {
+        TomcatServletWebServerFactory factory = new TomcatServletWebServerFactory();
+        factory.addConnectorCustomizers(connector -> {
+            connector.setSecure(true);
+            connector.setScheme("https");
+            connector.setPort(8443);
+        });
+        return factory;
+    }
+}</code></pre>
+
+        <h3>3.2. JWT Authentication</h3>
+
+        <pre><code class="language-java">// JWT Service
+@Service
+public class JwtService {
+    
+    private final String SECRET_KEY = "mySecretKey";
+    
+    public String generateToken(String username) {
+        return Jwts.builder()
+            .setSubject(username)
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 24h
+            .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+            .compact();
+    }
+    
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token);
+            return true;
+        } catch (JwtException e) {
+            return false;
+        }
+    }
+}
+
+// Security Configuration
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+    
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf().disable()
+            .authorizeHttpRequests(authz -> authz
+                .requestMatchers("/api/public/**").permitAll()
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+        
+        return http.build();
+    }
+}</code></pre>
+
+        <h3>3.3. Input Validation và Sanitization</h3>
+
+        <pre><code class="language-java">// Input Validation
+@RestController
+public class UserController {
+    
+    @PostMapping("/api/users")
+    public ResponseEntity<User> createUser(@Valid @RequestBody CreateUserRequest request) {
+        // Validate input
+        if (request.getEmail() == null || !isValidEmail(request.getEmail())) {
+            throw new ValidationException("Invalid email format");
+        }
+        
+        // Sanitize input
+        String sanitizedName = sanitizeInput(request.getName());
+        
+        User user = new User();
+        user.setName(sanitizedName);
+        user.setEmail(request.getEmail());
+        
+        return ResponseEntity.ok(userService.save(user));
+    }
+    
+    private boolean isValidEmail(String email) {
+        return email.matches("^[A-Za-z0-9+_.-]+@(.+)$");
+    }
+    
+    private String sanitizeInput(String input) {
+        return input.replaceAll("[<>\"'&]", "");
+    }
+}</code></pre>
+
+        <h2>4. Kết luận</h2>
+
+        <p><strong>Khuyến nghị:</strong> Luôn implement bảo mật từ đầu dự án, sử dụng HTTPS, validate input và implement proper authentication/authorization.</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>NMN</h3>
+                    <p>Chia sẻ kiến thức về lập trình và công nghệ</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Trang chủ</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Theo dõi</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 NMN. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

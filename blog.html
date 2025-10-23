@@ -45,21 +45,54 @@
     <!-- Blog Section -->
     <section id="blog" class="blog-section">
         <div class="container">
-            <div class="section-header">
-                <h2>Blog Lập Trình</h2>
-                <p>Chia sẻ kiến thức về Java & JavaScript</p>
+            <!-- Hero Section -->
+            <div class="blog-hero">
+                <div class="hero-content">
+                    <h1 class="hero-title">Blog Lập Trình</h1>
+                    <p class="hero-subtitle">Chia sẻ kiến thức về Java & JavaScript</p>
+                    <div class="hero-stats">
+                        <div class="stat">
+                            <span class="stat-number">9</span>
+                            <span class="stat-label">Bài viết</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">2</span>
+                            <span class="stat-label">Chủ đề</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-number">∞</span>
+                            <span class="stat-label">Kiến thức</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             
+            <!-- Enhanced Filters -->
             <div class="blog-filters">
                 <div class="filter-group">
-                    <button class="filter-btn active" data-filter="all"><i class="fas fa-layer-group"></i> Tất cả</button>
-                    <button class="filter-btn" data-filter="java"><i class="fa-brands fa-java"></i> Java</button>
-                    <button class="filter-btn" data-filter="javascript"><i class="fa-brands fa-js"></i> JavaScript</button>
-                    <button class="filter-btn" data-filter="web"><i class="fas fa-globe"></i> Web Dev</button>
+                    <button class="filter-btn active" data-filter="all">
+                        <i class="fas fa-layer-group"></i>
+                        <span>Tất cả</span>
+                    </button>
+                    <button class="filter-btn" data-filter="java">
+                        <i class="fa-brands fa-java"></i>
+                        <span>Java</span>
+                    </button>
+                    <button class="filter-btn" data-filter="javascript">
+                        <i class="fa-brands fa-js"></i>
+                        <span>JavaScript</span>
+                    </button>
+                    <button class="filter-btn" data-filter="web">
+                        <i class="fas fa-globe"></i>
+                        <span>Web Dev</span>
+                    </button>
                 </div>
                 <div class="filter-actions">
                     <div class="sort-control">
-                        <label for="sortSelect"><i class="fas fa-sort"></i> Sắp xếp</label>
+                        <label for="sortSelect">
+                            <i class="fas fa-sort"></i>
+                            <span>Sắp xếp</span>
+                        </label>
                         <select id="sortSelect">
                             <option value="newest">Mới nhất</option>
                             <option value="oldest">Cũ nhất</option>
@@ -68,8 +101,12 @@
                         </select>
                     </div>
                     <div class="view-toggle" role="group" aria-label="Chế độ hiển thị">
-                        <button class="view-btn active" data-view="grid" title="Lưới"><i class="fas fa-grip"></i></button>
-                        <button class="view-btn" data-view="list" title="Danh sách"><i class="fas fa-list"></i></button>
+                        <button class="view-btn active" data-view="grid" title="Lưới">
+                            <i class="fas fa-grip"></i>
+                        </button>
+                        <button class="view-btn" data-view="list" title="Danh sách">
+                            <i class="fas fa-list"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -80,15 +117,15 @@
                     <div class="blog-content">
                         <div class="blog-meta">
                             <span class="blog-category">Java</span>
-                            <span class="blog-date">15/12/2024</span>
-                            <span class="blog-read-time">8 phút đọc</span>
+                            <span class="blog-date">20/12/2024</span>
+                            <span class="blog-read-time">12 phút đọc</span>
                         </div>
-                        <h3 class="blog-title">Spring Boot: Xây dựng RESTful API từ cơ bản đến nâng cao</h3>
+                        <h3 class="blog-title">Socket Programming trong Java: Xây dựng ứng dụng Client-Server</h3>
                         <p class="blog-excerpt">
-                            Hướng dẫn chi tiết cách xây dựng RESTful API với Spring Boot, từ cấu hình cơ bản 
-                            đến các tính năng nâng cao như security, validation và testing.
+                            Tìm hiểu cách sử dụng Java để xây dựng các ứng dụng client-server thông qua TCP và UDP sockets, 
+                            từ cơ bản đến các kỹ thuật nâng cao.
                         </p>
-                        <a href="spring-boot-rest-api.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                        <a href="socket-programming-java.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
 
@@ -97,15 +134,15 @@
                     <div class="blog-content">
                         <div class="blog-meta">
                             <span class="blog-category">JavaScript</span>
-                            <span class="blog-date">12/12/2024</span>
-                            <span class="blog-read-time">6 phút đọc</span>
+                            <span class="blog-date">18/12/2024</span>
+                            <span class="blog-read-time">10 phút đọc</span>
                         </div>
-                        <h3 class="blog-title">ES6+ Features: Những tính năng JavaScript hiện đại bạn cần biết</h3>
+                        <h3 class="blog-title">HTTP Client trong JavaScript: Từ XMLHttpRequest đến Fetch API</h3>
                         <p class="blog-excerpt">
-                            Khám phá các tính năng mới của JavaScript ES6+ như arrow functions, destructuring, 
-                            async/await và modules để viết code hiệu quả hơn.
+                            Khám phá các cách khác nhau để thực hiện HTTP requests trong JavaScript, 
+                            từ XMLHttpRequest cổ điển đến Fetch API hiện đại và Axios.
                         </p>
-                        <a href="es6-features-modern-js.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                        <a href="http-client-javascript.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
 
@@ -114,15 +151,15 @@
                     <div class="blog-content">
                         <div class="blog-meta">
                             <span class="blog-category">Java</span>
-                            <span class="blog-date">10/12/2024</span>
-                            <span class="blog-read-time">10 phút đọc</span>
+                            <span class="blog-date">16/12/2024</span>
+                            <span class="blog-read-time">15 phút đọc</span>
                         </div>
-                        <h3 class="blog-title">Bảo mật ứng dụng Java: JWT Authentication và Authorization</h3>
+                        <h3 class="blog-title">RESTful API với Java Spring Boot: Xây dựng Backend hiện đại</h3>
                         <p class="blog-excerpt">
-                            Tìm hiểu cách implement JWT authentication trong Java Spring Security, 
-                            quản lý user roles và permissions một cách an toàn.
+                            Hướng dẫn xây dựng một RESTful API hoàn chỉnh với Spring Boot, từ cấu hình cơ bản 
+                            đến các tính năng nâng cao như validation, testing và documentation.
                         </p>
-                        <a href="jwt-auth-spring-security.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                        <a href="restful-api-spring-boot.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
 
@@ -131,83 +168,83 @@
                     <div class="blog-content">
                         <div class="blog-meta">
                             <span class="blog-category">JavaScript</span>
-                            <span class="blog-date">08/12/2024</span>
-                            <span class="blog-read-time">7 phút đọc</span>
+                            <span class="blog-date">14/12/2024</span>
+                            <span class="blog-read-time">11 phút đọc</span>
                         </div>
-                        <h3 class="blog-title">Node.js: Xây dựng Server-side với JavaScript</h3>
+                        <h3 class="blog-title">WebSocket với JavaScript: Giao tiếp Real-time</h3>
                         <p class="blog-excerpt">
-                            Hướng dẫn tạo web server với Node.js, Express.js và kết nối database MongoDB 
-                            để xây dựng ứng dụng full-stack JavaScript.
+                            Tìm hiểu cách sử dụng WebSocket API trong JavaScript để xây dựng các ứng dụng real-time 
+                            như chat, notifications và live updates.
                         </p>
-                        <a href="nodejs-server-express-mongodb.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                        <a href="websocket-javascript.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
 
                 <!-- Blog Post 5 -->
-                <article class="blog-card" data-category="web">
-                    <div class="blog-content">
-                        <div class="blog-meta">
-                            <span class="blog-category">Web Development</span>
-                            <span class="blog-date">05/12/2024</span>
-                            <span class="blog-read-time">9 phút đọc</span>
-                        </div>
-                        <h3 class="blog-title">React.js: Component Lifecycle và State Management</h3>
-                        <p class="blog-excerpt">
-                            Tìm hiểu về lifecycle methods trong React, cách quản lý state với useState và useEffect, 
-                            cũng như best practices cho performance optimization.
-                        </p>
-                        <a href="react-lifecycle-state-management.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
-                    </div>
-                </article>
-
-                <!-- Blog Post 6 -->
                 <article class="blog-card" data-category="java">
                     <div class="blog-content">
                         <div class="blog-meta">
                             <span class="blog-category">Java</span>
-                            <span class="blog-date">03/12/2024</span>
-                            <span class="blog-read-time">12 phút đọc</span>
+                            <span class="blog-date">12/12/2024</span>
+                            <span class="blog-read-time">13 phút đọc</span>
                         </div>
-                        <h3 class="blog-title">Microservices Architecture với Spring Cloud</h3>
+                        <h3 class="blog-title">Network Security trong Java: Bảo mật ứng dụng mạng</h3>
                         <p class="blog-excerpt">
-                            Kiến trúc microservices với Spring Cloud, service discovery, API Gateway, 
-                            và cách xử lý distributed transactions trong hệ thống lớn.
+                            Các kỹ thuật và best practices để bảo mật ứng dụng Java, từ SSL/TLS, authentication, 
+                            authorization đến các biện pháp phòng chống tấn công mạng.
                         </p>
-                        <a href="microservices-spring-cloud.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                        <a href="network-security-java.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
 
-                <!-- Blog Post 7 -->
+                <!-- Blog Post 6 -->
                 <article class="blog-card" data-category="javascript">
                     <div class="blog-content">
                         <div class="blog-meta">
                             <span class="blog-category">JavaScript</span>
-                            <span class="blog-date">01/12/2024</span>
-                            <span class="blog-read-time">8 phút đọc</span>
+                            <span class="blog-date">10/12/2024</span>
+                            <span class="blog-read-time">9 phút đọc</span>
                         </div>
-                        <h3 class="blog-title">TypeScript: JavaScript với Type Safety</h3>
+                        <h3 class="blog-title">AJAX và Fetch API: Giao tiếp bất đồng bộ trong JavaScript</h3>
                         <p class="blog-excerpt">
-                            Tại sao nên sử dụng TypeScript, cách setup project, định nghĩa types và interfaces 
-                            để tăng tính ổn định và maintainability của code.
+                            Tìm hiểu các cách khác nhau để thực hiện HTTP requests trong JavaScript, 
+                            từ AJAX truyền thống đến Fetch API hiện đại và các kỹ thuật tối ưu hóa.
                         </p>
-                        <a href="typescript-type-safety.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                        <a href="ajax-fetch-api.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                    </div>
+                </article>
+
+                <!-- Blog Post 7 -->
+                <article class="blog-card" data-category="java">
+                    <div class="blog-content">
+                        <div class="blog-meta">
+                            <span class="blog-category">Java</span>
+                            <span class="blog-date">08/12/2024</span>
+                            <span class="blog-read-time">14 phút đọc</span>
+                        </div>
+                        <h3 class="blog-title">Microservices Communication: Giao tiếp giữa các dịch vụ</h3>
+                        <p class="blog-excerpt">
+                            Tìm hiểu các pattern và công nghệ để xây dựng giao tiếp hiệu quả giữa các microservices, 
+                            từ synchronous communication đến asynchronous messaging.
+                        </p>
+                        <a href="microservices-communication.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
 
                 <!-- Blog Post 8 -->
-                <article class="blog-card" data-category="web">
+                <article class="blog-card" data-category="javascript">
                     <div class="blog-content">
                         <div class="blog-meta">
-                            <span class="blog-category">Web Development</span>
-                            <span class="blog-date">28/11/2024</span>
-                            <span class="blog-read-time">11 phút đọc</span>
+                            <span class="blog-category">JavaScript</span>
+                            <span class="blog-date">06/12/2024</span>
+                            <span class="blog-read-time">12 phút đọc</span>
                         </div>
-                        <h3 class="blog-title">Tối ưu hóa Performance cho Web Application</h3>
+                        <h3 class="blog-title">Real-time Communication: Xây dựng ứng dụng thời gian thực</h3>
                         <p class="blog-excerpt">
-                            Các kỹ thuật tối ưu hóa performance: lazy loading, code splitting, caching strategies, 
-                            và monitoring tools để đảm bảo trải nghiệm người dùng tốt nhất.
+                            Tìm hiểu các công nghệ và pattern để xây dựng ứng dụng real-time, 
+                            từ WebSocket, Server-Sent Events đến các kỹ thuật tối ưu hóa performance.
                         </p>
-                        <a href="web-performance-optimization.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                        <a href="realtime-communication.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
 
@@ -216,15 +253,15 @@
                     <div class="blog-content">
                         <div class="blog-meta">
                             <span class="blog-category">Java</span>
-                            <span class="blog-date">25/11/2024</span>
-                            <span class="blog-read-time">9 phút đọc</span>
+                            <span class="blog-date">04/12/2024</span>
+                            <span class="blog-read-time">11 phút đọc</span>
                         </div>
-                        <h3 class="blog-title">Unit Testing và Integration Testing trong Java</h3>
+                        <h3 class="blog-title">Network Monitoring và Debugging: Giám sát và xử lý sự cố mạng</h3>
                         <p class="blog-excerpt">
-                            Hướng dẫn viết unit tests với JUnit 5, Mockito cho mocking, và integration tests 
-                            với TestContainers để đảm bảo chất lượng code.
+                            Các công cụ, kỹ thuật và best practices để giám sát, phân tích và xử lý sự cố 
+                            trong các ứng dụng mạng Java và JavaScript.
                         </p>
-                        <a href="unit-integration-testing-java.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
+                        <a href="network-monitoring-debugging.html" class="blog-link">Đọc thêm <i class="fas fa-arrow-right"></i></a>
                     </div>
                 </article>
             </div>

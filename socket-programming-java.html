@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Socket Programming trong Java - NMN Blog</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="blog-layout.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="home.html"><h2>NMN</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="home.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="cv.html" class="nav-link">CV</a>
+                </li>
+                <li class="nav-item">
+                    <a href="certificates.html" class="nav-link">Chứng chỉ</a>
+                </li>
+                <li class="nav-item">
+                    <a href="blog.html" class="nav-link active">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-link">Liên hệ</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="blog-detail">
+        <a href="blog.html" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại Blog
+        </a>
+        
+        <h1>Socket Programming trong Java: Xây dựng ứng dụng Client-Server</h1>
+        
+        <div class="blog-meta">
+            <span><i class="fa-brands fa-java"></i> Java</span>
+            <span><i class="fas fa-calendar"></i> 20/12/2024</span>
+            <span><i class="fas fa-clock"></i> 4 phút đọc</span>
+        </div>
+
+        <p>Socket programming là một trong những khái niệm cơ bản nhất trong lập trình mạng.</p>
+
+        <h2>1. Nó là gì?</h2>
+        
+        <p><strong>Socket:</strong> Endpoint của kết nối hai chiều giữa hai chương trình chạy trên mạng.</p>
+        
+        <p><strong>TCP Socket:</strong> Kết nối đáng tin cậy, đảm bảo dữ liệu được truyền đúng thứ tự và không bị mất.</p>
+        
+        <p><strong>UDP Socket:</strong> Kết nối không đáng tin cậy nhưng nhanh hơn, phù hợp cho streaming và real-time applications.</p>
+
+        <h2>2. Nó giúp ích cho tôi ra sao khi sử dụng?</h2>
+
+        <ul>
+            <li><strong>Giao tiếp mạng:</strong> Cho phép các ứng dụng giao tiếp với nhau qua mạng</li>
+            <li><strong>Xây dựng server:</strong> Tạo các dịch vụ mạng như web server, chat server</li>
+            <li><strong>Client applications:</strong> Kết nối đến các dịch vụ mạng từ ứng dụng client</li>
+            <li><strong>Real-time communication:</strong> Xây dựng ứng dụng chat, game online</li>
+            <li><strong>File transfer:</strong> Truyền tải file giữa các máy tính</li>
+        </ul>
+
+        <h2>3. Cách sử dụng</h2>
+
+        <h3>3.1. TCP Server</h3>
+
+        <pre><code class="language-java">import java.io.*;
+import java.net.*;
+
+public class TCPServer {
+    public static void main(String[] args) {
+        try {
+            ServerSocket serverSocket = new ServerSocket(8080);
+            System.out.println("Server đang lắng nghe trên port 8080...");
+            
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Client đã kết nối: " + clientSocket.getInetAddress());
+                
+                // Xử lý client trong thread riêng
+                new ClientHandler(clientSocket).start();
+            }
+        } catch (IOException e) {
+            System.err.println("Lỗi server: " + e.getMessage());
+        }
+    }
+}
+
+class ClientHandler extends Thread {
+    private Socket clientSocket;
+    
+    public ClientHandler(Socket socket) {
+        this.clientSocket = socket;
+    }
+    
+    public void run() {
+        try {
+            BufferedReader in = new BufferedReader(
+                new InputStreamReader(clientSocket.getInputStream())
+            );
+            PrintWriter out = new PrintWriter(
+                clientSocket.getOutputStream(), true
+            );
+            
+            String inputLine;
+            while ((inputLine = in.readLine()) != null) {
+                System.out.println("Nhận từ client: " + inputLine);
+                out.println("Server echo: " + inputLine);
+                
+                if (inputLine.equals("quit")) {
+                    break;
+                }
+            }
+            
+            clientSocket.close();
+        } catch (IOException e) {
+            System.err.println("Lỗi xử lý client: " + e.getMessage());
+        }
+    }
+}</code></pre>
+
+        <h3>3.2. TCP Client</h3>
+
+        <pre><code class="language-java">import java.io.*;
+import java.net.*;
+
+public class TCPClient {
+    public static void main(String[] args) {
+        String hostname = "localhost";
+        int port = 8080;
+        
+        try {
+            Socket socket = new Socket(hostname, port);
+            System.out.println("Đã kết nối đến server");
+            
+            BufferedReader in = new BufferedReader(
+                new InputStreamReader(socket.getInputStream())
+            );
+            PrintWriter out = new PrintWriter(
+                socket.getOutputStream(), true
+            );
+            BufferedReader userInput = new BufferedReader(
+                new InputStreamReader(System.in)
+            );
+            
+            String userInputLine;
+            while ((userInputLine = userInput.readLine()) != null) {
+                out.println(userInputLine);
+                
+                String response = in.readLine();
+                System.out.println("Server phản hồi: " + response);
+                
+                if (userInputLine.equals("quit")) {
+                    break;
+                }
+            }
+            
+            socket.close();
+        } catch (IOException e) {
+            System.err.println("Lỗi client: " + e.getMessage());
+        }
+    }
+}</code></pre>
+
+        <h3>3.3. UDP Socket</h3>
+
+        <pre><code class="language-java">// UDP Server
+import java.net.*;
+
+public class UDPServer {
+    public static void main(String[] args) {
+        try {
+            DatagramSocket socket = new DatagramSocket(8080);
+            byte[] buffer = new byte[1024];
+            
+            while (true) {
+                DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+                socket.receive(packet);
+                
+                String message = new String(packet.getData(), 0, packet.getLength());
+                System.out.println("Nhận từ client: " + message);
+                
+                // Echo lại
+                byte[] response = ("Server echo: " + message).getBytes();
+                DatagramPacket responsePacket = new DatagramPacket(
+                    response, response.length, packet.getAddress(), packet.getPort()
+                );
+                socket.send(responsePacket);
+            }
+        } catch (Exception e) {
+            System.err.println("Lỗi UDP server: " + e.getMessage());
+        }
+    }
+}
+
+// UDP Client
+import java.net.*;
+
+public class UDPClient {
+    public static void main(String[] args) {
+        try {
+            DatagramSocket socket = new DatagramSocket();
+            InetAddress address = InetAddress.getByName("localhost");
+            
+            String message = "Hello from UDP client";
+            byte[] buffer = message.getBytes();
+            
+            DatagramPacket packet = new DatagramPacket(
+                buffer, buffer.length, address, 8080
+            );
+            socket.send(packet);
+            
+            // Nhận phản hồi
+            byte[] responseBuffer = new byte[1024];
+            DatagramPacket responsePacket = new DatagramPacket(responseBuffer, responseBuffer.length);
+            socket.receive(responsePacket);
+            
+            String response = new String(responsePacket.getData(), 0, responsePacket.getLength());
+            System.out.println("Server phản hồi: " + response);
+            
+            socket.close();
+        } catch (Exception e) {
+            System.err.println("Lỗi UDP client: " + e.getMessage());
+        }
+    }
+}</code></pre>
+
+        <h2>4. Kết luận</h2>
+
+        <p><strong>Khuyến nghị:</strong> Sử dụng TCP cho các ứng dụng cần độ tin cậy cao, UDP cho các ứng dụng real-time cần tốc độ.</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>NMN</h3>
+                    <p>Chia sẻ kiến thức về lập trình và công nghệ</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Trang chủ</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Theo dõi</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 NMN. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

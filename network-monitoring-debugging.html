@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Monitoring và Debugging - NMN Blog</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="blog-layout.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="home.html"><h2>NMN</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="home.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="cv.html" class="nav-link">CV</a>
+                </li>
+                <li class="nav-item">
+                    <a href="certificates.html" class="nav-link">Chứng chỉ</a>
+                </li>
+                <li class="nav-item">
+                    <a href="blog.html" class="nav-link active">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-link">Liên hệ</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="blog-detail">
+        <a href="blog.html" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại Blog
+        </a>
+        
+        <h1>Network Monitoring và Debugging: Giám sát và xử lý sự cố mạng</h1>
+        
+        <div class="blog-meta">
+            <span><i class="fa-brands fa-java"></i> Java</span>
+            <span><i class="fas fa-calendar"></i> 04/12/2024</span>
+            <span><i class="fas fa-clock"></i> 4 phút đọc</span>
+        </div>
+
+        <p>Network monitoring và debugging là những kỹ năng quan trọng trong việc phát triển và vận hành ứng dụng mạng.</p>
+
+        <h2>1. Nó là gì?</h2>
+        
+        <p><strong>Network Monitoring:</strong> Theo dõi, đo lường và phân tích hiệu suất mạng để đảm bảo ứng dụng hoạt động ổn định.</p>
+        
+        <p><strong>Network Debugging:</strong> Xác định và khắc phục các vấn đề về kết nối, hiệu suất và lỗi trong ứng dụng mạng.</p>
+
+        <h2>2. Nó giúp ích cho tôi ra sao khi sử dụng?</h2>
+
+        <ul>
+            <li><strong>Phát hiện sớm vấn đề:</strong> Giám sát liên tục để phát hiện sự cố trước khi ảnh hưởng đến người dùng</li>
+            <li><strong>Tối ưu hiệu suất:</strong> Xác định bottlenecks và cải thiện tốc độ ứng dụng</li>
+            <li><strong>Giảm downtime:</strong> Xử lý nhanh các sự cố để giảm thời gian ngừng hoạt động</li>
+            <li><strong>Đảm bảo chất lượng:</strong> Duy trì SLA và trải nghiệm người dùng tốt</li>
+            <li><strong>Tiết kiệm chi phí:</strong> Tránh các sự cố lớn có thể gây thiệt hại</li>
+        </ul>
+
+        <h2>3. Cách sử dụng</h2>
+
+        <h3>3.1. Java - Custom Metrics với Micrometer</h3>
+
+        <pre><code class="language-java">@Component
+public class NetworkMetrics {
+    
+    private final MeterRegistry meterRegistry;
+    private final Timer httpRequestTimer;
+    private final Counter httpRequestCounter;
+    
+    public NetworkMetrics(MeterRegistry meterRegistry) {
+        this.meterRegistry = meterRegistry;
+        
+        this.httpRequestTimer = Timer.builder("http.requests.duration")
+            .description("HTTP request duration")
+            .register(meterRegistry);
+        
+        this.httpRequestCounter = Counter.builder("http.requests.total")
+            .description("Total HTTP requests")
+            .register(meterRegistry);
+    }
+    
+    public void recordHttpRequest(String method, String endpoint, Duration duration) {
+        Tags tags = Tags.of("method", method, "endpoint", endpoint);
+        httpRequestCounter.increment(tags);
+        httpRequestTimer.record(duration, tags);
+    }
+}</code></pre>
+
+        <h3>3.2. JavaScript - Performance API</h3>
+
+        <pre><code class="language-javascript">// Monitor network performance
+function monitorNetworkPerformance() {
+    // Resource Timing API
+    const resources = performance.getEntriesByType('resource');
+    
+    resources.forEach(resource => {
+        console.log(`Resource: ${resource.name}`);
+        console.log(`Duration: ${resource.duration}ms`);
+        console.log(`Transfer Size: ${resource.transferSize} bytes`);
+    });
+    
+    // Navigation Timing API
+    const navigation = performance.getEntriesByType('navigation')[0];
+    console.log(`Page Load Time: ${navigation.loadEventEnd - navigation.loadEventStart}ms`);
+}
+
+// Monitor fetch requests
+function monitorFetchRequests() {
+    const originalFetch = window.fetch;
+    
+    window.fetch = function(...args) {
+        const start = performance.now();
+        
+        return originalFetch.apply(this, args)
+            .then(response => {
+                const end = performance.now();
+                console.log(`Fetch to ${args[0]} took ${end - start}ms`);
+                return response;
+            });
+    };
+}</code></pre>
+
+        <h3>3.3. Debugging Tools</h3>
+
+        <pre><code class="language-javascript">// Network debugging utilities
+class NetworkDebugger {
+    static logRequest(url, method, data) {
+        console.group(`🌐 ${method} ${url}`);
+        console.log('Request Data:', data);
+        console.log('Timestamp:', new Date().toISOString());
+        console.groupEnd();
+    }
+    
+    static logResponse(url, response, duration) {
+        console.group(`📥 Response from ${url}`);
+        console.log('Status:', response.status);
+        console.log('Duration:', `${duration}ms`);
+        console.log('Data:', response.data);
+        console.groupEnd();
+    }
+    
+    static logError(url, error) {
+        console.group(`❌ Error for ${url}`);
+        console.error('Error:', error.message);
+        console.error('Stack:', error.stack);
+        console.groupEnd();
+    }
+}
+
+// Usage
+NetworkDebugger.logRequest('/api/users', 'GET', null);
+NetworkDebugger.logResponse('/api/users', response, 150);
+NetworkDebugger.logError('/api/users', error);</code></pre>
+
+        <h2>4. Kết luận</h2>
+
+        <p><strong>Khuyến nghị:</strong> Implement monitoring từ đầu dự án và sử dụng các công cụ debugging để nhanh chóng xác định và khắc phục vấn đề.</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>NMN</h3>
+                    <p>Chia sẻ kiến thức về lập trình và công nghệ</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Trang chủ</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Theo dõi</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 NMN. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Microservices Communication - NMN Blog</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="blog-layout.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="home.html"><h2>NMN</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="home.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="cv.html" class="nav-link">CV</a>
+                </li>
+                <li class="nav-item">
+                    <a href="certificates.html" class="nav-link">Chứng chỉ</a>
+                </li>
+                <li class="nav-item">
+                    <a href="blog.html" class="nav-link active">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-link">Liên hệ</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="blog-detail">
+        <a href="blog.html" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại Blog
+        </a>
+        
+        <h1>Microservices Communication: Giao tiếp giữa các dịch vụ</h1>
+        
+        <div class="blog-meta">
+            <span><i class="fa-brands fa-java"></i> Java</span>
+            <span><i class="fas fa-calendar"></i> 08/12/2024</span>
+            <span><i class="fas fa-clock"></i> 5 phút đọc</span>
+        </div>
+
+        <p>Trong kiến trúc microservices, việc giao tiếp giữa các dịch vụ là một thách thức quan trọng. Có hai cách chính: synchronous và asynchronous communication.</p>
+
+        <h2>1. Nó là gì?</h2>
+        
+        <p><strong>Synchronous Communication:</strong> Các dịch vụ giao tiếp trực tiếp với nhau và chờ phản hồi ngay lập tức (HTTP/REST, gRPC).</p>
+        
+        <p><strong>Asynchronous Communication:</strong> Các dịch vụ giao tiếp thông qua message queues hoặc event streaming mà không cần chờ phản hồi ngay lập tức.</p>
+
+        <h2>2. Nó giúp ích cho tôi ra sao khi sử dụng?</h2>
+
+        <ul>
+            <li><strong>Scalability:</strong> Có thể scale từng dịch vụ độc lập</li>
+            <li><strong>Resilience:</strong> Một dịch vụ lỗi không ảnh hưởng đến toàn bộ hệ thống</li>
+            <li><strong>Technology Diversity:</strong> Mỗi dịch vụ có thể sử dụng công nghệ khác nhau</li>
+            <li><strong>Team Independence:</strong> Các team có thể phát triển độc lập</li>
+            <li><strong>Fault Isolation:</strong> Lỗi được cô lập trong từng dịch vụ</li>
+        </ul>
+
+        <h2>3. Cách sử dụng</h2>
+
+        <h3>3.1. Synchronous Communication</h3>
+
+        <pre><code class="language-java">// Service Discovery với Eureka
+@SpringBootApplication
+@EnableEurekaClient
+@RestController
+public class UserServiceApplication {
+    
+    @Autowired
+    private RestTemplate restTemplate;
+    
+    @Bean
+    @LoadBalanced
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+    
+    @GetMapping("/users/{id}/orders")
+    public ResponseEntity<List<Order>> getUserOrders(@PathVariable Long id) {
+        String orderServiceUrl = "http://order-service/orders/user/" + id;
+        
+        try {
+            Order[] orders = restTemplate.getForObject(orderServiceUrl, Order[].class);
+            return ResponseEntity.ok(Arrays.asList(orders));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Collections.emptyList());
+        }
+    }
+}</code></pre>
+
+        <h3>3.2. Asynchronous Communication</h3>
+
+        <pre><code class="language-java">// RabbitMQ Producer
+@Service
+public class OrderEventPublisher {
+    
+    @Autowired
+    private RabbitTemplate rabbitTemplate;
+    
+    public void publishOrderCreated(Order order) {
+        OrderEvent event = new OrderEvent();
+        event.setOrderId(order.getId());
+        event.setUserId(order.getUserId());
+        event.setEventType("ORDER_CREATED");
+        event.setTimestamp(Instant.now());
+        
+        rabbitTemplate.convertAndSend("order.exchange", "order.created", event);
+    }
+}
+
+// RabbitMQ Consumer
+@RabbitListener(queues = "order.created.queue")
+public void handleOrderCreated(OrderEvent event) {
+    // Xử lý event order được tạo
+    System.out.println("Order created: " + event.getOrderId());
+}</code></pre>
+
+        <h2>4. Kết luận</h2>
+
+        <p><strong>Khuyến nghị:</strong> Sử dụng synchronous communication cho các tác vụ cần phản hồi ngay lập tức, và asynchronous communication cho các tác vụ có thể xử lý sau.</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>NMN</h3>
+                    <p>Chia sẻ kiến thức về lập trình và công nghệ</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Trang chủ</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Theo dõi</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 NMN. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

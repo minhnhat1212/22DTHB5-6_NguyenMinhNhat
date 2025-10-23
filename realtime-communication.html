@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Communication - NMN Blog</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism.min.css">
+    <link rel="stylesheet" href="blog-layout.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <a href="home.html"><h2>NMN</h2></a>
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="home.html" class="nav-link">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a href="cv.html" class="nav-link">CV</a>
+                </li>
+                <li class="nav-item">
+                    <a href="certificates.html" class="nav-link">Chứng chỉ</a>
+                </li>
+                <li class="nav-item">
+                    <a href="blog.html" class="nav-link active">Blog</a>
+                </li>
+                <li class="nav-item">
+                    <a href="contact.html" class="nav-link">Liên hệ</a>
+                </li>
+            </ul>
+            <div class="hamburger">
+                <span class="bar"></span>
+                <span class="bar"></span>
+                <span class="bar"></span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="blog-detail">
+        <a href="blog.html" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Quay lại Blog
+        </a>
+        
+        <h1>Real-time Communication: Xây dựng ứng dụng thời gian thực</h1>
+        
+        <div class="blog-meta">
+            <span><i class="fa-brands fa-js"></i> JavaScript</span>
+            <span><i class="fas fa-calendar"></i> 06/12/2024</span>
+            <span><i class="fas fa-clock"></i> 4 phút đọc</span>
+        </div>
+
+        <p>Real-time communication đã trở thành một phần không thể thiếu trong các ứng dụng web hiện đại.</p>
+
+        <h2>1. Nó là gì?</h2>
+        
+        <p><strong>WebSocket:</strong> Giao thức full-duplex cho phép giao tiếp hai chiều giữa client và server với độ trễ thấp.</p>
+        
+        <p><strong>Server-Sent Events (SSE):</strong> Giao thức một chiều từ server đến client, dựa trên HTTP.</p>
+        
+        <p><strong>Long Polling:</strong> Kỹ thuật mở rộng thời gian chờ của HTTP request để nhận dữ liệu mới.</p>
+
+        <h2>2. Nó giúp ích cho tôi ra sao khi sử dụng?</h2>
+
+        <ul>
+            <li><strong>Trải nghiệm người dùng tốt:</strong> Cập nhật dữ liệu ngay lập tức không cần refresh</li>
+            <li><strong>Ứng dụng chat:</strong> Xây dựng hệ thống nhắn tin real-time</li>
+            <li><strong>Live notifications:</strong> Thông báo tức thì cho người dùng</li>
+            <li><strong>Collaborative tools:</strong> Làm việc nhóm với cập nhật đồng bộ</li>
+            <li><strong>Live data:</strong> Hiển thị dữ liệu thời gian thực như giá cổ phiếu, thời tiết</li>
+        </ul>
+
+        <h2>3. Cách sử dụng</h2>
+
+        <h3>3.1. WebSocket Server (Node.js)</h3>
+
+        <pre><code class="language-javascript">const WebSocket = require('ws');
+const wss = new WebSocket.Server({ port: 8080 });
+
+wss.on('connection', (ws) => {
+    console.log('Client connected');
+    
+    // Gửi tin nhắn chào mừng
+    ws.send(JSON.stringify({
+        type: 'welcome',
+        message: 'Connected to server'
+    }));
+    
+    // Xử lý tin nhắn từ client
+    ws.on('message', (data) => {
+        const message = JSON.parse(data);
+        
+        // Broadcast tin nhắn đến tất cả clients
+        wss.clients.forEach(client => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify({
+                    type: 'message',
+                    content: message.content,
+                    timestamp: new Date()
+                }));
+            }
+        });
+    });
+    
+    // Xử lý khi client ngắt kết nối
+    ws.on('close', () => {
+        console.log('Client disconnected');
+    });
+});</code></pre>
+
+        <h3>3.2. WebSocket Client (JavaScript)</h3>
+
+        <pre><code class="language-javascript">// Kết nối WebSocket
+const ws = new WebSocket('ws://localhost:8080');
+
+// Xử lý khi kết nối thành công
+ws.onopen = () => {
+    console.log('Connected to server');
+    
+    // Gửi tin nhắn
+    ws.send(JSON.stringify({
+        type: 'message',
+        content: 'Hello from client!'
+    }));
+};
+
+// Xử lý tin nhắn từ server
+ws.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    
+    switch (data.type) {
+        case 'welcome':
+            console.log('Welcome:', data.message);
+            break;
+        case 'message':
+            console.log('Message:', data.content);
+            break;
+    }
+};
+
+// Xử lý lỗi
+ws.onerror = (error) => {
+    console.error('WebSocket error:', error);
+};
+
+// Xử lý khi ngắt kết nối
+ws.onclose = () => {
+    console.log('Disconnected from server');
+};</code></pre>
+
+        <h3>3.3. Server-Sent Events (SSE)</h3>
+
+        <pre><code class="language-javascript">// Server (Node.js)
+app.get('/events', (req, res) => {
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
+    });
+    
+    // Gửi dữ liệu định kỳ
+    const interval = setInterval(() => {
+        res.write(`data: ${JSON.stringify({
+            message: 'Hello from SSE',
+            timestamp: new Date()
+        })}\n\n`);
+    }, 1000);
+    
+    // Dọn dẹp khi client ngắt kết nối
+    req.on('close', () => {
+        clearInterval(interval);
+    });
+});
+
+// Client (JavaScript)
+const eventSource = new EventSource('/events');
+
+eventSource.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    console.log('SSE Message:', data.message);
+};
+
+eventSource.onerror = (error) => {
+    console.error('SSE Error:', error);
+};</code></pre>
+
+        <h2>4. Kết luận</h2>
+
+        <p><strong>Khuyến nghị:</strong> Sử dụng WebSocket cho giao tiếp hai chiều, SSE cho streaming từ server, và Long Polling cho compatibility với browser cũ.</p>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>NMN</h3>
+                    <p>Chia sẻ kiến thức về lập trình và công nghệ</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Liên kết</h4>
+                    <ul>
+                        <li><a href="home.html">Trang chủ</a></li>
+                        <li><a href="cv.html">CV</a></li>
+                        <li><a href="blog.html">Blog</a></li>
+                        <li><a href="contact.html">Liên hệ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Theo dõi</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-github"></i></a>
+                        <a href="#"><i class="fab fa-linkedin"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 NMN. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
