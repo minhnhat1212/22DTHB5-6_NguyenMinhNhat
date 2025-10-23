@@ -44,10 +44,21 @@
     </nav>
 
     <div class="blog-detail">
-        <a href="blog.html" class="back-link">
-            <i class="fas fa-arrow-left"></i>
-            Quay lại Blog
-        </a>
+        <!-- Navigation Buttons -->
+        <div class="blog-navigation">
+            <a href="restful-api-spring-boot.html" class="nav-button">
+                <i class="fas fa-arrow-left"></i>
+                Bài trước
+            </a>
+            <a href="blog.html" class="nav-button primary">
+                <i class="fas fa-list"></i>
+                Danh sách Blog
+            </a>
+            <a href="http-client-javascript.html" class="nav-button">
+                <i class="fas fa-arrow-right"></i>
+                Bài tiếp theo
+            </a>
+        </div>
         
         <h1>AJAX và Fetch API: Giao tiếp bất đồng bộ trong JavaScript</h1>
         
@@ -146,6 +157,41 @@ async function postDataWithFetch() {
         <h2>4. Kết luận</h2>
 
         <p><strong>Khuyến nghị:</strong> Sử dụng Fetch API cho các dự án mới vì syntax đơn giản và hỗ trợ Promise tốt hơn XMLHttpRequest.</p>
+        
+        <!-- Related Posts -->
+        <div class="related-posts">
+            <h3><i class="fas fa-bookmark"></i> Bài viết liên quan</h3>
+            <div class="related-grid">
+                <div class="related-card">
+                    <h4><a href="restful-api-spring-boot.html">RESTful API với Spring Boot</a></h4>
+                    <p>Xây dựng RESTful API hiện đại với Java Spring Boot framework.</p>
+                </div>
+                <div class="related-card">
+                    <h4><a href="http-client-javascript.html">HTTP Client trong JavaScript</a></h4>
+                    <p>Từ XMLHttpRequest đến Fetch API - các cách thực hiện HTTP requests.</p>
+                </div>
+                <div class="related-card">
+                    <h4><a href="websocket-javascript.html">WebSocket với JavaScript</a></h4>
+                    <p>Giao tiếp real-time với WebSocket API trong JavaScript.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="blog-navigation">
+            <a href="restful-api-spring-boot.html" class="nav-button">
+                <i class="fas fa-arrow-left"></i>
+                Bài trước
+            </a>
+            <a href="blog.html" class="nav-button primary">
+                <i class="fas fa-list"></i>
+                Danh sách Blog
+            </a>
+            <a href="http-client-javascript.html" class="nav-button">
+                <i class="fas fa-arrow-right"></i>
+                Bài tiếp theo
+            </a>
+        </div>
     </div>
 
     <!-- Footer -->

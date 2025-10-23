@@ -44,10 +44,21 @@
     </nav>
 
     <div class="blog-detail">
-        <a href="blog.html" class="back-link">
-            <i class="fas fa-arrow-left"></i>
-            Quay lại Blog
-        </a>
+        <!-- Navigation Buttons -->
+        <div class="blog-navigation">
+            <a href="realtime-communication.html" class="nav-button">
+                <i class="fas fa-arrow-left"></i>
+                Bài trước
+            </a>
+            <a href="blog.html" class="nav-button primary">
+                <i class="fas fa-list"></i>
+                Danh sách Blog
+            </a>
+            <a href="network-security-java.html" class="nav-button">
+                <i class="fas fa-arrow-right"></i>
+                Bài tiếp theo
+            </a>
+        </div>
         
         <h1>Microservices Communication: Giao tiếp giữa các dịch vụ</h1>
         
@@ -138,6 +149,41 @@ public void handleOrderCreated(OrderEvent event) {
         <h2>4. Kết luận</h2>
 
         <p><strong>Khuyến nghị:</strong> Sử dụng synchronous communication cho các tác vụ cần phản hồi ngay lập tức, và asynchronous communication cho các tác vụ có thể xử lý sau.</p>
+        
+        <!-- Related Posts -->
+        <div class="related-posts">
+            <h3><i class="fas fa-bookmark"></i> Bài viết liên quan</h3>
+            <div class="related-grid">
+                <div class="related-card">
+                    <h4><a href="realtime-communication.html">Real-time Communication</a></h4>
+                    <p>Xây dựng ứng dụng thời gian thực với các công nghệ khác nhau.</p>
+                </div>
+                <div class="related-card">
+                    <h4><a href="network-security-java.html">Network Security trong Java</a></h4>
+                    <p>Bảo mật ứng dụng mạng Java với SSL/TLS, authentication và authorization.</p>
+                </div>
+                <div class="related-card">
+                    <h4><a href="restful-api-spring-boot.html">RESTful API với Spring Boot</a></h4>
+                    <p>Xây dựng RESTful API hiện đại với Java Spring Boot framework.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="blog-navigation">
+            <a href="realtime-communication.html" class="nav-button">
+                <i class="fas fa-arrow-left"></i>
+                Bài trước
+            </a>
+            <a href="blog.html" class="nav-button primary">
+                <i class="fas fa-list"></i>
+                Danh sách Blog
+            </a>
+            <a href="network-security-java.html" class="nav-button">
+                <i class="fas fa-arrow-right"></i>
+                Bài tiếp theo
+            </a>
+        </div>
     </div>
 
     <!-- Footer -->

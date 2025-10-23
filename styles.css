@@ -4418,10 +4418,19 @@ html {
 }
 
 .certificates-container {
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
     margin-top: 3rem;
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (max-width: 1200px) {
+    .certificates-container {
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    }
 }
 
 .certificate-item {
@@ -4431,7 +4440,10 @@ html {
     transition: all 0.3s ease;
     overflow: hidden;
     display: flex;
-    min-height: 600px;
+    flex-direction: column;
+    min-height: 450px;
+    max-width: 380px;
+    margin: 0 auto;
 }
 
 .certificate-item:hover {
@@ -4440,13 +4452,14 @@ html {
 }
 
 .certificate-sidebar {
-    width: 350px;
+    width: 100%;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    padding: 2rem;
+    padding: 1.5rem;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: space-between;
+    align-items: center;
     position: relative;
     overflow: hidden;
 }
@@ -4466,6 +4479,7 @@ html {
 .certificate-info {
     position: relative;
     z-index: 2;
+    flex: 1;
 }
 
 .certificate-icon {
@@ -4509,6 +4523,7 @@ html {
     gap: 0.8rem;
     position: relative;
     z-index: 2;
+    min-width: 120px;
 }
 
 .btn-download, .btn-open {
@@ -4539,6 +4554,7 @@ html {
 .certificate-viewer {
     flex: 1;
     position: relative;
+    min-height: 300px;
     background: #f8f9fa;
     display: flex;
     align-items: center;
@@ -4579,13 +4595,18 @@ html {
 
 /* Responsive Design for Certificates */
 @media (max-width: 1024px) {
+    .certificates-container {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+    }
+    
     .certificate-item {
-        min-height: 500px;
+        min-height: 400px;
+        max-width: 350px;
     }
     
     .certificate-sidebar {
-        width: 300px;
-        padding: 1.5rem;
+        padding: 1.2rem;
     }
     
     .certificate-icon i {
@@ -4595,14 +4616,11 @@ html {
     .certificate-details h3 {
         font-size: 1.2rem;
     }
-    
-    .pdf-viewer {
-        min-height: 500px;
-    }
 }
 
 @media (max-width: 768px) {
     .certificates-container {
+        grid-template-columns: 1fr;
         gap: 2rem;
         margin-top: 2rem;
     }
@@ -4610,6 +4628,7 @@ html {
     .certificate-item {
         flex-direction: column;
         min-height: auto;
+        max-width: 100%;
     }
     
     .certificate-sidebar {
@@ -4724,13 +4743,14 @@ html {
     object-fit: cover;
     border-radius: 8px;
     cursor: pointer;
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, filter 0.3s ease;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .certificate-image:hover {
-    transform: scale(1.02);
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    filter: brightness(1.1);
 }
 
 /* Button Styles */

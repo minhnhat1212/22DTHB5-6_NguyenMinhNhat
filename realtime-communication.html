@@ -44,10 +44,21 @@
     </nav>
 
     <div class="blog-detail">
-        <a href="blog.html" class="back-link">
-            <i class="fas fa-arrow-left"></i>
-            Quay lại Blog
-        </a>
+        <!-- Navigation Buttons -->
+        <div class="blog-navigation">
+            <a href="websocket-javascript.html" class="nav-button">
+                <i class="fas fa-arrow-left"></i>
+                Bài trước
+            </a>
+            <a href="blog.html" class="nav-button primary">
+                <i class="fas fa-list"></i>
+                Danh sách Blog
+            </a>
+            <a href="microservices-communication.html" class="nav-button">
+                <i class="fas fa-arrow-right"></i>
+                Bài tiếp theo
+            </a>
+        </div>
         
         <h1>Real-time Communication: Xây dựng ứng dụng thời gian thực</h1>
         
@@ -194,6 +205,41 @@ eventSource.onerror = (error) => {
         <h2>4. Kết luận</h2>
 
         <p><strong>Khuyến nghị:</strong> Sử dụng WebSocket cho giao tiếp hai chiều, SSE cho streaming từ server, và Long Polling cho compatibility với browser cũ.</p>
+        
+        <!-- Related Posts -->
+        <div class="related-posts">
+            <h3><i class="fas fa-bookmark"></i> Bài viết liên quan</h3>
+            <div class="related-grid">
+                <div class="related-card">
+                    <h4><a href="websocket-javascript.html">WebSocket với JavaScript</a></h4>
+                    <p>Giao tiếp real-time với WebSocket API trong JavaScript.</p>
+                </div>
+                <div class="related-card">
+                    <h4><a href="microservices-communication.html">Microservices Communication</a></h4>
+                    <p>Giao tiếp giữa các dịch vụ trong kiến trúc microservices.</p>
+                </div>
+                <div class="related-card">
+                    <h4><a href="http-client-javascript.html">HTTP Client trong JavaScript</a></h4>
+                    <p>Từ XMLHttpRequest đến Fetch API - các cách thực hiện HTTP requests.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Bottom Navigation -->
+        <div class="blog-navigation">
+            <a href="websocket-javascript.html" class="nav-button">
+                <i class="fas fa-arrow-left"></i>
+                Bài trước
+            </a>
+            <a href="blog.html" class="nav-button primary">
+                <i class="fas fa-list"></i>
+                Danh sách Blog
+            </a>
+            <a href="microservices-communication.html" class="nav-button">
+                <i class="fas fa-arrow-right"></i>
+                Bài tiếp theo
+            </a>
+        </div>
     </div>
 
     <!-- Footer -->
